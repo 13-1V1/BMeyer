@@ -1,0 +1,335 @@
+/* General Page Styles */
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
+    Arial, sans-serif;
+  line-height: 1.6;
+  margin: 0;
+  background-color: #f4f4f4;
+  color: #333;
+}
+
+/* Header */
+header {
+  background-color: white;
+  padding: 20px;
+  text-align: center;
+  border-bottom: 1px solid #ddd;
+}
+
+/* Styles for homepage header layout */
+.header-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 25px;
+  flex-wrap: wrap; /* Allows items to wrap on small screens */
+  margin-bottom: 20px; /* Adds space between this content and the nav */
+}
+
+.profile-picture {
+  width: 120px;
+  height: 160px;
+  border-radius: 8px; /* Creates a square with rounded corners */
+  object-fit: cover; /* Prevents image distortion */
+  border: 3px solid #024212; /* Optional: adds a colored border */
+}
+
+.header-text {
+  text-align: left;
+}
+
+.header-text .tagline {
+  margin-bottom: 0;
+}
+
+header h1 {
+  margin: 0;
+  font-size: 2rem;
+  color: #024212;
+}
+
+.tagline {
+  font-size: 1.1em;
+  color: #555;
+  margin: 5px 0 15px;
+}
+
+/* Navigation */
+nav {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+nav a {
+  text-decoration: none;
+  color: #024212;
+  font-weight: bold;
+  padding: 5px 10px;
+  border-radius: 4px;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+nav a:hover,
+nav a.active {
+  background-color: #2bb808;
+  color: white;
+}
+
+/* Main Content */
+main {
+  max-width: 900px;
+  margin: 20px auto;
+  padding: 10px;
+}
+
+section {
+  margin-bottom: 30px;
+}
+
+.intro {
+  margin-bottom: 20px;
+  font-size: 1.05em;
+}
+
+/* Lists */
+ul {
+  list-style-type: disc;
+  padding-left: 20px;
+}
+
+/* Subject Cards */
+.subject-list {
+  list-style-type: none;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+}
+
+.subject-card {
+  display: block;
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  text-decoration: none;
+  color: inherit;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.subject-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.subject-card h3 {
+  margin-top: 0;
+  color: #024212;
+}
+
+/* Buttons & Links */
+.button {
+  display: inline-block;
+  padding: 10px 20px;
+  background-color: #024212;
+  color: white;
+  text-decoration: none;
+  border-radius: 5px;
+  font-weight: bold;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.button:hover {
+  background-color: #2bb808;
+  transform: scale(1.05);
+}
+
+.back-link {
+  color: #024212;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.back-link:hover {
+  text-decoration: underline;
+}
+
+/* Project Gallery */
+.project-gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.project-item {
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+  text-align: center;
+}
+
+.project-item img {
+  max-width: 100%;
+  height: auto;
+  aspect-ratio: 3 / 2; /* Gives images a consistent shape */
+  object-fit: cover; /* Prevents images from stretching */
+  display: block;
+}
+
+.project-item p {
+  padding: 15px;
+  margin: 0;
+}
+
+/* Footer */
+footer {
+  text-align: center;
+  padding: 15px;
+  background-color: white;
+  border-top: 1px solid #ddd;
+  margin-top: 30px;
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+footer p {
+  margin: 0;
+  color: #555;
+  font-size: 0.9em;
+}
+
+/* Mobile Adjustments */
+@media (max-width: 600px) {
+  nav {
+    flex-direction: column;
+    gap: 10px;
+  }
+  main {
+    /* Better padding on small screens */
+    padding: 10px 15px;
+  }
+}
+/* Transcript Table */
+.transcript-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+  background-color: white;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+.transcript-table th,
+.transcript-table td {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  text-align: left;
+}
+
+.transcript-table th {
+  background-color: #024212;
+  color: white;
+}
+
+.transcript-table tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+/* Contact Form */
+.contact-form {
+  background-color: white;
+  padding: 25px;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.contact-form label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+  color: #333;
+}
+
+.contact-form input,
+.contact-form textarea {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  box-sizing: border-box; /* Important for padding and width */
+  font-family: inherit;
+  font-size: 1em;
+}
+
+.contact-form input:focus,
+.contact-form textarea:focus {
+  outline: none;
+  border-color: #024212;
+  box-shadow: 0 0 0 2px rgba(2, 66, 18, 0.2);
+}
+
+.contact-form .button {
+  width: 100%;
+  border: none;
+  cursor: pointer;
+}
+
+/* Video Styles */
+.video-container {
+  margin-bottom: 25px;
+}
+
+.video-container video {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  background-color: #000; /* Shows a black box before video loads */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+/* Hero styling for homepage header content */
+.hero {
+  background: linear-gradient(
+      135deg,
+      rgba(2, 66, 18, 0.1),
+      rgba(43, 184, 8, 0.1)
+    ),
+    #f4f4f4;
+  padding: 30px 20px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+}
+
+/* Small text style for subtitles or notes */
+.small-text {
+  font-size: 0.9em;
+  color: #555;
+  margin-top: 8px;
+}
+
+/* Focus styles for accessibility */
+a:focus,
+button:focus,
+input:focus,
+textarea:focus {
+  outline: 3px solid #2bb808;
+  outline-offset: 3px;
+  transition: outline-offset 0.3s ease;
+}
+
+/* Footer improvements for small screens */
+@media (max-width: 400px) {
+  footer {
+    flex-direction: column;
+    gap: 10px;
+  }
+}
