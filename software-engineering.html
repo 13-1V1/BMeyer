@@ -47,6 +47,77 @@
           <li>Penetration Testing</li>
         </ul>
       </section>
+            <section>
+        <h2>C++ Final Project</h2>
+        <p>
+          For my final project in C++, I wrote a program that reads exam scores from a file,
+          calculates the average, determines how many scores are above and below average,
+          sorts them, and writes the results to a new file. It also identifies the highest
+          and lowest scores in the set.
+        </p>
+        <pre class="code-block"><code>#include &lt;iostream&gt;
+#include &lt;fstream&gt;
+using namespace std;
+
+void selectionSort(double scores[], int n);
+
+int main() {
+    int numel;
+    double sum = 0, avg, aAvg = 0, bAvg = 0;
+
+    ifstream fin;
+    fin.open("scores.dat");
+    cout &lt;&lt; "Enter the number of scores in the file: ";
+    cin &gt;&gt; numel;
+    double scores[numel];
+
+    for (int i = 0; i &lt; numel; i++) {
+        fin &gt;&gt; scores[i];
+        sum += scores[i];
+    }
+    fin.close();
+    avg = sum / numel;
+
+    for (int i = 0; i &lt; numel; i++) {
+        if (scores[i] &gt; avg) aAvg++;
+        if (scores[i] &lt; avg) bAvg++;
+    }
+
+    int n = sizeof(scores)/sizeof(scores[0]);
+    selectionSort(scores, n);
+
+    ofstream fout;
+    fout.open("averageInfo.dat");
+    fout &lt;&lt; "The sorted scores are:" &lt;&lt; endl;
+    for (int i = 0; i &lt; n; i++) {
+        fout &lt;&lt; scores[i] &lt;&lt; endl;
+    }
+    fout &lt;&lt; "The average of the scores is: " &lt;&lt; avg &lt;&lt; endl;
+    fout &lt;&lt; "The lowest score is: " &lt;&lt; scores[0] &lt;&lt; endl;
+    fout &lt;&lt; "The highest score is: " &lt;&lt; scores[numel - 1] &lt;&lt; endl;
+    fout &lt;&lt; "There are " &lt;&lt; bAvg &lt;&lt; " scores below the average." &lt;&lt; endl;
+    fout &lt;&lt; "There are " &lt;&lt; aAvg &lt;&lt; " scores above the average." &lt;&lt; endl;
+    fout.close();
+
+    cout &lt;&lt; "Done processing. You will find the results in averageInfo.dat." &lt;&lt; endl;
+    return 0;
+}
+
+void selectionSort(double arr[], int n) {
+    for (int i = 0; i &lt; n - 1; i++) {
+        for (int j = 0; j &lt; n - i - 1; j++) {
+            if (arr[j] &gt; arr[j + 1]) {
+                double temp = arr[j];
+                arr[j] = arr[j + 1];
+                arr[j + 1] = temp;
+            }
+        }
+    }
+}</code></pre>
+        <p>
+          <a href="CplusplusFinal.cpp" class="button">Download C++ Final Project</a>
+        </p>
+      </section>
     </main>
 
     <footer>
@@ -54,3 +125,4 @@
     </footer>
   </body>
 </html>
+
