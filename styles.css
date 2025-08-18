@@ -356,6 +356,20 @@ textarea:focus {
   font-weight: bold;
   font-size: 0.95rem;
 }
+.video-container {
+  margin: 30px 0;
+  text-align: center;
+}
+
+.video-container video,
+.video-container iframe {
+  width: 100%;
+  max-width: 700px;  /* keeps them from getting too wide */
+  height: auto;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
 
 }
+
 
