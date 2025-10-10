@@ -65,13 +65,36 @@
     <footer>
       <p>By: Brennan Meyer</p>
     </footer>
-    <iframe width="0" height="0" 
-        src="https://youtu.be/XMHFgIo6nCM?si=-K_HiUnXHpmEO-31" 
+  <button onclick="playMusic()" id="musicBtn">▶ Play Music</button>
+
+<iframe id="musicPlayer" width="0" height="0" 
+        src="" 
         frameborder="0" 
-        allow="autoplay; encrypted-media">
+        allow="autoplay; encrypted-media"
+        style="display: none;">
 </iframe>
+
+<script>
+let isPlaying = false;
+
+function playMusic() {
+    const player = document.getElementById('musicPlayer');
+    const button = document.getElementById('musicBtn');
+    
+    if (!isPlaying) {
+        player.src = 'https://youtu.be/XMHFgIo6nCM?si=HrJSUNPyFCRAq6t-';
+        button.innerHTML = '⏸ Pause Music';
+        isPlaying = true;
+    } else {
+        player.src = '';
+        button.innerHTML = '▶ Play Music';
+        isPlaying = false;
+    }
+}
+</script>
   </body>
 </html>
+
 
 
 
