@@ -65,14 +65,9 @@
     <footer>
       <p>By: Brennan Meyer</p>
     </footer>
-  <button onclick="playMusic()" id="musicBtn">▶ Play Music</button>
+  <button onclick="playMusic()" id="musicBtn">▶ Play "Music Healer" by Brennan Meyer</button>
 
-<iframe id="musicPlayer" width="0" height="0" 
-        src="" 
-        frameborder="0" 
-        allow="autoplay; encrypted-media"
-        style="display: none;">
-</iframe>
+<iframe width="560" height="315" src="https://www.youtube.com/embed/XMHFgIo6nCM?si=HrJSUNPyFCRAq6t-" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
 
 <script>
 let isPlaying = false;
@@ -87,13 +82,14 @@ function playMusic() {
         isPlaying = true;
     } else {
         player.src = '';
-        button.innerHTML = '▶ Play Music';
+        button.innerHTML = '▶ Play "Music Healer" by Brennan Meyer';
         isPlaying = false;
     }
 }
 </script>
   </body>
 </html>
+
 
 
 
