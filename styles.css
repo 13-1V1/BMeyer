@@ -85,13 +85,13 @@ nav a.active {
 .honors {
   display: flex;
   justify-content: center;
-  gap: 12px;
+  gap: 18px;
   margin: 10px 0 18px 0;
   align-items: center;
 }
 
 .honors img {
-  height: 32px;
+  height: 40px;
   width: auto;
   opacity: 0.9;
 }
@@ -367,3 +367,4 @@ textarea:focus {
     gap: 10px;
   }
 }
+
