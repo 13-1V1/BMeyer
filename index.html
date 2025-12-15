@@ -4,13 +4,16 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Brennan Meyer</title>
+
     <meta
       name="description"
-      content="Welcome to Brennan Meyer's portfolio showcasing software engineering, welding skills, projects, and academic journey."
+      content="Welcome to Brennan Meyer's portfolio."
     />
+
     <link rel="stylesheet" href="styles.css" />
     <link rel="icon" href="favicon.ico" />
   </head>
+
   <body>
     <header>
       <div class="header-content hero">
@@ -19,11 +22,15 @@
           alt="A profile picture of Brennan Meyer"
           class="profile-picture"
         />
+
         <div class="header-text">
           <h1>Brennan Meyer</h1>
-          <p class="tagline">A Student of Skills - Exploring Technology, Craft, and Creativity</p>
+          <p class="tagline">
+            A Student of Skills – Exploring Technology, Craft, and Creativity
+          </p>
         </div>
       </div>
+
       <nav role="navigation" aria-label="Main Navigation">
         <a href="index.html" class="active" aria-current="page">Home</a>
         <a href="software-engineering.html">Software Engineering</a>
@@ -32,22 +39,51 @@
         <a href="about.html">About</a>
       </nav>
     </header>
-  <div class="honors">
-  <img src="ptk_logo.png" alt="Phi Theta Kappa Honor Society">
-  <img src="nsls_logo.png" alt="The National Society of Leadership and Success">
-  </div>
+
+    <!-- Honor Society Badges -->
+    <div class="honors">
+      <img
+        src="ptk_logo.png"
+        alt="Phi Theta Kappa Honor Society"
+        title="Phi Theta Kappa – Academic Honor Society"
+      />
+      <img
+        src="nsls_logo.png"
+        alt="The National Society of Leadership and Success"
+        title="NSLS – Leadership Honor Society"
+      />
+    </div>
 
     <main>
       <section class="intro">
         <p>
           Welcome! I’m a passionate student exploring diverse fields — from
-          software engineering and welding to creative problem-solving. This
-          site showcases my learning journey, skills, and projects.
+          software engineering, machining, and welding to creative problem-solving. This
+          site documents my academic journey, skills, ambitions, and projects.
         </p>
-        <a href="transcripts.html" class="button">View My Transcripts</a>
+
+        <a href="transcripts.html" class="button">Transcripts</a>
+
         <p class="small-text">
           See detailed academic records and course achievements.
         </p>
+      </section>
+
+      <!-- Audio-Only Music Player -->
+      <section class="music-player">
+        <button id="musicToggle" aria-label="Play Music">▶</button>
+        <span class="music-label">
+          Music Healer by: Brennan Meyer
+          <em>(aka – B the Motivator)</em>
+        </span>
+
+        <!-- Hidden YouTube Player -->
+        <iframe
+          id="ytPlayer"
+          src="https://www.youtube.com/embed/XMHFgIo6nCM?enablejsapi=1"
+          allow="autoplay"
+          style="display: none"
+        ></iframe>
       </section>
 
       <ul class="subject-list">
@@ -57,6 +93,7 @@
             <p>My journey and projects in software development.</p>
           </a>
         </li>
+
         <li>
           <a href="welding.html" class="subject-card">
             <h3>Welding</h3>
@@ -69,46 +106,33 @@
     <footer>
       <p>By: Brennan Meyer</p>
     </footer>
-  <button onclick="playMusic()" id="musicBtn">▶ Play "Music Healer" by Brennan Meyer</button>
 
-<iframe width="560" height="315" src="https://www.youtube.com/embed/XMHFgIo6nCM?si=HrJSUNPyFCRAq6t-" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+    <!-- YouTube API + Audio Control Script -->
+    <script src="https://www.youtube.com/iframe_api"></script>
 
-<script>
-let isPlaying = false;
+    <script>
+      let player;
+      let isPlaying = false;
 
-function playMusic() {
-    const player = document.getElementById('musicPlayer');
-    const button = document.getElementById('musicBtn');
-    
-    if (!isPlaying) {
-        player.src = 'https://youtu.be/XMHFgIo6nCM?si=HrJSUNPyFCRAq6t-';
-        button.innerHTML = '⏸ Pause Music';
-        isPlaying = true;
-    } else {
-        player.src = '';
-        button.innerHTML = '▶ Play "Music Healer" by Brennan Meyer';
-        isPlaying = false;
-    }
-}
-</script>
+      function onYouTubeIframeAPIReady() {
+        player = new YT.Player("ytPlayer");
+      }
+
+      document
+        .getElementById("musicToggle")
+        .addEventListener("click", function () {
+          if (!player) return;
+
+          if (!isPlaying) {
+            player.playVideo();
+            this.textContent = "⏸";
+            isPlaying = true;
+          } else {
+            player.pauseVideo();
+            this.textContent = "▶";
+            isPlaying = false;
+          }
+        });
+    </script>
   </body>
 </html>
-
-
-
-
-
-
-
-  </body>
-</html>
-
-
-
-
-
-
-
-
-
-
