@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Computer Science – Brennan Meyer</title>
+    <!--
+      This page details the computer science courses Brennan has taken and
+      what he learned from each. It highlights programming fundamentals,
+      low‑level computing and the projects used to apply these skills.
+    -->
+    <meta
+      name="description"
+      content="Computer science coursework and projects completed by Brennan Meyer – C programming, Java, assembly language and more."
+    />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <header>
+      <div class="header-content">
+        <img
+          src="B-swaggy.jpg"
+          alt="Brennan Meyer portrait"
+          class="profile-picture"
+        />
+        <div class="header-text">
+          <h1>Computer Science</h1>
+          <p class="tagline">Programming from the ground up</p>
+        </div>
+      </div>
+      <nav role="navigation" aria-label="Main Navigation">
+        <a href="index.html">Home</a>
+        <a href="computer-science.html" class="active" aria-current="page"
+          >Computer Science</a
+        >
+        <a href="electronic-systems-technology.html"
+          >Electronic Systems Technology</a
+        >
+        <a href="welding.html">Welding</a>
+        <a href="network-technology.html">Network Technology</a>
+        <a href="manufacturing-technology.html">Manufacturing Technology</a>
+        <a href="electives.html">Electives</a>
+        <a href="contact.html">Contact</a>
+        <a href="about.html">About</a>
+      </nav>
+    </header>
+
+    <main>
+      <section>
+        <h2>Core Courses</h2>
+        <p>
+          My computer science curriculum has spanned languages and
+          abstraction levels – from high‑level object‑oriented programming to
+          assembly language. Each course built upon the last, strengthening
+          my analytical thinking and problem‑solving skills.
+        </p>
+        <ul>
+          <li>
+            <strong>CMPSCI‑235&nbsp;C++ Programming:</strong> Introduced C/C++ programming fundamentals, emphasising pointers, arrays, dynamic
+            memory and file I/O. This course taught me how to write
+            efficient, modular programs and gave me a strong foundation in
+            systems programming.
+          </li>
+          <li>
+            <strong>CMPSCI‑111 &amp; 111L&nbsp;Intro to Programming/Java:</strong>
+            Learned Java syntax, control structures, methods and basic
+            object‑oriented design. The lab component provided hands‑on
+            experience writing, testing and debugging programs.
+          </li>
+          <li>
+            <strong>CMPSCI‑122&nbsp;Architecture/Assembly Language:</strong>
+            Explored computer architecture and the relationship between
+            hardware and software. Programming in assembly language taught
+            me how processors execute instructions, manage registers and
+            memory, and handle branching and looping at the machine level.
+          </li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Applications &amp; Projects</h2>
+        <ul>
+          <li>
+            <strong>C++ Final Project – Sorting &amp; Statistics:</strong>
+            <p>
+              For my final project I designed a C++ program that processes a set of exam scores from a file. The program prompts the user for the number of scores, reads them into an array, computes the average, counts how many scores fall above and below that average, and then sorts the scores using a selection sort algorithm. After sorting, it writes the sorted list, the average, the highest and lowest scores, and the counts of scores above and below the average to a new file. This project demonstrated how to combine file handling, arrays, loops, conditions and a classic sorting algorithm to build a complete solution.
+            </p>
+            <pre><code>
+#include &lt;iostream&gt;
+#include &lt;fstream&gt;
+using namespace std;
+
+void selectionSort(double scores[], int n);
+
+int main() {
+    int numel;
+    double sum = 0, avg, aAvg = 0, bAvg = 0;
+
+    ifstream fin;
+    fin.open(&quot;scores.dat&quot;);
+    cout &lt;&lt; &quot;Enter the number of scores in the file: &quot;;
+    cin &gt;&gt; numel;
+    double scores[numel];
+
+    for (int i = 0; i &lt; numel; i++) {
+        fin &gt;&gt; scores[i];
+        sum += scores[i];
+    }
+    fin.close();
+    avg = sum / numel;
+
+    for (int i = 0; i &lt; numel; i++) {
+        if (scores[i] &gt; avg) aAvg++;
+        if (scores[i] &lt; avg) bAvg++;
+    }
+
+    int n = sizeof(scores)/sizeof(scores[0]);
+    selectionSort(scores, n);
+
+    ofstream fout;
+    fout.open(&quot;averageInfo.dat&quot;);
+    fout &lt;&lt; &quot;The sorted scores are:&quot; &lt;&lt; endl;
+    for (int i = 0; i &lt; n; i++) {
+        fout &lt;&lt; scores[i] &lt;&lt; endl;
+    }
+    fout &lt;&lt; &quot;The average of the scores is: &quot; &lt;&lt; avg &lt;&lt; endl;
+    fout &lt;&lt; &quot;The lowest score is: &quot; &lt;&lt; scores[0] &lt;&lt; endl;
+    fout &lt;&lt; &quot;The highest score is: &quot; &lt;&lt; scores[numel - 1] &lt;&lt; endl;
+    fout &lt;&lt; &quot;There are &quot; &lt;&lt; bAvg &lt;&lt; &quot; scores below the average.&quot; &lt;&lt; endl;
+    fout &lt;&lt; &quot;There are &quot; &lt;&lt; aAvg &lt;&lt; &quot; scores above the average.&quot; &lt;&lt; endl;
+    fout.close();
+
+    cout &lt;&lt; &quot;Done processing. You will find the results in averageInfo.dat.&quot; &lt;&lt; endl;
+    return 0;
+}
+
+void selectionSort(double arr[], int n) {
+    for (int i = 0; i &lt; n - 1; i++) {
+        for (int j = 0; j &lt; n - i - 1; j++) {
+            if (arr[j] &gt; arr[j + 1]) {
+                double temp = arr[j];
+                arr[j] = arr[j + 1];
+                arr[j + 1] = temp;
+            }
+        }
+    }
+}
+            </code></pre>
+          </li>
+          <li>
+            <strong>Java Final Project – Student Registration System:</strong>
+            <p>
+              My final Java project implemented a student registration system that demonstrates core object‑oriented programming principles. The system defined separate <code>Course</code> and <code>Student</code> classes with fields for IDs, names, departments, majors and lists of instructors or courses. A driver program read course and student data from text files, instantiated objects, linked students to their courses using IDs, and printed a complete roster. This project reinforced my skills with classes and objects, collections, file input/output, and designing modular code【3658693672412†L53-L60】.
+            </p>
+          </li>
+          <li>
+            <strong>Assembly Exercises:</strong> Completed assignments
+            translating high‑level algorithms into MIPS or x86 assembly
+            instructions. These exercises improved my understanding of how
+            compilers work and how data moves through a CPU.
+          </li>
+        </ul>
+      </section>
+
+    </main>
+
+    <footer>
+      <p>By: Brennan Meyer</p>
+      <p class="small-text">Last updated: Fall 2025</p>
+    </footer>
+  </body>
+</html>
