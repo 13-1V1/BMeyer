@@ -1,0 +1,18 @@
+{
+  "shapes": [
+    { "id": "1",  "type": "rect",   "mode": "add",      "rotation": 0, "groupId": null, "x": 0,   "y": 0,   "width": 240, "height": 160 },
+    { "id": "2",  "type": "rect",   "mode": "subtract",  "rotation": 0, "groupId": null, "x": 60,  "y": 40,  "width": 120, "height": 80 },
+    { "id": "3",  "type": "circle", "mode": "subtract",  "rotation": 0, "groupId": null, "cx": 20, "cy": 20, "radius": 7,  "holeSpec": { "type": "through", "thread": "M8" } },
+    { "id": "4",  "type": "circle", "mode": "subtract",  "rotation": 0, "groupId": null, "cx": 220,"cy": 20, "radius": 7,  "holeSpec": { "type": "through", "thread": "M8" } },
+    { "id": "5",  "type": "circle", "mode": "subtract",  "rotation": 0, "groupId": null, "cx": 20, "cy": 140,"radius": 7,  "holeSpec": { "type": "through", "thread": "M8" } },
+    { "id": "6",  "type": "circle", "mode": "subtract",  "rotation": 0, "groupId": null, "cx": 220,"cy": 140,"radius": 7,  "holeSpec": { "type": "through", "thread": "M8" } },
+    { "id": "7",  "type": "refline","mode": "add",       "rotation": 0, "groupId": null, "x1": -20,"y1": 80, "x2": 260,"y2": 80,  "arrowStart": false, "arrowEnd": false, "thickness": 1, "dashScale": 1 },
+    { "id": "8",  "type": "refline","mode": "add",       "rotation": 0, "groupId": null, "x1": 120,"y1": -20,"x2": 120,"y2": 180, "arrowStart": false, "arrowEnd": false, "thickness": 1, "dashScale": 1 },
+    { "id": "9",  "type": "label",  "mode": "add",       "rotation": 0, "groupId": null, "x": 70,  "y": 52,  "text": "CUTOUT", "fontSize": 4 },
+    { "id": "10", "type": "label",  "mode": "add",       "rotation": 0, "groupId": null, "x": 2,   "y": 2,   "text": "MOUNTING PLATE", "fontSize": 5 }
+  ],
+  "groups": {},
+  "datum": { "x": 0, "y": 0 },
+  "units": "mm",
+  "snapSize": 10
+}

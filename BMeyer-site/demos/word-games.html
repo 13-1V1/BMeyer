@@ -1,0 +1,80 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Word &amp; Text Games — Brennan Meyer</title>
+<style>
+:root{--bg:#0c0f14;--card:#141a22;--ink:#e8edf3;--muted:#8b97a7;--green:#3ddc84;--blue:#4aa8ff;--line:#222b36;--soft:#0a0d12;}
+*{box-sizing:border-box;}body{margin:0;background:var(--bg);color:var(--ink);font-family:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;line-height:1.6;
+ background-image:radial-gradient(50% 55% at 88% -12%,rgba(61,220,132,.10),transparent 60%),radial-gradient(45% 50% at 8% -8%,rgba(74,168,255,.10),transparent 60%);background-repeat:no-repeat;}
+a{color:inherit;text-decoration:none;}
+.wrap{max-width:640px;margin:0 auto;padding:28px 20px 60px;}
+.back{color:var(--muted);font-size:.9rem;}.back:hover{color:var(--green);}
+h1{font-size:1.8rem;margin:14px 0 4px;color:#fff;}
+h1 .hl{background:linear-gradient(100deg,var(--green),var(--blue));-webkit-background-clip:text;background-clip:text;color:transparent;}
+.sub{color:var(--muted);margin:0 0 18px;font-size:.95rem;}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px;}
+.tab{padding:8px 14px;border-radius:8px;background:var(--card);border:1px solid var(--line);color:var(--muted);cursor:pointer;font-size:.9rem;font-weight:500;}
+.tab.active{background:rgba(61,220,132,.12);color:var(--green);border-color:var(--green);}
+.panel{display:none;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:22px;}
+.panel.active{display:block;}
+label{display:block;font-size:.85rem;color:var(--muted);margin:12px 0 5px;}
+input,select,textarea{width:100%;background:var(--soft);border:1px solid var(--line);border-radius:8px;color:var(--ink);padding:10px 12px;font-size:1rem;font-family:inherit;}
+textarea{min-height:80px;resize:vertical;}
+.btn{margin-top:16px;display:inline-flex;align-items:center;gap:8px;padding:11px 22px;border-radius:9px;font-weight:600;font-size:.95rem;cursor:pointer;border:none;background:var(--green);color:#04130a;transition:transform .15s,filter .2s;}
+.btn:hover{filter:brightness(1.08);transform:translateY(-2px);}
+.out{margin-top:16px;padding:14px 16px;background:var(--soft);border:1px solid var(--line);border-radius:10px;font-size:1.05rem;min-height:24px;}
+.out b{color:var(--green);}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.mono{font-family:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;color:#c9d4e2;word-break:break-word;}
+small.note{color:var(--muted);font-size:.8rem;}
+</style>
+</head><body><div class="wrap">
+<a href="../computer-science.html" class="back" data-back>&#8592; Back to Computer Science</a>
+<h1><span class="hl">Word &amp; Text Games</span></h1>
+<p class="sub">A few little text toys I wrote in Python, rebuilt to play in the browser.</p>
+<div class="tabs">
+  <div class="tab active" data-t="morse">Morse code</div>
+  <div class="tab" data-t="hl">High–Low</div>
+  <div class="tab" data-t="pal">Palindrome</div>
+</div>
+
+<div class="panel active" id="morse">
+  <label>Type text to translate to Morse code</label>
+  <textarea id="mtext" oninput="morse()">this is just a test</textarea>
+  <div class="out mono" id="mout"></div>
+  <small class="note">Space becomes | and unknown characters become ?</small>
+</div>
+
+<div class="panel" id="hl">
+  <p style="margin:0 0 6px;color:var(--muted)">I'm thinking of a number between 1 and 100. Can you guess it?</p>
+  <label>Your guess</label>
+  <input id="hg" type="number" min="1" max="100" onkeydown="if(event.key==='Enter')guess()">
+  <button class="btn" onclick="guess()">Guess</button>
+  <button class="btn" style="background:#222b36;color:#e8edf3" onclick="newGame()">New game</button>
+  <div class="out" id="hout">Guesses: 0</div>
+</div>
+
+<div class="panel" id="pal">
+  <label>Enter a word or phrase</label>
+  <input id="ptext" oninput="pal()" value="A man a plan a canal Panama">
+  <div class="out" id="pout"></div>
+  <small class="note">Ignores spaces, punctuation, and capitalization.</small>
+</div>
+</div>
+<script>
+function tabs(){document.querySelectorAll('.tab').forEach(function(t){t.onclick=function(){
+ document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+ document.querySelectorAll('.panel').forEach(x=>x.classList.remove('active'));
+ t.classList.add('active');document.getElementById(t.dataset.t).classList.add('active');};});}
+tabs();
+var MC={a:".-",b:"-...",c:"-.-.",d:"-..",e:".",f:"..-.",g:"--.",h:"....",i:"..",j:".---",k:"-.-",l:".-..",m:"--",n:"-.",o:"---",p:".--.",q:"--.-",r:".-.",s:"...",t:"-",u:"..-",v:"...-",w:".--",x:"-..-",y:"-.--",z:"--..","0":"-----","1":".----","2":"..---","3":"...--","4":"....-","5":".....","6":"-....","7":"--...","8":"---..","9":"----."};
+function morse(){var t=document.getElementById('mtext').value.toLowerCase(),r="";for(var i=0;i<t.length;i++){var ch=t[i];if(MC[ch])r+=MC[ch]+" ";else if(ch===" ")r+="| ";else r+="? ";}document.getElementById('mout').textContent=r.trim();}
+morse();
+var target,guesses;function newGame(){target=Math.floor(Math.random()*100)+1;guesses=0;document.getElementById('hout').textContent='Guesses: 0';document.getElementById('hg').value='';}
+function guess(){var g=parseInt(document.getElementById('hg').value,10);if(!g)return;guesses++;var o=document.getElementById('hout');
+ if(g<target)o.innerHTML='Too low. &nbsp; Guesses: <b>'+guesses+'</b>';
+ else if(g>target)o.innerHTML='Too high. &nbsp; Guesses: <b>'+guesses+'</b>';
+ else o.innerHTML='Correct! The number was <b>'+target+'</b> — you got it in <b>'+guesses+'</b> guesses.';}
+newGame();
+function pal(){var s=document.getElementById('ptext').value.toLowerCase().replace(/[^a-z0-9]/g,'');var r=s.split('').reverse().join('');var o=document.getElementById('pout');
+ if(!s){o.textContent='';return;}o.innerHTML=(s===r)?'<b>Yes</b> — that’s a palindrome.':'Not a palindrome.';}
+pal();
+</script></body></html>

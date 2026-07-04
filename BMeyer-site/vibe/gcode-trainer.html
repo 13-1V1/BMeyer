@@ -1,0 +1,148 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>G-Code Trainer — Brennan Meyer</title>
+<style>
+:root{--bg:#0c0f14;--card:#141a22;--ink:#e8edf3;--muted:#8b97a7;--green:#3ddc84;--blue:#4aa8ff;--line:#222b36;--soft:#0a0d12;}
+*{box-sizing:border-box;}body{margin:0;background:var(--bg);color:var(--ink);font-family:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;line-height:1.6;
+ background-image:radial-gradient(50% 55% at 88% -12%,rgba(61,220,132,.10),transparent 60%),radial-gradient(45% 50% at 8% -8%,rgba(74,168,255,.10),transparent 60%);background-repeat:no-repeat;}
+a{color:inherit;text-decoration:none;}
+.wrap{max-width:960px;margin:0 auto;padding:28px 20px 60px;}
+.back{color:var(--muted);font-size:.9rem;}.back:hover{color:var(--green);}
+h1{font-size:1.8rem;margin:14px 0 4px;color:#fff;}
+h1 .hl{background:linear-gradient(100deg,var(--green),var(--blue));-webkit-background-clip:text;background-clip:text;color:transparent;}
+.sub{color:var(--muted);margin:0 0 18px;font-size:.95rem;}
+.layout{display:grid;grid-template-columns:1fr 1.1fr;gap:16px;}
+@media(max-width:760px){.layout{grid-template-columns:1fr;}}
+.pane{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;}
+textarea{width:100%;min-height:320px;background:var(--soft);border:1px solid var(--line);border-radius:8px;color:#c9d4e2;padding:12px;font-family:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;font-size:.85rem;line-height:1.5;resize:vertical;}
+.controls{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 16px;border-radius:8px;font-weight:600;font-size:.9rem;cursor:pointer;border:none;background:var(--green);color:#04130a;transition:transform .15s,filter .2s;}
+.btn.sec{background:#222b36;color:#e8edf3;}
+.btn:hover{filter:brightness(1.08);transform:translateY(-1px);}
+canvas{width:100%;background:var(--soft);border:1px solid var(--line);border-radius:8px;display:block;aspect-ratio:1;}
+.legend{display:flex;gap:16px;flex-wrap:wrap;margin-top:10px;font-size:.82rem;color:var(--muted);}
+.legend i{display:inline-block;width:18px;height:0;border-top-width:2px;border-top-style:solid;vertical-align:middle;margin-right:6px;}
+.state{margin-top:10px;font-size:.82rem;color:var(--muted);font-family:"JetBrains Mono",monospace;}
+.state b{color:var(--green);}
+small.note{color:var(--muted);font-size:.8rem;display:block;margin-top:8px;}
+.err{color:#ff9b8a;font-size:.82rem;margin-top:6px;white-space:pre-wrap;}
+</style></head><body><div class="wrap">
+<a href="../vibe-coding.html" class="back" data-back>&#8592; Back to Vibe Coding</a>
+<h1><span class="hl">G-Code Trainer</span></h1>
+<p class="sub">Write G-code, see the toolpath. Parses rapids, linear feeds, and arcs — then animates the tool through the program, just like the trainer I built for learning CNC.</p>
+<div style="background:#141a22;border:1px solid #222b36;border-left:3px solid #3ddc84;border-radius:10px;padding:12px 16px;margin:0 0 18px;font-size:.88rem;color:#8b97a7;"><b style="color:#e8edf3">Simplified web rebuild.</b> This browser version is a demo of my desktop app. <a href="../downloads.html" style="color:#3ddc84;font-weight:600;text-decoration:none">See downloads &#8594;</a><span style="display:block;margin-top:3px;font-size:.8rem;opacity:.8">Desktop builds are unsigned (made by me) — your browser or antivirus may warn.</span></div>
+<div class="layout">
+  <div class="pane">
+    <textarea id="code">; Demo — a bracket outline
+G21 ; mm
+G90 ; absolute
+G0 X10 Y10
+G1 X60 Y10 F200
+G1 X60 Y40
+G3 X50 Y50 I-10 J0
+G1 X20 Y50
+G2 X10 Y40 I0 J-10
+G1 X10 Y10
+G0 X0 Y0</textarea>
+    <div class="controls">
+      <button class="btn" id="run">&#9654; Run</button>
+      <button class="btn sec" id="draw">Draw path</button>
+      <button class="btn sec" id="clear">Clear</button>
+    </div>
+    <div class="err" id="err"></div>
+    <div class="state" id="state">Ready. Units: <b>mm</b> · Mode: <b>absolute</b></div>
+  </div>
+  <div class="pane">
+    <canvas id="cv" width="520" height="520"></canvas>
+    <div class="legend">
+      <span><i style="border-color:#4aa8ff;border-top-style:dashed"></i>Rapid (G0)</span>
+      <span><i style="border-color:#3ddc84"></i>Feed (G1/G2/G3)</span>
+    </div>
+    <small class="note">Supports G0/G1 (rapid/linear), G2/G3 (CW/CCW arcs via I/J), G20/G21 (in/mm), G90/G91 (absolute/incremental).</small>
+  </div>
+</div>
+<script>
+(function(){
+ var cv=document.getElementById('cv'),g=cv.getContext('2d');
+ var codeEl=document.getElementById('code'),errEl=document.getElementById('err'),stEl=document.getElementById('state');
+ function parse(text){
+   var segs=[],abs=true,units='mm',x=0,y=0,err='';
+   var lines=text.split(/\r?\n/);
+   for(var li=0;li<lines.length;li++){
+     var line=lines[li].replace(/;.*$/,'').replace(/\(.*?\)/g,'').trim();
+     if(!line)continue;
+     var toks=line.toUpperCase().match(/([A-Z])\s*(-?\d*\.?\d+)/g)||[];
+     var w={};toks.forEach(function(t){w[t[0]]=parseFloat(t.slice(1));});
+     if('G' in w){
+       if(w.G===20)units='in';else if(w.G===21)units='mm';
+       else if(w.G===90)abs=true;else if(w.G===91)abs=false;
+     }
+     var g0='G' in w?w.G:null;
+     var hasMove=('X'in w)||('Y'in w);
+     if(g0===0||g0===1||g0===2||g0===3||(g0===null&&hasMove)){
+       var nx=('X'in w)?(abs?w.X:x+w.X):x, ny=('Y'in w)?(abs?w.Y:y+w.Y):y;
+       var mode=(g0===null)?1:g0;
+       if(mode===2||mode===3){
+         var cx=x+(w.I||0),cy=y+(w.J||0);
+         segs.push({t:'arc',x0:x,y0:y,x1:nx,y1:ny,cx:cx,cy:cy,cw:(mode===2)});
+       } else segs.push({t:mode===0?'rapid':'line',x0:x,y0:y,x1:nx,y1:ny});
+       x=nx;y=ny;
+     }
+   }
+   return {segs:segs,units:units,abs:abs,err:err};
+ }
+ function bounds(segs){
+   var mnx=1e9,mny=1e9,mxx=-1e9,mxy=-1e9;
+   segs.forEach(function(s){[[s.x0,s.y0],[s.x1,s.y1]].forEach(function(p){mnx=Math.min(mnx,p[0]);mny=Math.min(mny,p[1]);mxx=Math.max(mxx,p[0]);mxy=Math.max(mxy,p[1]);});
+     if(s.t==='arc'){var r=Math.hypot(s.x0-s.cx,s.y0-s.cy);mnx=Math.min(mnx,s.cx-r);mny=Math.min(mny,s.cy-r);mxx=Math.max(mxx,s.cx+r);mxy=Math.max(mxy,s.cy+r);}});
+   if(mnx>mxx){mnx=0;mny=0;mxx=100;mxy=100;}
+   return {mnx:mnx,mny:mny,mxx:mxx,mxy:mxy};
+ }
+ var view;
+ function setView(segs){
+   var b=bounds(segs),pad=30,w=cv.width,h=cv.height;
+   var sx=(w-2*pad)/Math.max(1,b.mxx-b.mnx),sy=(h-2*pad)/Math.max(1,b.mxy-b.mny);
+   var s=Math.min(sx,sy);
+   view={s:s,ox:pad-b.mnx*s,oy:h-pad+b.mny*s,b:b};
+ }
+ function tx(x){return view.ox+x*view.s;}
+ function ty(y){return view.oy-y*view.s;} // flip Y up
+ function grid(){
+   g.clearRect(0,0,cv.width,cv.height);
+   g.strokeStyle='#182029';g.lineWidth=1;
+   for(var i=0;i<=cv.width;i+=40){g.beginPath();g.moveTo(i,0);g.lineTo(i,cv.height);g.stroke();g.beginPath();g.moveTo(0,i);g.lineTo(cv.width,i);g.stroke();}
+   // origin axes
+   g.strokeStyle='#33404d';g.lineWidth=1.5;
+   g.beginPath();g.moveTo(tx(0),0);g.lineTo(tx(0),cv.height);g.stroke();
+   g.beginPath();g.moveTo(0,ty(0));g.lineTo(cv.width,ty(0));g.stroke();
+ }
+ function arc(s,cb){
+   var r=Math.hypot(s.x0-s.cx,s.y0-s.cy);
+   var a0=Math.atan2(s.y0-s.cy,s.x0-s.cx),a1=Math.atan2(s.y1-s.cy,s.x1-s.cx);
+   g.beginPath();g.arc(tx(s.cx),ty(s.cy),r*view.s,-a0,-a1,!s.cw);g.stroke();
+ }
+ function drawSeg(s){
+   if(s.t==='rapid'){g.strokeStyle='#4aa8ff';g.setLineDash([5,4]);g.lineWidth=1.5;g.beginPath();g.moveTo(tx(s.x0),ty(s.y0));g.lineTo(tx(s.x1),ty(s.y1));g.stroke();g.setLineDash([]);}
+   else if(s.t==='line'){g.strokeStyle='#3ddc84';g.setLineDash([]);g.lineWidth=2.4;g.beginPath();g.moveTo(tx(s.x0),ty(s.y0));g.lineTo(tx(s.x1),ty(s.y1));g.stroke();}
+   else{g.strokeStyle='#3ddc84';g.setLineDash([]);g.lineWidth=2.4;arc(s);}
+ }
+ function drawAll(anim){
+   var p=parse(codeEl.value);errEl.textContent=p.err||'';
+   stEl.innerHTML='Segments: <b>'+p.segs.length+'</b> · Units: <b>'+p.units+'</b> · Mode: <b>'+(p.abs?'absolute':'incremental')+'</b>';
+   if(!p.segs.length){grid();return;}
+   setView(p.segs);grid();
+   if(!anim){p.segs.forEach(drawSeg);tool(p.segs[p.segs.length-1].x1,p.segs[p.segs.length-1].y1);return;}
+   var i=0;
+   (function next(){
+     if(i>=p.segs.length)return;
+     drawSeg(p.segs[i]);tool(p.segs[i].x1,p.segs[i].y1);
+     i++;setTimeout(next,260);
+   })();
+ }
+ function tool(x,y){g.fillStyle='#fff';g.beginPath();g.arc(tx(x),ty(y),4,0,7);g.fill();g.strokeStyle='#3ddc84';g.lineWidth=2;g.beginPath();g.arc(tx(x),ty(y),7,0,7);g.stroke();}
+ document.getElementById('draw').onclick=function(){drawAll(false);};
+ document.getElementById('run').onclick=function(){drawAll(true);};
+ document.getElementById('clear').onclick=function(){codeEl.value='';grid();stEl.textContent='Cleared.';};
+ setView([{x0:0,y0:0,x1:100,y1:100}]);grid();drawAll(false);
+})();
+</script>
+</body></html>

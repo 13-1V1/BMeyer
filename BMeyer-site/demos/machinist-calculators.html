@@ -1,0 +1,97 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Machinist Calculators — Brennan Meyer</title>
+<style>
+:root{--bg:#0c0f14;--card:#141a22;--ink:#e8edf3;--muted:#8b97a7;--green:#3ddc84;--blue:#4aa8ff;--line:#222b36;--soft:#0a0d12;}
+*{box-sizing:border-box;}body{margin:0;background:var(--bg);color:var(--ink);font-family:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;line-height:1.6;
+ background-image:radial-gradient(50% 55% at 88% -12%,rgba(61,220,132,.10),transparent 60%),radial-gradient(45% 50% at 8% -8%,rgba(74,168,255,.10),transparent 60%);background-repeat:no-repeat;}
+a{color:inherit;text-decoration:none;}
+.wrap{max-width:640px;margin:0 auto;padding:28px 20px 60px;}
+.back{color:var(--muted);font-size:.9rem;}.back:hover{color:var(--green);}
+h1{font-size:1.8rem;margin:14px 0 4px;color:#fff;}
+h1 .hl{background:linear-gradient(100deg,var(--green),var(--blue));-webkit-background-clip:text;background-clip:text;color:transparent;}
+.sub{color:var(--muted);margin:0 0 18px;font-size:.95rem;}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px;}
+.tab{padding:8px 14px;border-radius:8px;background:var(--card);border:1px solid var(--line);color:var(--muted);cursor:pointer;font-size:.9rem;font-weight:500;}
+.tab.active{background:rgba(61,220,132,.12);color:var(--green);border-color:var(--green);}
+.panel{display:none;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:22px;}
+.panel.active{display:block;}
+label{display:block;font-size:.85rem;color:var(--muted);margin:12px 0 5px;}
+input,select,textarea{width:100%;background:var(--soft);border:1px solid var(--line);border-radius:8px;color:var(--ink);padding:10px 12px;font-size:1rem;font-family:inherit;}
+textarea{min-height:80px;resize:vertical;}
+.btn{margin-top:16px;display:inline-flex;align-items:center;gap:8px;padding:11px 22px;border-radius:9px;font-weight:600;font-size:.95rem;cursor:pointer;border:none;background:var(--green);color:#04130a;transition:transform .15s,filter .2s;}
+.btn:hover{filter:brightness(1.08);transform:translateY(-2px);}
+.out{margin-top:16px;padding:14px 16px;background:var(--soft);border:1px solid var(--line);border-radius:10px;font-size:1.05rem;min-height:24px;}
+.out b{color:var(--green);}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.mono{font-family:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;color:#c9d4e2;word-break:break-word;}
+small.note{color:var(--muted);font-size:.8rem;}
+</style>
+</head><body><div class="wrap">
+<a href="../manufacturing.html" class="back" data-back>&#8592; Back to Manufacturing</a>
+<h1><span class="hl">Machinist Calculators</span></h1>
+<p class="sub">Shop-floor math from my machining classes — taper, speeds &amp; feeds, and surface speed. Rebuilt for the web from my Python tools.</p>
+
+<div class="tabs">
+  <div class="tab active" data-t="taper">Taper</div>
+  <div class="tab" data-t="sf">Speeds &amp; Feeds</div>
+  <div class="tab" data-t="sfm">Surface Speed</div>
+</div>
+
+<div class="panel active" id="taper">
+  <label>Solve for</label>
+  <select id="tsolve">
+    <option value="tpi">Taper per inch / foot</option>
+    <option value="large">Large diameter</option>
+    <option value="small">Small diameter</option>
+    <option value="len">Length of taper</option>
+  </select>
+  <div class="row">
+    <div><label>Large diameter (in)</label><input id="t_large" type="number" step="any"></div>
+    <div><label>Small diameter (in)</label><input id="t_small" type="number" step="any"></div>
+    <div><label>Length of taper (in)</label><input id="t_len" type="number" step="any"></div>
+    <div><label>Taper per inch</label><input id="t_tpi" type="number" step="any"></div>
+  </div>
+  <button class="btn" onclick="taper()">Calculate</button>
+  <div class="out" id="t_out">Enter values and calculate.</div>
+</div>
+
+<div class="panel" id="sf">
+  <div class="row">
+    <div><label>Cutting speed (SFM)</label><input id="s_cs" type="number" step="any" value="100"></div>
+    <div><label>Tool diameter (in)</label><input id="s_d" type="number" step="any" value="0.5"></div>
+    <div><label>Number of flutes</label><input id="s_fl" type="number" step="1" value="2"></div>
+    <div><label>Chip load (in/tooth)</label><input id="s_cl" type="number" step="any" value="0.004"></div>
+  </div>
+  <button class="btn" onclick="feeds()">Calculate</button>
+  <div class="out" id="s_out">RPM and feed rate will appear here.</div>
+  <small class="note">RPM = (SFM × 3.82) ÷ diameter · Feed = RPM × chip load × flutes</small>
+</div>
+
+<div class="panel" id="sfm">
+  <div class="row">
+    <div><label>Tool / stock diameter (in)</label><input id="m_d" type="number" step="any" value="1"></div>
+    <div><label>Spindle speed (RPM)</label><input id="m_rpm" type="number" step="any" value="382"></div>
+  </div>
+  <button class="btn" onclick="sfm()">Calculate</button>
+  <div class="out" id="m_out">Surface speed will appear here.</div>
+  <small class="note">SFM = (π × diameter × RPM) ÷ 12</small>
+</div>
+</div>
+<script>
+function tabs(){document.querySelectorAll('.tab').forEach(function(t){t.onclick=function(){
+ document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+ document.querySelectorAll('.panel').forEach(x=>x.classList.remove('active'));
+ t.classList.add('active');document.getElementById(t.dataset.t).classList.add('active');};});}
+tabs();
+var v=id=>parseFloat(document.getElementById(id).value);
+function taper(){
+ var s=document.getElementById('tsolve').value,o=document.getElementById('t_out');
+ if(s==='tpi'){var tpi=(v('t_large')-v('t_small'))/v('t_len');o.innerHTML='TPI: <b>'+tpi.toFixed(4)+'</b> &nbsp; TPF: <b>'+(tpi*12).toFixed(4)+'</b>';}
+ else if(s==='large'){o.innerHTML='Large diameter: <b>'+((v('t_tpi')*v('t_len'))+v('t_small')).toFixed(4)+' in</b>';}
+ else if(s==='small'){o.innerHTML='Small diameter: <b>'+(v('t_large')-(v('t_tpi')*v('t_len'))).toFixed(4)+' in</b>';}
+ else{o.innerHTML='Length of taper: <b>'+((v('t_large')-v('t_small'))/v('t_tpi')).toFixed(4)+' in</b>';}
+}
+function feeds(){var rpm=(v('s_cs')*3.82)/v('s_d');var fr=rpm*v('s_cl')*v('s_fl');
+ document.getElementById('s_out').innerHTML='Spindle: <b>'+Math.round(rpm)+' RPM</b> &nbsp; Feed rate: <b>'+fr.toFixed(2)+' in/min</b>';}
+function sfm(){document.getElementById('m_out').innerHTML='Surface speed: <b>'+((Math.PI*v('m_d')*v('m_rpm'))/12).toFixed(1)+' SFM</b>';}
+</script></body></html>
