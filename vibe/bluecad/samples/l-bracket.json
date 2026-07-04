@@ -1,0 +1,14 @@
+{
+  "shapes": [
+    { "id": "1", "type": "rect", "mode": "add", "rotation": 0, "groupId": "g1", "x": 0, "y": 0, "width": 60, "height": 200 },
+    { "id": "2", "type": "rect", "mode": "add", "rotation": 0, "groupId": "g1", "x": 0, "y": 150, "width": 200, "height": 50 },
+    { "id": "3", "type": "circle", "mode": "subtract", "rotation": 0, "groupId": null, "cx": 60, "cy": 150, "radius": 25 },
+    { "id": "4", "type": "circle", "mode": "subtract", "rotation": 0, "groupId": null, "cx": 30, "cy": 175, "radius": 8, "holeSpec": { "type": "through", "thread": "M8" } },
+    { "id": "5", "type": "circle", "mode": "subtract", "rotation": 0, "groupId": null, "cx": 130, "cy": 175, "radius": 8, "holeSpec": { "type": "through", "thread": "M8" } },
+    { "id": "6", "type": "circle", "mode": "subtract", "rotation": 0, "groupId": null, "cx": 30, "cy": 90, "radius": 6, "holeSpec": { "type": "blind", "depth": 15 } }
+  ],
+  "groups": { "g1": { "merged": true } },
+  "datum": { "x": 0, "y": 200 },
+  "units": "mm",
+  "snapSize": 10
+}

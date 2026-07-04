@@ -1,0 +1,34 @@
+{
+  "shapes": [
+    { "id": "1",  "type": "rect",      "mode": "add",      "rotation": 0, "groupId": "g1",  "x": 0,      "y": 0,      "width": 76.2,  "height": 127    },
+    { "id": "2",  "type": "rect",      "mode": "add",      "rotation": 0, "groupId": "g1",  "x": 0,      "y": 88.9,   "width": 152.4, "height": 38.1   },
+    { "id": "3",  "type": "circle",    "mode": "subtract",  "rotation": 0, "groupId": null,  "cx": 38.1,  "cy": 44.45, "radius": 19.05, "holeSpec": { "type": "through", "thread": "1.5\" BORE" } },
+    { "id": "4",  "type": "circle",    "mode": "subtract",  "rotation": 0, "groupId": null,  "cx": 19.05, "cy": 44.45, "radius": 3.175, "holeSpec": { "type": "through", "thread": "M5" } },
+    { "id": "5",  "type": "circle",    "mode": "subtract",  "rotation": 0, "groupId": null,  "cx": 57.15, "cy": 44.45, "radius": 3.175, "holeSpec": { "type": "through", "thread": "M5" } },
+    { "id": "6",  "type": "circle",    "mode": "subtract",  "rotation": 0, "groupId": null,  "cx": 38.1,  "cy": 25.4,  "radius": 3.175, "holeSpec": { "type": "through", "thread": "M5" } },
+    { "id": "7",  "type": "circle",    "mode": "subtract",  "rotation": 0, "groupId": null,  "cx": 38.1,  "cy": 63.5,  "radius": 3.175, "holeSpec": { "type": "through", "thread": "M5" } },
+    { "id": "8",  "type": "circle",    "mode": "subtract",  "rotation": 0, "groupId": null,  "cx": 9.525, "cy": 9.525, "radius": 3.969, "holeSpec": { "type": "through", "thread": "5/16\"" } },
+    { "id": "9",  "type": "circle",    "mode": "subtract",  "rotation": 0, "groupId": null,  "cx": 66.675,"cy": 9.525, "radius": 3.969, "holeSpec": { "type": "through", "thread": "5/16\"" } },
+    { "id": "10", "type": "circle",    "mode": "subtract",  "rotation": 0, "groupId": null,  "cx": 25.4,  "cy": 107.95,"radius": 3.969, "holeSpec": { "type": "through", "thread": "5/16\"" } },
+    { "id": "11", "type": "circle",    "mode": "subtract",  "rotation": 0, "groupId": null,  "cx": 127,   "cy": 107.95,"radius": 3.969, "holeSpec": { "type": "through", "thread": "5/16\"" } },
+    { "id": "12", "type": "refline",   "mode": "add",       "rotation": 0, "groupId": null,  "x1": -10,   "y1": 44.45, "x2": 86.2,  "y2": 44.45, "arrowStart": false, "arrowEnd": false, "thickness": 1, "dashScale": 1 },
+    { "id": "13", "type": "refline",   "mode": "add",       "rotation": 0, "groupId": null,  "x1": 38.1,  "y1": -10,   "x2": 38.1,  "y2": 98.9,  "arrowStart": false, "arrowEnd": false, "thickness": 1, "dashScale": 1 },
+    { "id": "14", "type": "label",     "mode": "add",       "rotation": 0, "groupId": null,  "x": 82,     "y": 2,      "text": "MOTOR MOUNTING BRACKET",   "fontSize": 5   },
+    { "id": "15", "type": "label",     "mode": "add",       "rotation": 0, "groupId": null,  "x": 82,     "y": 10,     "text": "MATL: 6061-T6 ALUMINUM",     "fontSize": 3.5 },
+    { "id": "16", "type": "label",     "mode": "add",       "rotation": 0, "groupId": null,  "x": 82,     "y": 17,     "text": "THK: 0.250\"  FINISH: ANODIZE","fontSize": 3.5 },
+    { "id": "17", "type": "arrowline", "mode": "add",       "rotation": 0, "groupId": null,  "x1": 82,    "y1": 44.45, "x2": 58,    "y2": 44.45, "arrowStart": false, "arrowEnd": true  }
+  ],
+  "groups": { "g1": { "id": "g1", "merged": true } },
+  "datum": { "x": 0, "y": 127 },
+  "units": "in",
+  "snapSize": 3.175,
+  "titleBlock": {
+    "title": "Motor Mounting Bracket",
+    "project": "BlueCAD Samples",
+    "drawnBy": "BlueCAD",
+    "date": "2026-06-29",
+    "scale": "1:1",
+    "rev": "A",
+    "sheet": "1 of 1"
+  }
+}

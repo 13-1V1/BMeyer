@@ -1,0 +1,2936 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>BlueCAD</title>
+  <style>
+/* ── Reset ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: #1a1a1a;
+  color: #e0e0e0;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  font-size: 13px;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* ── Top toolbar ── */
+#toolbar {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 10px;
+  background: #111;
+  border-bottom: 1px solid #2e2e2e;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+
+#toolbar .sep {
+  width: 1px; height: 22px;
+  background: #333;
+  margin: 0 3px;
+}
+
+#snap-select {
+  background: #222;
+  border: 1px solid #444;
+  color: #ccc;
+  border-radius: 4px;
+  font-size: 12px;
+  padding: 3px 6px;
+  cursor: pointer;
+  height: 26px;
+}
+#snap-select:focus { outline: none; border-color: #4af; }
+
+/* ── Main area ── */
+#main {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* ── Left sidebar ── */
+#sidebar {
+  width: 52px;
+  background: #111;
+  border-right: 1px solid #2e2e2e;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 10px 0;
+  gap: 5px;
+  flex-shrink: 0;
+}
+
+/* ── Canvas area ── */
+#canvas-wrap {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+}
+
+#canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+  cursor: crosshair;
+}
+
+#canvas.panning  { cursor: grab; }
+#canvas.grabbing { cursor: grabbing; }
+
+/* ── Status bar ── */
+#statusbar {
+  height: 26px;
+  background: #111;
+  border-top: 1px solid #2e2e2e;
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+  gap: 20px;
+  font-size: 12px;
+  color: #888;
+  flex-shrink: 0;
+}
+#statusbar span { color: #aaa; }
+#status-hint    { color: #444 !important; font-size: 11px; }
+
+/* ── Buttons (shared) ── */
+button {
+  background: #222;
+  border: 1px solid #3a3a3a;
+  color: #ccc;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  padding: 4px 9px;
+  transition: background 0.1s, border-color 0.1s;
+  white-space: nowrap;
+  height: 26px;
+}
+button:hover:not(:disabled) { background: #2e2e2e; border-color: #666; }
+button.active  { background: #1a3a5a; border-color: #4af; color: #4af; }
+button:disabled { opacity: 0.35; cursor: not-allowed; }
+
+/* Sidebar tool buttons — square */
+#sidebar button {
+  width: 38px; height: 38px;
+  padding: 0;
+  font-size: 17px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ── Title block overlay ── */
+#title-block {
+  display: none;
+  position: absolute;
+  bottom: 0; right: 0;
+  width: 520px;
+  background: #0d1520;
+  border-top: 2px solid #4af;
+  border-left: 2px solid #4af;
+  font-family: 'Courier New', monospace;
+  font-size: 11px;
+  z-index: 10;
+}
+#title-block.open { display: block; }
+
+.tb-grid {
+  display: grid;
+  grid-template-columns: 1fr 90px 70px;
+  grid-template-rows: repeat(3, 44px);
+  border-right: 1px solid #4af;
+  border-bottom: 1px solid #4af;
+}
+
+.tb-cell {
+  border-left: 1px solid #2a4060;
+  border-top: 1px solid #2a4060;
+  padding: 3px 6px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.tb-wide   { grid-column: span 1; }
+.tb-tall   { }
+.tb-span2  { grid-column: span 2; }
+
+.tb-label {
+  font-size: 9px;
+  color: #4af;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.tb-cell input {
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid #2a4060;
+  color: #e0e0e0;
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+  width: 100%;
+  padding: 1px 0;
+  outline: none;
+}
+.tb-cell input:focus { border-bottom-color: #4af; }
+.tb-cell input::placeholder { color: #334; }
+
+/* ── Precision modal ── */
+#precision-modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.55);
+  z-index: 100;
+  align-items: center;
+  justify-content: center;
+}
+#precision-modal.open { display: flex; }
+
+#precision-box {
+  background: #1a1a1a;
+  border: 1px solid #4af;
+  border-radius: 8px;
+  padding: 20px 24px;
+  min-width: 320px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+#precision-box h3 { font-size: 14px; color: #4af; font-weight: 600; }
+
+#precision-fields { display: flex; flex-direction: column; gap: 8px; }
+
+.prec-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.prec-row label {
+  width: 90px;
+  color: #888;
+  font-size: 12px;
+}
+.prec-row input {
+  flex: 1;
+  background: #111;
+  border: 1px solid #444;
+  color: #e0e0e0;
+  border-radius: 4px;
+  padding: 5px 8px;
+  font-size: 13px;
+}
+.prec-row input:focus { outline: none; border-color: #4af; }
+.prec-row input[type="checkbox"] {
+  width: 16px; height: 16px; flex: none; accent-color: #4af; cursor: pointer;
+}
+
+#precision-box .btn-row {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+/* ── Shared modal overlay + box ── */
+#label-modal, #hole-modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.55);
+  z-index: 100;
+  align-items: center;
+  justify-content: center;
+}
+#label-modal.open, #hole-modal.open, #about-modal.open { display: flex; }
+
+#about-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 200; align-items: center; justify-content: center; }
+#about-modal .modal-box { min-width: 300px; max-width: 380px; }
+.about-body { display: flex; flex-direction: column; gap: 6px; font-size: 12px; color: #ccc; }
+.about-version { color: #4af; font-size: 11px; letter-spacing: 0.04em; }
+.about-divider { height: 1px; background: #333; margin: 4px 0; }
+.about-line { color: #ccc; }
+.about-line strong { color: #eee; }
+.about-line a { color: #4af; text-decoration: none; }
+.about-line a:hover { text-decoration: underline; }
+
+.modal-box {
+  background: #1a1a1a;
+  border: 1px solid #4af;
+  border-radius: 8px;
+  padding: 20px 24px;
+  min-width: 300px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.modal-box h3 { font-size: 14px; color: #4af; font-weight: 600; }
+.modal-box .btn-row { display: flex; gap: 8px; justify-content: flex-end; }
+
+.prec-row select {
+  flex: 1;
+  background: #111;
+  border: 1px solid #444;
+  color: #e0e0e0;
+  border-radius: 4px;
+  padding: 5px 8px;
+  font-size: 13px;
+  cursor: pointer;
+}
+.prec-row select:focus { outline: none; border-color: #4af; }
+
+</style>
+</head>
+<body>
+
+  <!-- ── Top toolbar ── -->
+  <div id="toolbar">
+    <button id="btn-undo" title="Undo (Ctrl+Z)">↩</button>
+    <button id="btn-redo" title="Redo (Ctrl+Y)">↪</button>
+
+    <div class="sep"></div>
+
+    <button id="btn-grid"  class="active" title="Toggle grid">⊞ Grid</button>
+    <button id="btn-snap"  class="active" title="Toggle snap">⊡ Snap</button>
+    <select id="snap-select" title="Snap increment"></select>
+
+    <div class="sep"></div>
+
+    <button id="btn-units" title="Toggle mm / inches">IN</button>
+
+    <div class="sep"></div>
+
+    <button id="btn-precision" title="Set exact dimensions (P)">⌨ Precision</button>
+    <button id="btn-subtract"  title="Toggle subtract / cut hole (–)">⊖ Subtract</button>
+    <button id="btn-group"     title="Group selected shapes" disabled>⬡ Group</button>
+    <button id="btn-merge"     title="Merge selected shapes (union — interior lines disappear)" disabled>⬡ Merge</button>
+    <button id="btn-ungroup"   title="Ungroup / unmerge selected" disabled>⬡ Ungroup</button>
+    <button id="btn-hole"      title="Set hole spec on selected circle" disabled>⌀ Hole</button>
+    <button id="btn-dims"      title="Toggle dimension annotations">📏 Dims</button>
+    <button id="btn-title"     title="Toggle title block">📋 Title</button>
+
+    <div class="sep"></div>
+
+    <button id="btn-new"    title="New project (clears canvas)">✦ New</button>
+    <button id="btn-save"   title="Save project">💾 Save</button>
+    <button id="btn-load"   title="Load project">📂 Load</button>
+    <button id="btn-export" title="Export SVG">↗ SVG</button>
+
+    <div class="sep"></div>
+
+    <button id="btn-about" title="About BlueCAD">ℹ About</button>
+  </div>
+
+  <!-- ── Main area ── -->
+  <div id="main">
+
+    <!-- ── Left sidebar: drawing tools (top→bottom order) ── -->
+    <div id="sidebar">
+      <button id="tool-hand"      title="Hand / Pan (H)">✋</button>
+      <button id="tool-select"    class="active" title="Select / Move (S)" style="font-size:18px">⊹</button>
+      <button id="tool-line"      title="Line (L)">╱</button>
+      <button id="tool-rect"      title="Rectangle (R)">▭</button>
+      <button id="tool-circle"    title="Circle (C)">◯</button>
+      <button id="tool-ellipse"   title="Ellipse (O)">⬭</button>
+      <button id="tool-refline"   title="Reference line dashed (F)" style="font-size:13px;letter-spacing:-1px">╌╌</button>
+      <button id="tool-arrowline" title="Arrow reference line (A)">→</button>
+      <button id="tool-label"     title="Label / Text (T)" style="font-size:13px">T</button>
+    </div>
+
+    <!-- ── Canvas ── -->
+    <div id="canvas-wrap">
+      <canvas id="canvas"></canvas>
+
+      <!-- Title block overlay — bottom right of canvas -->
+      <div id="title-block">
+        <div class="tb-grid">
+          <div class="tb-cell tb-wide tb-tall">
+            <div class="tb-label">DRAWING TITLE</div>
+            <input id="tb-title" type="text" placeholder="Untitled Drawing">
+          </div>
+          <div class="tb-cell">
+            <div class="tb-label">SCALE</div>
+            <input id="tb-scale" type="text" placeholder="1:1">
+          </div>
+          <div class="tb-cell">
+            <div class="tb-label">REV</div>
+            <input id="tb-rev" type="text" placeholder="A">
+          </div>
+
+          <div class="tb-cell tb-wide">
+            <div class="tb-label">PROJECT</div>
+            <input id="tb-project" type="text" placeholder="">
+          </div>
+          <div class="tb-cell">
+            <div class="tb-label">SHEET</div>
+            <input id="tb-sheet" type="text" placeholder="1 of 1">
+          </div>
+          <div class="tb-cell">
+            <div class="tb-label">DATE</div>
+            <input id="tb-date" type="text" placeholder="YYYY-MM-DD">
+          </div>
+
+          <div class="tb-cell tb-wide">
+            <div class="tb-label">DRAWN BY</div>
+            <input id="tb-drawnby" type="text" placeholder="">
+          </div>
+          <div class="tb-cell tb-span2">
+            <div class="tb-label">BLUECAD v2</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── Status bar ── -->
+  <div id="statusbar">
+    <span id="status-tool">Tool: Select</span>
+    <span id="status-coords">X: 0.0 mm   Y: 0.0 mm</span>
+    <span id="status-zoom">Zoom: 100%</span>
+    <span id="status-shapes">Shapes: 0</span>
+    <span id="status-hint" style="margin-left:auto;color:#555">
+      H=hand · S=select · L=line · R=rect · C=circle · O=oval · F=refline · A=arrow · T=label · P=precision · –=subtract · Shift+click=multi-select
+    </span>
+  </div>
+
+  <!-- ── Precision modal ── -->
+  <div id="precision-modal">
+    <div id="precision-box">
+      <h3 id="precision-title">Set Exact Dimensions</h3>
+      <div id="precision-fields"></div>
+      <div class="btn-row">
+        <button id="precision-cancel">Cancel</button>
+        <button id="precision-apply">Apply</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Label text modal ── -->
+  <div id="label-modal">
+    <div class="modal-box">
+      <h3>Add Label</h3>
+      <div class="prec-row">
+        <label>Text</label>
+        <input id="label-input" type="text" placeholder="Label text…">
+      </div>
+      <div class="btn-row">
+        <button id="label-cancel">Cancel</button>
+        <button id="label-ok">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Hole spec modal ── -->
+  <div id="hole-modal">
+    <div class="modal-box">
+      <h3>Hole Specification</h3>
+      <div class="prec-row">
+        <label>Type</label>
+        <select id="hole-type">
+          <option value="through">Through</option>
+          <option value="blind">Blind</option>
+        </select>
+      </div>
+      <div class="prec-row">
+        <label>Thread spec</label>
+        <input id="hole-thread" type="text" placeholder="e.g. M6×1.0">
+      </div>
+      <div class="prec-row" id="hole-depth-row">
+        <label>Depth</label>
+        <input id="hole-depth" type="number" step="any" value="10">
+      </div>
+      <div class="btn-row">
+        <button id="hole-cancel">Cancel</button>
+        <button id="hole-ok">Apply</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── About modal ── -->
+  <div id="about-modal">
+    <div class="modal-box">
+      <h3>BlueCAD</h3>
+      <div class="about-body">
+        <div class="about-version">Version 1.0 &nbsp;·&nbsp; 2026-06-29</div>
+        <div class="about-divider"></div>
+        <div class="about-line">Created by: <strong>Brennan Meyer</strong></div>
+        <div class="about-line">with use of ClaudeCode</div>
+        <div class="about-divider"></div>
+        <div class="about-line">Santa Clarita, CA</div>
+        <div class="about-line"><a href="mailto:brennanmmeyer@gmail.com">brennanmmeyer@gmail.com</a></div>
+      </div>
+      <div class="btn-row">
+        <button id="about-close">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+(function(){
+const __M = {};
+__M['state'] = (function(){
+// Single source of truth. Nothing draws itself — renderer reads this and paints.
+
+const state = {
+  shapes: [],          // all shapes on the canvas
+  selectedIds: [],     // array of selected shape ids (multi-select)
+  hoveredId: null,
+
+  tool: 'select',      // 'hand'|'select'|'line'|'rect'|'circle'|'ellipse'|'refline'|'arrowline'|'label'
+
+  units: 'in',
+  grid: { visible: true, snap: true, size: 25.4 },
+  snapSize: 25.4,
+
+  viewport: { offsetX: 0, offsetY: 0, scale: 2 },
+  cursor: { x: 0, y: 0 },
+
+  datum: { x: 0, y: 0 },
+
+  showDimensions: false,
+  showTitleBlock:  false,
+  titleBlock: {
+    title: '', project: '', drawnBy: '',
+    date: new Date().toISOString().slice(0, 10),
+    scale: '1:1', rev: 'A', sheet: '1 of 1',
+  },
+
+  groups: {},          // groupId -> { id, merged: bool }
+  alignGuides: [],     // [{ axis:'x'|'y', value:number }]
+
+  // Label placement in progress
+  pendingLabel: null,  // { x, y } in mm while label tool is active
+};
+
+// Convenience — first selected id (for single-selection operations like precision)
+function primaryId() { return state.selectedIds[0] ?? null; }
+function primaryShape() {
+  const id = primaryId();
+  return id ? state.shapes.find(s => s.id === id) : null;
+}
+
+  return { state, primaryId, primaryShape };
+})();
+__M['shapes'] = (function(){
+// Shape constructors — pure data, no drawing.
+// Every shape: id, type, mode, rotation (deg), groupId
+
+let _nextId = 1;
+function newId() { return String(_nextId++); }
+
+const base = (type, extra) => ({
+  id: newId(), type,
+  selected: false, mode: 'add',
+  rotation: 0, groupId: null,
+  ...extra,
+});
+
+const makeLine      = (x1,y1,x2,y2)     => base('line',     { x1,y1,x2,y2 });
+const makeRect      = (x,y,w,h)          => base('rect',     { x,y,width:w,height:h });
+const makeCircle    = (cx,cy,r)          => base('circle',   { cx,cy,radius:r });
+const makeEllipse   = (cx,cy,rx,ry)      => base('ellipse',  { cx,cy,rx,ry });
+const makeRefline   = (x1,y1,x2,y2)      => base('refline',  { x1,y1,x2,y2, arrowStart:false, arrowEnd:false, thickness:1, dashScale:1 });
+const makeArrowline = (x1,y1,x2,y2)      => base('arrowline',{ x1,y1,x2,y2, arrowStart:false, arrowEnd:true });
+const makeLabel     = (x,y,text,sz=3)    => base('label',    { x,y,text,fontSize:sz });
+
+// Centre point of any shape (used for rotation pivot)
+function shapeCenter(s) {
+  switch (s.type) {
+    case 'rect':               return { cx: s.x + s.width/2,    cy: s.y + s.height/2 };
+    case 'circle':             return { cx: s.cx,                cy: s.cy };
+    case 'ellipse':            return { cx: s.cx,                cy: s.cy };
+    case 'line': case 'refline': case 'arrowline':
+                               return { cx: (s.x1+s.x2)/2,      cy: (s.y1+s.y2)/2 };
+    case 'label':              return { cx: s.x,                 cy: s.y };
+    default:                   return { cx: 0, cy: 0 };
+  }
+}
+
+// Axis-aligned bounding box (ignores rotation)
+function shapeBBox(s) {
+  switch (s.type) {
+    case 'rect':     return { minX:s.x, minY:s.y, maxX:s.x+s.width, maxY:s.y+s.height };
+    case 'circle':   return { minX:s.cx-s.radius, minY:s.cy-s.radius, maxX:s.cx+s.radius, maxY:s.cy+s.radius };
+    case 'ellipse':  return { minX:s.cx-s.rx, minY:s.cy-s.ry, maxX:s.cx+s.rx, maxY:s.cy+s.ry };
+    case 'line': case 'refline': case 'arrowline':
+      return { minX:Math.min(s.x1,s.x2), minY:Math.min(s.y1,s.y2), maxX:Math.max(s.x1,s.x2), maxY:Math.max(s.y1,s.y2) };
+    case 'label': {
+      const len = (s.text || '').length;
+      const fs  = s.fontSize || 3;
+      return { minX:s.x, minY:s.y, maxX:s.x+len*fs*0.6, maxY:s.y+fs };
+    }
+    default: return { minX:0, minY:0, maxX:0, maxY:0 };
+  }
+}
+
+function isClosedShape(s) {
+  return s.type === 'rect' || s.type === 'circle' || s.type === 'ellipse';
+}
+
+  return { newId, makeLine, makeRect, makeCircle, makeEllipse, makeRefline, makeArrowline, makeLabel, shapeCenter, shapeBBox, isClosedShape };
+})();
+__M['grid'] = (function(){
+  const { state } = __M['state'];
+
+function snap(v) {
+  if (!state.grid.snap) return v;
+  const s = state.snapSize;
+  return Math.round(v / s) * s;
+}
+
+function toMM(px, py) {
+  const { offsetX, offsetY, scale } = state.viewport;
+  return { x: (px - offsetX) / scale, y: (py - offsetY) / scale };
+}
+
+function toPX(mx, my) {
+  const { offsetX, offsetY, scale } = state.viewport;
+  return { x: mx * scale + offsetX, y: my * scale + offsetY };
+}
+
+// Compute the visual grid spacing — always at least MIN_PX pixels between lines,
+// rounded up to a multiple of the current snap increment.
+function gridSpacing() {
+  const MIN_PX = 8;
+  const minMM = MIN_PX / state.viewport.scale;
+  const s     = state.snapSize;
+  return Math.max(s, Math.ceil(minMM / s) * s);
+}
+
+function snapOptions() {
+  if (state.units === 'mm') return [
+    { label:'10 mm',   value:10 },
+    { label:'5 mm',    value:5 },
+    { label:'2 mm',    value:2 },
+    { label:'1 mm',    value:1 },
+    { label:'0.5 mm',  value:0.5 },
+    { label:'0.25 mm', value:0.25 },
+    { label:'0.1 mm',  value:0.1 },
+  ];
+  return [
+    { label:'1"',    value:25.4 },
+    { label:'1/2"',  value:12.7 },
+    { label:'1/4"',  value:6.35 },
+    { label:'1/8"',  value:3.175 },
+    { label:'1/16"', value:1.5875 },
+    { label:'1/32"', value:0.79375 },
+  ];
+}
+
+  return { snap, toMM, toPX, gridSpacing, snapOptions };
+})();
+__M['alignment'] = (function(){
+  const { shapeCenter, shapeBBox, isClosedShape } = __M['shapes'];
+
+const THRESHOLD_MM = 2.5;
+
+function keyPoints(shape) {
+  const b = shapeBBox(shape);
+  switch (shape.type) {
+    case 'rect': case 'ellipse': case 'circle': {
+      const cx = (b.minX+b.maxX)/2, cy = (b.minY+b.maxY)/2;
+      return [
+        {x:b.minX,y:b.minY},{x:b.maxX,y:b.minY},
+        {x:b.minX,y:b.maxY},{x:b.maxX,y:b.maxY},
+        {x:cx,y:cy},{x:cx,y:b.minY},{x:cx,y:b.maxY},
+        {x:b.minX,y:cy},{x:b.maxX,y:cy},
+      ];
+    }
+    default: return [
+      {x:shape.x1,y:shape.y1},{x:shape.x2,y:shape.y2},
+      {x:(shape.x1+shape.x2)/2,y:(shape.y1+shape.y2)/2},
+    ];
+  }
+}
+
+function computeGuides(draggedShape, allShapes) {
+  const guides=[], seen=new Set();
+  let snapX=null, snapY=null, bestDX=THRESHOLD_MM, bestDY=THRESHOLD_MM;
+  const myPts = keyPoints(draggedShape);
+
+  for (const other of allShapes) {
+    if (other.id === draggedShape.id) continue;
+    for (const mp of myPts) {
+      for (const op of keyPoints(other)) {
+        const dx=Math.abs(mp.x-op.x), dy=Math.abs(mp.y-op.y);
+        if (dx<=THRESHOLD_MM) { const k=`x:${op.x}`; if(!seen.has(k)){seen.add(k);guides.push({axis:'x',value:op.x});} if(dx<bestDX){bestDX=dx;snapX=op.x-mp.x;} }
+        if (dy<=THRESHOLD_MM) { const k=`y:${op.y}`; if(!seen.has(k)){seen.add(k);guides.push({axis:'y',value:op.y});} if(dy<bestDY){bestDY=dy;snapY=op.y-mp.y;} }
+      }
+    }
+  }
+  return { guides, snapX, snapY };
+}
+
+function offsetShape(shape, dx, dy) {
+  const s = { ...shape };
+  switch (s.type) {
+    case 'line': case 'refline': case 'arrowline':
+      s.x1+=dx; s.y1+=dy; s.x2+=dx; s.y2+=dy; break;
+    case 'rect':   s.x+=dx;  s.y+=dy;   break;
+    case 'circle': case 'ellipse': s.cx+=dx; s.cy+=dy; break;
+    case 'label':  s.x+=dx;  s.y+=dy;   break;
+  }
+  return s;
+}
+
+  return { keyPoints, computeGuides, offsetShape };
+})();
+__M['dimensions'] = (function(){
+  const { state } = __M['state'];
+  const { shapeBBox } = __M['shapes'];
+// Engineer-style dimension annotations.
+// Draws extension lines, dimension lines with arrowheads, and measurement text.
+
+
+// Offsets in mm
+const EXT_OFFSET = 5;
+const DIM_OFFSET = 14;
+// Font is fixed pixels so it's always readable regardless of zoom
+const FONT_PX    = 11;
+
+function drawDimensions(ctx, scale) {
+  const fs = FONT_PX / scale;
+  ctx.save();
+  ctx.strokeStyle = '#a0c8ff';
+  ctx.fillStyle   = '#a0c8ff';
+  ctx.lineWidth   = 0.35 / scale;
+  ctx.font        = `${fs}px "Segoe UI", sans-serif`;
+  ctx.textAlign   = 'center';
+  ctx.textBaseline = 'middle';
+
+  const drawnGroupIds = new Set();
+  for (const shape of state.shapes) {
+    if (shape.mode === 'subtract') {
+      if (shape.type === 'circle' && !shape.groupId) dimHole(ctx, shape, scale);
+      continue;
+    }
+    if (shape.groupId && state.groups[shape.groupId]?.merged) {
+      if (!drawnGroupIds.has(shape.groupId)) {
+        drawnGroupIds.add(shape.groupId);
+        dimMergedGroup(ctx, shape.groupId, scale);
+      }
+      continue;
+    }
+    switch (shape.type) {
+      case 'rect':   dimRect(ctx, shape, scale);   break;
+      case 'circle': dimCircle(ctx, shape, scale); break;
+      case 'line':   dimLine(ctx, shape, scale);   break;
+    }
+  }
+  ctx.restore();
+}
+
+// ── Merged group ──────────────────────────────────────────────────────────────
+
+function dimMergedGroup(ctx, groupId, scale) {
+  const members = state.shapes.filter(s => s.groupId === groupId && s.mode !== 'subtract');
+  const rects   = members.filter(s => s.type === 'rect');
+  if (!rects.length) return;
+
+  let gMinX=Infinity, gMinY=Infinity, gMaxX=-Infinity, gMaxY=-Infinity;
+  for (const s of members) {
+    const b = shapeBBox(s);
+    gMinX=Math.min(gMinX,b.minX); gMinY=Math.min(gMinY,b.minY);
+    gMaxX=Math.max(gMaxX,b.maxX); gMaxY=Math.max(gMaxY,b.maxY);
+  }
+  const gW = gMaxX-gMinX, gH = gMaxY-gMinY;
+  if (gW < 0.1 || gH < 0.1) return;
+  const EPS = 0.5;
+
+  // Only keep breakpoints where the shape's coverage actually changes.
+  // An internal seam where two overlapping rects meet has the same coverage
+  // on both sides and should not generate a chain segment.
+  const innerXs = [...new Set(
+    rects.flatMap(s => [s.x, s.x+s.width])
+         .filter(x => x > gMinX+EPS && x < gMaxX-EPS)
+         .map(x => Math.round(x*10)/10)
+  )].sort((a,b)=>a-b)
+    .filter(x => !spansEqual(ySpanAt(rects, x-EPS/2), ySpanAt(rects, x+EPS/2)));
+
+  const innerYs = [...new Set(
+    rects.flatMap(s => [s.y, s.y+s.height])
+         .filter(y => y > gMinY+EPS && y < gMaxY-EPS)
+         .map(y => Math.round(y*10)/10)
+  )].sort((a,b)=>a-b)
+    .filter(y => !spansEqual(xSpanAt(rects, y-EPS/2), xSpanAt(rects, y+EPS/2)));
+
+  const hasX = innerXs.length > 0;
+  const hasY = innerYs.length > 0;
+
+  // ── TOP: chain dims then overall ──
+  if (hasX) {
+    const wy = gMinY - DIM_OFFSET;
+    const xs = [gMinX, ...innerXs, gMaxX];
+    for (let i=0; i<xs.length-1; i++) {
+      extLine(ctx, xs[i],   gMinY-EXT_OFFSET, xs[i],   wy, scale);
+      extLine(ctx, xs[i+1], gMinY-EXT_OFFSET, xs[i+1], wy, scale);
+      dimLineH(ctx, xs[i], xs[i+1], wy, fmtMM(xs[i+1]-xs[i]), scale);
+    }
+  }
+  const wyO = gMinY - DIM_OFFSET * (hasX ? 2.4 : 1);
+  extLine(ctx, gMinX, gMinY-EXT_OFFSET, gMinX, wyO, scale);
+  extLine(ctx, gMaxX, gMinY-EXT_OFFSET, gMaxX, wyO, scale);
+  dimLineH(ctx, gMinX, gMaxX, wyO, fmtMM(gW), scale);
+
+  // ── RIGHT: chain dims then overall ──
+  if (hasY) {
+    const hx = gMaxX + DIM_OFFSET;
+    const ys = [gMinY, ...innerYs, gMaxY];
+    for (let i=0; i<ys.length-1; i++) {
+      extLine(ctx, gMaxX+EXT_OFFSET, ys[i],   hx, ys[i],   scale);
+      extLine(ctx, gMaxX+EXT_OFFSET, ys[i+1], hx, ys[i+1], scale);
+      dimLineV(ctx, ys[i], ys[i+1], hx, fmtMM(ys[i+1]-ys[i]), scale);
+    }
+  }
+  const hxO = gMaxX + DIM_OFFSET * (hasY ? 2.4 : 1);
+  extLine(ctx, gMaxX+EXT_OFFSET, gMinY, hxO, gMinY, scale);
+  extLine(ctx, gMaxX+EXT_OFFSET, gMaxY, hxO, gMaxY, scale);
+  dimLineV(ctx, gMinY, gMaxY, hxO, fmtMM(gH), scale);
+
+  for (const s of members) {
+    if (s.type === 'circle') {
+      if (s.mode === 'subtract') dimHole(ctx, s, scale);
+      else dimCircle(ctx, s, scale);
+    }
+  }
+}
+
+// ── Rect ──────────────────────────────────────────────────────────────────────
+
+function dimRect(ctx, s, scale) {
+  const { x, y, width: w, height: h } = s;
+  const wy = y - DIM_OFFSET;
+  extLine(ctx, x,     y-EXT_OFFSET, x,     wy, scale);
+  extLine(ctx, x+w,   y-EXT_OFFSET, x+w,   wy, scale);
+  dimLineH(ctx, x, x+w, wy, fmtMM(w), scale);
+
+  const hx = x + w + DIM_OFFSET;
+  extLine(ctx, x+w+EXT_OFFSET, y,   hx, y,   scale);
+  extLine(ctx, x+w+EXT_OFFSET, y+h, hx, y+h, scale);
+  dimLineV(ctx, y, y+h, hx, fmtMM(h), scale);
+}
+
+// ── Circle ────────────────────────────────────────────────────────────────────
+
+function dimCircle(ctx, s, scale) {
+  const { cx, cy, radius: r } = s;
+  const label = `⌀ ${fmtMM(r * 2)}`;
+  const fs = FONT_PX / scale;
+  const al = 7 / scale;
+
+  if (r > al) {
+    // Large enough: dim line across with text breaking the middle
+    const tw = ctx.measureText(label).width;
+    const gap = tw / 2 + 3 / scale;
+    ctx.beginPath();
+    ctx.moveTo(cx-r, cy); ctx.lineTo(cx-gap, cy);
+    ctx.moveTo(cx+gap, cy); ctx.lineTo(cx+r, cy);
+    ctx.stroke();
+    arrowHead(ctx, cx-r, cy,  1, 0, scale);
+    arrowHead(ctx, cx+r, cy, -1, 0, scale);
+    labelBg(ctx, label, cx, cy, scale);
+    ctx.fillStyle = '#a0c8ff';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(label, cx, cy);
+  } else {
+    // Small: outside arrows
+    const ext = al * 2;
+    ctx.beginPath();
+    ctx.moveTo(cx-r-ext, cy); ctx.lineTo(cx-r, cy);
+    ctx.moveTo(cx+r, cy);     ctx.lineTo(cx+r+ext, cy);
+    ctx.stroke();
+    arrowHead(ctx, cx-r, cy, -1, 0, scale);
+    arrowHead(ctx, cx+r, cy,  1, 0, scale);
+    ctx.save();
+    ctx.fillStyle = '#a0c8ff';
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(label, cx+r+ext+1/scale, cy);
+    ctx.restore();
+  }
+}
+
+// ── Hole ──────────────────────────────────────────────────────────────────────
+
+function dimHole(ctx, s, scale) {
+  if (s.type !== 'circle') return;
+  const { cx, cy, radius: r } = s;
+  const { x: dx, y: dy } = state.datum;
+
+  const yLine = cy + r + DIM_OFFSET;
+  extLine(ctx, dx, cy+r+EXT_OFFSET, dx, yLine, scale);
+  extLine(ctx, cx, cy+r+EXT_OFFSET, cx, yLine, scale);
+  dimLineH(ctx, dx, cx, yLine, fmtMM(cx-dx), scale);
+
+  const xLine = cx - r - DIM_OFFSET;
+  extLine(ctx, cx-r-EXT_OFFSET, dy, xLine, dy, scale);
+  extLine(ctx, cx-r-EXT_OFFSET, cy, xLine, cy, scale);
+  dimLineV(ctx, dy, cy, xLine, fmtMM(cy-dy), scale);
+}
+
+// ── Line ─────────────────────────────────────────────────────────────────────
+
+function dimLine(ctx, s, scale) {
+  const { x1, y1, x2, y2 } = s;
+  const len = Math.hypot(x2-x1, y2-y1);
+  if (len < 0.1) return;
+
+  const label = fmtMM(len);
+  const ux = (x2-x1)/len, uy = (y2-y1)/len;
+  const nx = -uy, ny = ux;
+  const off = DIM_OFFSET;
+  const ax1 = x1+nx*off, ay1 = y1+ny*off;
+  const ax2 = x2+nx*off, ay2 = y2+ny*off;
+
+  extLine(ctx, x1+nx*EXT_OFFSET, y1+ny*EXT_OFFSET, ax1, ay1, scale);
+  extLine(ctx, x2+nx*EXT_OFFSET, y2+ny*EXT_OFFSET, ax2, ay2, scale);
+
+  const mx = (ax1+ax2)/2, my = (ay1+ay2)/2;
+  const tw = ctx.measureText(label).width;
+  const gap = tw/2 + 3/scale;
+  // Draw line in two halves with a gap for the label
+  const dl = Math.hypot(ax2-ax1, ay2-ay1);
+  const hx = (ax2-ax1)/dl, hy = (ay2-ay1)/dl;
+  ctx.beginPath();
+  ctx.moveTo(ax1, ay1); ctx.lineTo(mx-gap*hx, my-gap*hy);
+  ctx.moveTo(mx+gap*hx, my+gap*hy); ctx.lineTo(ax2, ay2);
+  ctx.stroke();
+  arrowHead(ctx, ax1, ay1,  hx,  hy, scale);
+  arrowHead(ctx, ax2, ay2, -hx, -hy, scale);
+
+  const angle = Math.atan2(ay2-ay1, ax2-ax1);
+  const a = angle > Math.PI/2 || angle < -Math.PI/2 ? angle+Math.PI : angle;
+  ctx.save();
+  ctx.translate(mx, my);
+  ctx.rotate(a);
+  const fs = FONT_PX / scale;
+  ctx.fillStyle = 'rgba(12,18,32,0.85)';
+  ctx.fillRect(-tw/2-2/scale, -fs*0.65, tw+4/scale, fs*1.3);
+  ctx.fillStyle = '#a0c8ff';
+  ctx.font = `${fs}px "Segoe UI", sans-serif`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(label, 0, 0);
+  ctx.restore();
+}
+
+// ── Primitives ────────────────────────────────────────────────────────────────
+
+function extLine(ctx, x1, y1, x2, y2, scale) {
+  ctx.save();
+  ctx.setLineDash([2/scale, 2/scale]);
+  ctx.beginPath();
+  ctx.moveTo(x1,y1); ctx.lineTo(x2,y2);
+  ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.restore();
+}
+
+// Horizontal dimension line — arrows at ends, text breaks the middle
+function dimLineH(ctx, x1, x2, y, label, scale) {
+  const tw  = ctx.measureText(label).width;
+  const gap = tw / 2 + 3 / scale;
+  const mx  = (x1 + x2) / 2;
+
+  ctx.beginPath();
+  ctx.moveTo(x1, y); ctx.lineTo(mx-gap, y);
+  ctx.moveTo(mx+gap, y); ctx.lineTo(x2, y);
+  ctx.stroke();
+
+  arrowHead(ctx, x1, y,  1, 0, scale);
+  arrowHead(ctx, x2, y, -1, 0, scale);
+
+  labelBg(ctx, label, mx, y, scale);
+  ctx.fillStyle = '#a0c8ff';
+  ctx.font = `${FONT_PX/scale}px "Segoe UI", sans-serif`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(label, mx, y);
+}
+
+// Vertical dimension line — arrows at ends, text breaks the middle (rotated)
+function dimLineV(ctx, y1, y2, x, label, scale) {
+  const tw  = ctx.measureText(label).width;
+  const gap = tw / 2 + 3 / scale;
+  const my  = (y1 + y2) / 2;
+
+  ctx.beginPath();
+  ctx.moveTo(x, y1); ctx.lineTo(x, my-gap);
+  ctx.moveTo(x, my+gap); ctx.lineTo(x, y2);
+  ctx.stroke();
+
+  arrowHead(ctx, x, y1,  0, 1, scale);
+  arrowHead(ctx, x, y2,  0,-1, scale);
+
+  const fs = FONT_PX / scale;
+  ctx.save();
+  ctx.translate(x, my);
+  ctx.rotate(Math.PI / 2);
+  ctx.fillStyle = 'rgba(12,18,32,0.85)';
+  ctx.fillRect(-tw/2-2/scale, -fs*0.65, tw+4/scale, fs*1.3);
+  ctx.fillStyle = '#a0c8ff';
+  ctx.font = `${fs}px "Segoe UI", sans-serif`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(label, 0, 0);
+  ctx.restore();
+}
+
+// Dark background pill behind a label so it reads cleanly over lines
+function labelBg(ctx, label, cx, cy, scale) {
+  const tw = ctx.measureText(label).width;
+  const fs = FONT_PX / scale;
+  ctx.save();
+  ctx.fillStyle = 'rgba(12,18,32,0.85)';
+  ctx.fillRect(cx - tw/2 - 2/scale, cy - fs*0.65, tw + 4/scale, fs*1.3);
+  ctx.restore();
+}
+
+// Arrow at (x,y) pointing in direction (dx,dy) — pixel-space size so always visible
+function arrowHead(ctx, x, y, dx, dy, scale) {
+  const l = 7 / scale, w = 2.5 / scale;
+  ctx.beginPath();
+  ctx.moveTo(x, y);
+  ctx.lineTo(x + l*dx - w*dy, y + l*dy + w*dx);
+  ctx.lineTo(x + l*dx + w*dy, y + l*dy - w*dx);
+  ctx.closePath();
+  ctx.fill();
+}
+
+// Arrow from (x1,y1) toward (x2,y2) with arrowhead at x1 end (used for diagonal lines)
+function arrow(ctx, x1, y1, x2, y2, scale) {
+  ctx.beginPath();
+  ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
+  const angle = Math.atan2(y2-y1, x2-x1);
+  arrowHead(ctx, x1, y1, Math.cos(angle), Math.sin(angle), scale);
+}
+
+// ── Live dims while drawing ───────────────────────────────────────────────────
+
+function drawLiveDims(ctx, ghost, scale) {
+  if (!ghost) return;
+  ctx.save();
+  ctx.strokeStyle = '#ffe066';
+  ctx.fillStyle   = '#ffe066';
+  ctx.lineWidth   = 0.35 / scale;
+  const fs = FONT_PX / scale;
+  ctx.font = `bold ${fs}px "Segoe UI", sans-serif`;
+  ctx.textAlign   = 'center';
+  ctx.textBaseline = 'middle';
+
+  switch (ghost.type) {
+    case 'rect': {
+      const { x, y, width:w, height:h } = ghost;
+      if (!w || !h) break;
+      ctx.fillText(fmtMM(w), x+w/2, y - 5/scale);
+      ctx.save();
+      ctx.translate(x+w + 5/scale, y+h/2);
+      ctx.rotate(Math.PI/2);
+      ctx.fillText(fmtMM(h), 0, 0);
+      ctx.restore();
+      break;
+    }
+    case 'circle': {
+      const d = (ghost.radius||0)*2;
+      if (!d) break;
+      ctx.fillText(`⌀${fmtMM(d)}`, ghost.cx, ghost.cy - ghost.radius - 3/scale);
+      break;
+    }
+    case 'ellipse': {
+      if (!ghost.rx || !ghost.ry) break;
+      ctx.fillText(`${fmtMM(ghost.rx*2)} × ${fmtMM(ghost.ry*2)}`, ghost.cx, ghost.cy - ghost.ry - 3/scale);
+      break;
+    }
+    case 'line': case 'refline': case 'arrowline': {
+      const len = Math.hypot(ghost.x2-ghost.x1, ghost.y2-ghost.y1);
+      if (!len) break;
+      const mx = (ghost.x1+ghost.x2)/2, my = (ghost.y1+ghost.y2)/2;
+      const nx = -(ghost.y2-ghost.y1)/len, ny = (ghost.x2-ghost.x1)/len;
+      ctx.fillText(fmtMM(len), mx + nx*4/scale, my + ny*4/scale);
+      break;
+    }
+  }
+  ctx.restore();
+}
+
+// ── Span helpers (used to detect real vs. seam breakpoints) ──────────────────
+
+// Union of y-intervals covered by rects that contain the given x
+function ySpanAt(rects, x) {
+  const intervals = rects
+    .filter(r => r.x <= x + 0.01 && r.x + r.width >= x - 0.01)
+    .map(r => [r.y, r.y + r.height]);
+  return mergeIntervals(intervals);
+}
+
+// Union of x-intervals covered by rects that contain the given y
+function xSpanAt(rects, y) {
+  const intervals = rects
+    .filter(r => r.y <= y + 0.01 && r.y + r.height >= y - 0.01)
+    .map(r => [r.x, r.x + r.width]);
+  return mergeIntervals(intervals);
+}
+
+function mergeIntervals(intervals) {
+  if (!intervals.length) return [];
+  intervals.sort((a, b) => a[0] - b[0]);
+  const out = [intervals[0].slice()];
+  for (let i = 1; i < intervals.length; i++) {
+    const top = out[out.length - 1];
+    if (intervals[i][0] <= top[1] + 0.01) top[1] = Math.max(top[1], intervals[i][1]);
+    else out.push(intervals[i].slice());
+  }
+  return out;
+}
+
+function spansEqual(a, b) {
+  if (a.length !== b.length) return false;
+  for (let i = 0; i < a.length; i++) {
+    if (Math.abs(a[i][0] - b[i][0]) > 0.1 || Math.abs(a[i][1] - b[i][1]) > 0.1) return false;
+  }
+  return true;
+}
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+
+function fmtMM(v) {
+  if (state.units === 'mm') {
+    return v >= 10 ? `${Math.round(v)}` : `${parseFloat(v.toFixed(2))}`;
+  } else {
+    const inches = v / 25.4;
+    return `${parseFloat(inches.toFixed(3))}"`;
+  }
+}
+
+  return { drawDimensions, drawLiveDims };
+})();
+__M['renderer'] = (function(){
+  const { state, primaryId } = __M['state'];
+  const { shapeCenter, shapeBBox, isClosedShape } = __M['shapes'];
+  const { drawDimensions, drawLiveDims } = __M['dimensions'];
+  const { gridSpacing } = __M['grid'];
+// Renderer — reads state, paints canvas. Mutates nothing in state.
+
+
+let canvas, ctx, offscreen, offCtx;
+
+function initRenderer(canvasEl) {
+  canvas    = canvasEl;
+  ctx       = canvas.getContext('2d');
+  offscreen = document.createElement('canvas');
+  offCtx    = offscreen.getContext('2d');
+  window.addEventListener('resize', resizeCanvas);
+  resizeCanvas();
+}
+
+function resizeCanvas() {
+  canvas.width  = canvas.offsetWidth;
+  canvas.height = canvas.offsetHeight;
+  syncOffscreen();
+  render();
+}
+
+function syncOffscreen() {
+  offscreen.width  = canvas.width;
+  offscreen.height = canvas.height;
+}
+
+// ── Public ────────────────────────────────────────────────────────────────────
+
+function render() {
+  if (!ctx) return;
+  syncOffscreen();
+  const { offsetX, offsetY, scale } = state.viewport;
+
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.save();
+  ctx.translate(offsetX, offsetY);
+  ctx.scale(scale, scale);
+  drawGrid();
+  drawDatum();
+  ctx.restore();
+
+  drawShapeLayer();   // fills + subtract holes + strokes (to offscreen then blit)
+
+  ctx.save();
+  ctx.translate(offsetX, offsetY);
+  ctx.scale(scale, scale);
+  if (state.showDimensions) drawDimensions(ctx, scale);
+  drawRotationHandle();
+  drawAlignGuides();
+  drawGhost();
+  ctx.restore();
+}
+
+// ── Grid ──────────────────────────────────────────────────────────────────────
+
+function drawGrid() {
+  if (!state.grid.visible) return;
+  const { offsetX, offsetY, scale } = state.viewport;
+  const gs    = gridSpacing();
+  const left  = -offsetX/scale, top    = -offsetY/scale;
+  const right = (canvas.width-offsetX)/scale, bottom = (canvas.height-offsetY)/scale;
+  const sx    = Math.floor(left/gs)*gs, sy = Math.floor(top/gs)*gs;
+
+  ctx.beginPath();
+  ctx.strokeStyle = '#383838';
+  ctx.lineWidth   = 0.4/scale;
+  for (let x=sx; x<=right; x+=gs) { ctx.moveTo(x,top);   ctx.lineTo(x,bottom); }
+  for (let y=sy; y<=bottom;y+=gs) { ctx.moveTo(left,y);  ctx.lineTo(right,y);  }
+  ctx.stroke();
+
+  // Origin crosshair
+  ctx.beginPath();
+  ctx.strokeStyle = '#555';
+  ctx.lineWidth   = 0.8/scale;
+  ctx.moveTo(-gs*1.5,0); ctx.lineTo(gs*1.5,0);
+  ctx.moveTo(0,-gs*1.5); ctx.lineTo(0,gs*1.5);
+  ctx.stroke();
+}
+
+// ── Datum marker ─────────────────────────────────────────────────────────────
+
+function drawDatum() {
+  ctx.save();
+  const { x, y } = state.datum;
+  const sc = state.viewport.scale;
+  const arm = 12/sc, r = 1.5/sc;
+
+  // X axis — red
+  ctx.strokeStyle='#e05050'; ctx.fillStyle='#e05050'; ctx.lineWidth=1.2/sc;
+  ctx.beginPath(); ctx.moveTo(x,y); ctx.lineTo(x+arm,y); ctx.stroke();
+  datumArrow(x+arm,y,1,0,sc);
+  ctx.font=`bold ${10/sc}px "Segoe UI",sans-serif`; ctx.textBaseline='middle'; ctx.textAlign='left';
+  ctx.fillText('X',x+arm+4/sc,y);
+
+  // Y axis — green
+  ctx.strokeStyle='#50c050'; ctx.fillStyle='#50c050'; ctx.lineWidth=1.2/sc;
+  ctx.beginPath(); ctx.moveTo(x,y); ctx.lineTo(x,y+arm); ctx.stroke();
+  datumArrow(x,y+arm,0,1,sc);
+  ctx.textBaseline='top'; ctx.textAlign='center';
+  ctx.fillText('Y',x,y+arm+3/sc);
+
+  // Origin circle + GD&T triangle
+  ctx.strokeStyle='#fff'; ctx.fillStyle='#fff'; ctx.lineWidth=0.8/sc;
+  ctx.beginPath(); ctx.arc(x,y,r*2.5,0,Math.PI*2); ctx.stroke();
+  ctx.beginPath(); ctx.arc(x,y,r,0,Math.PI*2); ctx.fill();
+  const ts=4/sc;
+  ctx.beginPath(); ctx.moveTo(x,y); ctx.lineTo(x-ts,y-ts*1.6); ctx.lineTo(x+ts,y-ts*1.6); ctx.closePath(); ctx.fill();
+  const bw=ts*2.5, bh=ts*1.4, bx=x-bw/2, by=y-ts*1.6-bh;
+  ctx.fillStyle='#111'; ctx.fillRect(bx,by,bw,bh);
+  ctx.strokeStyle='#fff'; ctx.strokeRect(bx,by,bw,bh);
+  ctx.fillStyle='#fff'; ctx.font=`bold ${ts*1.2}px "Segoe UI",sans-serif`;
+  ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.fillText('D',x,by+bh/2);
+  ctx.restore();
+}
+
+function datumArrow(x,y,dx,dy,sc) {
+  const l=3/sc,w=1.2/sc;
+  ctx.beginPath(); ctx.moveTo(x,y);
+  ctx.lineTo(x-l*dx+w*dy, y-l*dy-w*dx);
+  ctx.lineTo(x-l*dx-w*dy, y-l*dy+w*dx);
+  ctx.closePath(); ctx.fill();
+}
+
+// ── Shape layer ───────────────────────────────────────────────────────────────
+
+function drawShapeLayer() {
+  const { offsetX, offsetY, scale: sc } = state.viewport;
+
+  const mergeMap = {}, normal = [];
+  for (const s of state.shapes) {
+    if (s.groupId && state.groups[s.groupId]?.merged)
+      (mergeMap[s.groupId] = mergeMap[s.groupId] || []).push(s);
+    else normal.push(s);
+  }
+
+  const posNormal      = normal.filter(s => s.mode === 'add');
+  const subNormal      = normal.filter(s => s.mode === 'subtract');
+  const posClosed      = posNormal.filter(isClosedShape);
+  const subClosed      = subNormal.filter(isClosedShape);
+  const mergeGroups    = Object.values(mergeMap);
+  const mergeClosed    = mergeGroups.flatMap(g => g.filter(s => isClosedShape(s) && s.mode !== 'subtract'));
+  const mergeSubClosed = mergeGroups.flatMap(g => g.filter(s => isClosedShape(s) && s.mode === 'subtract'));
+
+  // ── Pass A: fills on offscreen canvas, then blit at pixel identity ─────────
+  // offscreen already matches canvas pixel size; draw in mm-space using its own transform
+  offCtx.clearRect(0, 0, offscreen.width, offscreen.height);
+  offCtx.save();
+  offCtx.translate(offsetX, offsetY);
+  offCtx.scale(sc, sc);
+
+  // Single combined fill path so no overlap darkening
+  offCtx.globalCompositeOperation = 'source-over';
+  offCtx.fillStyle = 'rgba(80,120,200,0.11)';
+  offCtx.beginPath();
+  for (const s of posClosed)   withRot(offCtx, s, () => shapePath(offCtx, s));
+  for (const s of mergeClosed) withRot(offCtx, s, () => shapePath(offCtx, s));
+  offCtx.fill();
+
+  // Punch subtract holes (including holes inside merged groups)
+  offCtx.globalCompositeOperation = 'destination-out';
+  offCtx.fillStyle = '#000';
+  offCtx.beginPath();
+  for (const s of [...subClosed, ...mergeSubClosed]) withRot(offCtx, s, () => shapePath(offCtx, s));
+  offCtx.fill();
+
+  offCtx.restore();
+
+  // Blit fills at screen pixel coordinates (no transform on ctx here)
+  ctx.drawImage(offscreen, 0, 0);
+
+  // ── Everything below is drawn in mm-space ──────────────────────────────────
+  ctx.save();
+  ctx.translate(offsetX, offsetY);
+  ctx.scale(sc, sc);
+
+  // ── Pass B: positive outlines, clipped to exclude subtract interiors ─────
+  // Only closed shapes get the subtract clip (so their outlines stop at the cut
+  // boundary). Open shapes — reflines, labels, arrowlines — always draw unclipped
+  // so a label inside a cutout area and a centerline through a hole stay visible.
+  const posClosedNormal = posNormal.filter(isClosedShape);
+  const posOpenNormal   = posNormal.filter(s => !isClosedShape(s));
+
+  if (subClosed.length && posClosedNormal.length) {
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(-1e6, -1e6, 2e6, 2e6);
+    for (const s of subClosed) withRot(ctx, s, () => shapePath(ctx, s));
+    ctx.clip('evenodd'); // draw only where NOT inside a subtract shape
+    for (const s of posClosedNormal) drawShapeStroke(ctx, s, sc);
+    ctx.restore();
+  } else {
+    for (const s of posClosedNormal) drawShapeStroke(ctx, s, sc);
+  }
+  for (const s of posOpenNormal) drawShapeStroke(ctx, s, sc);
+
+  // ── Pass C: subtract outlines clipped to all positive shape interiors ──────
+  // Dashed arc only shows inside material, marking the cut profile.
+  // Hole spec annotations are deferred so they draw OUTSIDE the clip.
+  const allPosClosed = [...posClosed, ...mergeClosed];
+  const allSubDraw   = [...subNormal, ...mergeSubClosed];
+  const holeSpecShapes = [];
+  if (allSubDraw.length && allPosClosed.length) {
+    ctx.save();
+    ctx.beginPath();
+    for (const s of allPosClosed) withRot(ctx, s, () => shapePath(ctx, s));
+    ctx.clip();
+    for (const s of allSubDraw) drawShapeStroke(ctx, s, sc, false, true);
+    ctx.restore();
+    for (const s of allSubDraw) { if (s.type==='circle'||s.type==='ellipse') holeSpecShapes.push(s); }
+  } else if (allSubDraw.length) {
+    for (const s of allSubDraw) drawShapeStroke(ctx, s, sc, false, true);
+    for (const s of allSubDraw) { if (s.type==='circle'||s.type==='ellipse') holeSpecShapes.push(s); }
+  }
+
+  // ── Pass D: merged group outlines ────────────────────────────────────────
+  // For non-rotated rects: compute which edge sub-ranges are exterior (not
+  // touching another merged rect on the same boundary line) using exact
+  // interval arithmetic, then stroke only those segments.  This hides
+  // interior seams between adjacent rects while preserving every outer edge.
+  // For circles / ellipses / rotated rects: ε-inset clip fallback.
+  for (const shapes of mergeGroups) {
+    const anySelected = shapes.some(s => state.selectedIds.includes(s.id));
+    const color       = anySelected ? '#4af' : '#e0e0e0';
+    const addShapes   = shapes.filter(s => isClosedShape(s) && s.mode !== 'subtract');
+    const unrotRects  = addShapes.filter(s => s.type === 'rect' && !s.rotation);
+    const otherShapes = addShapes.filter(s => !(s.type === 'rect' && !s.rotation));
+    // Subtract shapes belonging to this group clip their own group's outlines
+    const groupSubs   = shapes.filter(s => isClosedShape(s) && s.mode === 'subtract');
+    const allSubsForGroup = [...subClosed, ...groupSubs];
+
+    if (unrotRects.length) {
+      ctx.save();
+      ctx.strokeStyle = color;
+      ctx.lineWidth   = 1 / sc;
+      if (allSubsForGroup.length) {
+        ctx.beginPath();
+        ctx.rect(-1e6, -1e6, 2e6, 2e6);
+        for (const sub of allSubsForGroup) withRot(ctx, sub, () => shapePath(ctx, sub));
+        ctx.clip('evenodd');
+      }
+      ctx.beginPath();
+      for (const S of unrotRects)
+        appendExteriorEdges(ctx, S, unrotRects.filter(o => o.id !== S.id));
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    for (const s of otherShapes) {
+      ctx.save();
+      if (allSubsForGroup.length) {
+        ctx.beginPath();
+        ctx.rect(-1e6, -1e6, 2e6, 2e6);
+        for (const sub of allSubsForGroup) withRot(ctx, sub, () => shapePath(ctx, sub));
+        ctx.clip('evenodd');
+      }
+      const others = addShapes.filter(o => o.id !== s.id);
+      if (others.length) {
+        const ε = 0.25;
+        ctx.beginPath();
+        ctx.rect(-1e6, -1e6, 2e6, 2e6);
+        for (const o of others) {
+          withRot(ctx, o, () => {
+            if (o.type === 'rect') ctx.rect(o.x+ε, o.y+ε, o.width-2*ε, o.height-2*ε);
+            else shapePath(ctx, o);
+          });
+        }
+        ctx.clip('evenodd');
+      }
+      ctx.strokeStyle = color;
+      ctx.lineWidth   = 1 / sc;
+      withRot(ctx, s, () => { ctx.beginPath(); shapePath(ctx, s); ctx.stroke(); });
+      ctx.restore();
+    }
+  }
+
+  // ── Pass E: hole spec annotations (unclipped — leader lines extend outside shapes) ──
+  for (const s of holeSpecShapes) drawHoleSpec(ctx, s, sc);
+
+  // ── Pass F: selection handles + marquee ────────────────────────────────────
+  for (const s of state.shapes) {
+    if (state.selectedIds.includes(s.id)) drawHandles(ctx, s, sc);
+  }
+  drawMarquee(ctx, sc);
+
+  ctx.restore();
+}
+
+// ── Individual shape stroke ───────────────────────────────────────────────────
+
+function drawShapeStroke(c, s, sc, isSubtractOutline=false, deferHoleSpec=false) {
+  const isSel  = state.selectedIds.includes(s.id);
+  const isHov  = s.id === state.hoveredId && !isSel;
+  const isSub  = s.mode === 'subtract';
+  const isRef  = s.type === 'refline';
+  const isArr  = s.type === 'arrowline';
+  const lw     = (isSel ? 1.8 : isHov ? 1.4 : (s.thickness||1)) / sc;
+
+  c.lineWidth = lw;
+
+  if (isRef) {
+    const dashLen = 4 * (s.dashScale||1);
+    c.strokeStyle = isSel ? '#7ad' : isHov ? '#6bc' : '#4a7a9b';
+    c.setLineDash([dashLen/sc, (dashLen*0.75)/sc]);
+  } else if (isSub || isSubtractOutline) {
+    c.strokeStyle = isSel ? '#ff8080' : isHov ? '#ff6060' : '#cc3333';
+    c.setLineDash([3/sc, 2/sc]);
+  } else {
+    c.strokeStyle = isSel ? '#4af' : isHov ? '#8cf' : '#e0e0e0';
+    c.setLineDash([]);
+  }
+
+  // Hover glow
+  if (isHov) {
+    c.save();
+    c.lineWidth = 5/sc;
+    c.strokeStyle = isSub ? 'rgba(200,60,60,0.18)' : 'rgba(100,200,255,0.18)';
+    withRot(c,s,()=>{ c.beginPath(); shapePath(c,s); c.stroke(); });
+    c.restore();
+  }
+
+  withRot(c,s,()=>{
+    c.beginPath(); shapePath(c,s); c.stroke();
+  });
+  c.setLineDash([]);
+
+  // Arrowheads
+  if (isArr || (isRef && (s.arrowStart||s.arrowEnd))) drawArrowheads(c, s, sc, isSel, isRef);
+
+  // Labels
+  if (s.type === 'label') drawLabel(c, s, sc, isSel, isHov);
+
+  // Hole annotation for any subtract circle/ellipse (skipped here when deferred to outside the clip)
+  if (isSub && (s.type==='circle'||s.type==='ellipse') && !deferHoleSpec) drawHoleSpec(c, s, sc);
+}
+
+// ── Shape path (geometry only, no style) ─────────────────────────────────────
+
+function shapePath(c, s) {
+  switch (s.type) {
+    case 'line': case 'refline': case 'arrowline':
+      c.moveTo(s.x1,s.y1); c.lineTo(s.x2,s.y2); break;
+    case 'rect':
+      c.rect(s.x,s.y,s.width,s.height); break;
+    case 'circle':
+      // moveTo prevents Canvas from drawing an implicit connecting line from the
+      // previous shape's end point to this arc's start when building combined paths.
+      c.moveTo(s.cx + s.radius, s.cy);
+      c.arc(s.cx,s.cy,s.radius,0,Math.PI*2); break;
+    case 'ellipse':
+      c.moveTo(s.cx + s.rx, s.cy);
+      c.ellipse(s.cx,s.cy,s.rx,s.ry,0,0,Math.PI*2); break;
+  }
+}
+
+// ── Arrowheads ────────────────────────────────────────────────────────────────
+
+function drawArrowheads(c, s, sc, isSel, isRef) {
+  const color = isRef ? (isSel?'#7ad':'#4a7a9b') : (isSel?'#4af':'#e0e0e0');
+  c.fillStyle = color;
+  const angle = Math.atan2(s.y2-s.y1, s.x2-s.x1);
+  if ((s.arrowEnd  ?? !isRef)) arrowHead(c, s.x2, s.y2, angle, sc);
+  if (s.arrowStart)             arrowHead(c, s.x1, s.y1, angle+Math.PI, sc);
+}
+
+function arrowHead(c, x, y, angle, sc) {
+  const l=10/sc, w=3.5/sc;
+  c.beginPath();
+  c.moveTo(x,y);
+  c.lineTo(x-l*Math.cos(angle-0.35), y-l*Math.sin(angle-0.35));
+  c.lineTo(x-l*Math.cos(angle+0.35), y-l*Math.sin(angle+0.35));
+  c.closePath(); c.fill();
+}
+
+// ── Labels ───────────────────────────────────────────────────────────────────
+
+function drawLabel(c, s, sc, isSel, isHov) {
+  c.save();
+  withRot(c, s, () => {
+    c.font      = `${s.fontSize||3}px "Courier New", monospace`;
+    c.fillStyle = isSel ? '#4af' : isHov ? '#8cf' : '#e8e8c8';
+    c.textBaseline = 'top';
+    c.textAlign    = 'left';
+    c.fillText(s.text || '', s.x, s.y);
+    if (isSel) {
+      c.strokeStyle = '#4af'; c.lineWidth = 0.3/sc;
+      const w = s.text ? s.text.length * (s.fontSize||3) * 0.6 : 10/sc;
+      const h = (s.fontSize||3) * 1.3;
+      c.strokeRect(s.x-1/sc, s.y-1/sc, w+2/sc, h+2/sc);
+    }
+  });
+  c.restore();
+}
+
+// ── Hole spec annotation ──────────────────────────────────────────────────────
+
+function drawHoleSpec(c, s, sc) {
+  if (s.type !== 'circle' && s.type !== 'ellipse') return;
+  c.save();
+  const hs = s.holeSpec;
+  const d  = s.type==='circle' ? s.radius*2 : Math.min(s.rx,s.ry)*2;
+  let line1 = `⌀${fmtDim(d)}`;
+  let line2 = hs?.type === 'through' ? 'THRU' : '';
+  if (hs?.thread) line1 = hs.thread;
+  if (hs?.type !== 'through' && hs?.depth != null) line2 = `↧${fmtDim(hs.depth)}`;
+
+  const cx = s.cx;
+  const cy = s.cy;
+  const r  = s.type==='circle' ? s.radius : Math.max(s.rx,s.ry);
+
+  const lx1=cx+r+2, ly1=cy-2;
+  const lx2=cx+r+10, ly2=cy-2;
+  c.beginPath(); c.moveTo(lx1,ly1); c.lineTo(lx2,ly2);
+  c.strokeStyle='#a0c8ff'; c.lineWidth=0.4/sc; c.stroke();
+  c.font=`bold ${11/sc}px "Courier New",monospace`;
+  c.fillStyle='#a0c8ff'; c.textBaseline='bottom'; c.textAlign='left';
+  c.fillText(line1, lx2+1, ly2);
+  if (line2) { c.textBaseline='top'; c.fillText(line2, lx2+1, ly2); }
+  c.restore();
+}
+
+function fmtDim(v) {
+  if (state.units === 'mm') return parseFloat(v.toFixed(2)) + 'mm';
+  return parseFloat((v / 25.4).toFixed(3)) + '"';
+}
+
+// ── Selection handles ─────────────────────────────────────────────────────────
+
+function drawHandles(c, s, sc) {
+  c.save();
+  const r = 4/sc;
+  c.fillStyle = '#4af';
+  for (const [x,y] of handlePoints(s)) {
+    c.beginPath(); c.arc(x,y,r,0,Math.PI*2); c.fill();
+  }
+  c.restore();
+}
+
+function handlePoints(s) {
+  switch (s.type) {
+    case 'line': case 'refline': case 'arrowline':
+      return [[s.x1,s.y1],[s.x2,s.y2]];
+    case 'rect': {
+      const cx=s.x+s.width/2, cy=s.y+s.height/2;
+      return rotPts([[s.x,s.y],[s.x+s.width,s.y],[s.x,s.y+s.height],[s.x+s.width,s.y+s.height],[cx,cy]], cx,cy,s.rotation);
+    }
+    case 'circle':  return [[s.cx,s.cy]];
+    case 'ellipse': return [[s.cx,s.cy]];
+    case 'label':   return [[s.x,s.y]];
+  }
+  return [];
+}
+
+function rotPts(pts, cx, cy, deg) {
+  if (!deg) return pts;
+  const cos=Math.cos(deg*Math.PI/180), sin=Math.sin(deg*Math.PI/180);
+  return pts.map(([x,y])=>{
+    const dx=x-cx,dy=y-cy;
+    return [cx+dx*cos-dy*sin, cy+dx*sin+dy*cos];
+  });
+}
+
+// ── Rotation handle ───────────────────────────────────────────────────────────
+
+function rotHandlePos(s) {
+  const { cx, cy } = shapeCenter(s);
+  const bbox = shapeBBox(s);
+  const dist = Math.max(12, (bbox.maxY - bbox.minY)/2 + 10);
+  // Handle is above the shape center
+  const hx = cx, hy = cy - dist;
+  if (!s.rotation) return { x: hx, y: hy };
+  const cos=Math.cos(s.rotation*Math.PI/180), sin=Math.sin(s.rotation*Math.PI/180);
+  const dx=hx-cx, dy=hy-cy;
+  return { x: cx+dx*cos-dy*sin, y: cy+dx*sin+dy*cos };
+}
+
+function drawRotationHandle() {
+  if (state.selectedIds.length !== 1) return;
+  const s = state.shapes.find(sh=>sh.id===state.selectedIds[0]);
+  if (!s || s.type==='label') return;
+
+  ctx.save();
+  const { cx, cy } = shapeCenter(s);
+  const hp = rotHandlePos(s);
+  const sc = state.viewport.scale;
+
+  // Line from shape center to handle
+  ctx.beginPath();
+  ctx.strokeStyle='rgba(100,200,255,0.5)'; ctx.lineWidth=0.6/sc;
+  ctx.setLineDash([2/sc,2/sc]);
+  ctx.moveTo(cx,cy); ctx.lineTo(hp.x,hp.y); ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Handle circle
+  ctx.beginPath(); ctx.arc(hp.x,hp.y,5/sc,0,Math.PI*2);
+  ctx.fillStyle='#4af'; ctx.fill();
+  ctx.strokeStyle='#fff'; ctx.lineWidth=0.5/sc; ctx.stroke();
+
+  // Rotation arc hint
+  ctx.beginPath();
+  ctx.arc(hp.x,hp.y,3/sc,0,Math.PI*2);
+  ctx.strokeStyle='#fff'; ctx.lineWidth=0.4/sc; ctx.stroke();
+  ctx.restore();
+}
+
+// ── Ghost (in-progress shape while drawing) ───────────────────────────────────
+
+let ghost = null;
+let ghostStart = null;
+function setGhost(g, start=null) { ghost=g; ghostStart=start; }
+
+function drawGhost() {
+  if (!ghost) return;
+  const sc = state.viewport.scale;
+  const isRef = ghost.type==='refline';
+  const isArr = ghost.type==='arrowline';
+
+  ctx.strokeStyle = (isRef||isArr) ? '#4a7a9b' : '#4af';
+  ctx.lineWidth   = 1/sc;
+  if (isRef) {
+    const dashLen = 4*(ghost.dashScale||1);
+    ctx.setLineDash([dashLen/sc, (dashLen*0.75)/sc]);
+  } else {
+    ctx.setLineDash([3/sc,3/sc]);
+  }
+
+  ctx.beginPath(); shapePath(ctx,ghost); ctx.stroke();
+  ctx.setLineDash([]);
+
+  if (isArr) drawArrowheads(ctx,ghost,sc,false,false);
+
+  // Live dimensions during draw
+  drawLiveDims(ctx, ghost, sc);
+}
+
+// ── Marquee selection box ─────────────────────────────────────────────────────
+
+let marquee = null; // { x1, y1, x2, y2 } in mm
+function setMarquee(m) { marquee = m; }
+
+function drawMarquee(c, sc) {
+  if (!marquee) return;
+  const { x1, y1, x2, y2 } = marquee;
+  c.save();
+  c.strokeStyle = '#4af';
+  c.lineWidth   = 1/sc;
+  c.setLineDash([3/sc, 2/sc]);
+  c.fillStyle   = 'rgba(68,170,255,0.07)';
+  const rx = Math.min(x1,x2), ry = Math.min(y1,y2);
+  const rw = Math.abs(x2-x1), rh = Math.abs(y2-y1);
+  c.fillRect(rx,ry,rw,rh);
+  c.strokeRect(rx,ry,rw,rh);
+  c.setLineDash([]);
+  c.restore();
+}
+
+// ── Alignment guides ──────────────────────────────────────────────────────────
+
+function drawAlignGuides() {
+  if (!state.alignGuides.length) return;
+  const { offsetX, offsetY, scale } = state.viewport;
+  const left=(-offsetX)/scale, top=(-offsetY)/scale;
+  const right=(canvas.width-offsetX)/scale, bottom=(canvas.height-offsetY)/scale;
+
+  ctx.save();
+  ctx.strokeStyle='#00e5ff'; ctx.lineWidth=0.6/scale;
+  ctx.setLineDash([3/scale,3/scale]);
+  for (const g of state.alignGuides) {
+    ctx.beginPath();
+    if (g.axis==='x') { ctx.moveTo(g.value,top);   ctx.lineTo(g.value,bottom); }
+    else              { ctx.moveTo(left,g.value);   ctx.lineTo(right,g.value);  }
+    ctx.stroke();
+  }
+  ctx.setLineDash([]); ctx.restore();
+}
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+
+// Apply a shape's rotation transform to context, call fn, then restore
+function withRot(c, s, fn) {
+  if (!s.rotation) { fn(); return; }
+  const { cx, cy } = shapeCenter(s);
+  c.save();
+  c.translate(cx,cy); c.rotate(s.rotation*Math.PI/180); c.translate(-cx,-cy);
+  fn();
+  c.restore();
+}
+
+// ── Merged outline helpers ────────────────────────────────────────────────────
+
+// Remove interval [a,b] from a list of non-overlapping intervals.
+function subtractInterval(segs, a, b) {
+  const out = [];
+  for (const [lo, hi] of segs) {
+    if (b <= lo || a >= hi) { out.push([lo, hi]); continue; }
+    if (a > lo) out.push([lo, a]);
+    if (b < hi) out.push([b, hi]);
+  }
+  return out;
+}
+
+// Add moveTo/lineTo calls for the exterior edge segments of non-rotated rect S,
+// skipping any sub-range where another merged rect has material on the opposite
+// side of the edge (those sub-ranges are interior seams and must stay invisible).
+//
+// Directional logic: clip S's BOTTOM edge only when T extends *below* that y
+// (T.y+T.h > y2), not when T merely ends at y2 (shared outer boundary).
+// Similarly for top/left/right edges.
+function appendExteriorEdges(ctx, S, others) {
+  const EPS = 1e-6;
+  const { x, y, width: w, height: h } = S;
+  const x2 = x + w, y2 = y + h;
+
+  // Top edge y=S.y: clip where T has material strictly above (T ends at or below y, T starts above y)
+  function topEdge() {
+    let segs = [[x, x2]];
+    for (const T of others) {
+      if (T.y < y - EPS && T.y + T.height >= y - EPS) {
+        const la = Math.max(x, T.x), ra = Math.min(x2, T.x + T.width);
+        if (ra > la + EPS) segs = subtractInterval(segs, la, ra);
+      }
+    }
+    for (const [a, b] of segs) { ctx.moveTo(a, y); ctx.lineTo(b, y); }
+  }
+
+  // Bottom edge y=S.y+h: clip where T has material strictly below (T starts at or above y2, T extends below y2)
+  function botEdge() {
+    let segs = [[x, x2]];
+    for (const T of others) {
+      if (T.y <= y2 + EPS && T.y + T.height > y2 + EPS) {
+        const la = Math.max(x, T.x), ra = Math.min(x2, T.x + T.width);
+        if (ra > la + EPS) segs = subtractInterval(segs, la, ra);
+      }
+    }
+    for (const [a, b] of segs) { ctx.moveTo(a, y2); ctx.lineTo(b, y2); }
+  }
+
+  // Left edge x=S.x: clip where T has material strictly to the left
+  function leftEdge() {
+    let segs = [[y, y2]];
+    for (const T of others) {
+      if (T.x < x - EPS && T.x + T.width >= x - EPS) {
+        const ta = Math.max(y, T.y), ba = Math.min(y2, T.y + T.height);
+        if (ba > ta + EPS) segs = subtractInterval(segs, ta, ba);
+      }
+    }
+    for (const [a, b] of segs) { ctx.moveTo(x, a); ctx.lineTo(x, b); }
+  }
+
+  // Right edge x=S.x+w: clip where T has material strictly to the right
+  function rightEdge() {
+    let segs = [[y, y2]];
+    for (const T of others) {
+      if (T.x <= x2 + EPS && T.x + T.width > x2 + EPS) {
+        const ta = Math.max(y, T.y), ba = Math.min(y2, T.y + T.height);
+        if (ba > ta + EPS) segs = subtractInterval(segs, ta, ba);
+      }
+    }
+    for (const [a, b] of segs) { ctx.moveTo(x2, a); ctx.lineTo(x2, b); }
+  }
+
+  topEdge(); botEdge(); leftEdge(); rightEdge();
+}
+
+  return { initRenderer, render, shapePath, handlePoints, rotHandlePos, ghost, ghostStart, setGhost, marquee, setMarquee };
+})();
+__M['history'] = (function(){
+  const { state } = __M['state'];
+  const { render } = __M['renderer'];
+// Undo / redo — deep snapshots of state.shapes before each change.
+
+
+const undoStack = [];
+const redoStack = [];
+const MAX = 100;
+
+function pushHistory() {
+  undoStack.push(snapshot());
+  if (undoStack.length > MAX) undoStack.shift();
+  redoStack.length = 0;
+}
+
+// Capture a snapshot NOW, commit it to the stack later (use when you don't
+// know yet if the user will actually make a change — e.g. start of a drag).
+function captureSnapshot() {
+  return JSON.parse(JSON.stringify(state.shapes));
+}
+
+function commitSnapshot(snap) {
+  undoStack.push(snap);
+  if (undoStack.length > MAX) undoStack.shift();
+  redoStack.length = 0;
+}
+
+function undo() {
+  if (!undoStack.length) return;
+  redoStack.push(snapshot());
+  restore(undoStack.pop());
+  render();
+}
+
+function redo() {
+  if (!redoStack.length) return;
+  undoStack.push(snapshot());
+  restore(redoStack.pop());
+  render();
+}
+
+function snapshot() { return JSON.parse(JSON.stringify(state.shapes)); }
+
+function restore(snap) {
+  state.shapes      = snap;
+  state.selectedIds = [];
+  state.hoveredId   = null;
+}
+
+  return { pushHistory, captureSnapshot, commitSnapshot, undo, redo };
+})();
+__M['io'] = (function(){
+  const { state } = __M['state'];
+  const { render } = __M['renderer'];
+// Save / load JSON, export SVG.
+
+
+function saveProject() {
+  const data = JSON.stringify({
+    shapes:     state.shapes,
+    groups:     state.groups,
+    units:      state.units,
+    snapSize:   state.snapSize,
+    datum:      state.datum,
+    titleBlock: state.titleBlock,
+  }, null, 2);
+  download('bluecad-project.json', data, 'application/json');
+}
+
+function loadProject() {
+  pickFile('.json', text => {
+    try {
+      const data = JSON.parse(text);
+      state.shapes = (data.shapes || []).map(s => ({
+        mode: 'add', rotation: 0, groupId: null, ...s
+      }));
+      state.groups     = data.groups     || {};
+      state.units    = data.units  || 'in';
+      state.snapSize = data.snapSize != null ? data.snapSize : (state.units === 'mm' ? 10 : 25.4);
+      state.datum    = data.datum  || { x: 0, y: 0 };
+      if (data.titleBlock) Object.assign(state.titleBlock, data.titleBlock);
+      state.selectedIds = [];
+      state.hoveredId   = null;
+      render();
+      syncTitleBlockUI();
+      document.getElementById('btn-units').textContent = state.units.toUpperCase();
+      // Rebuild snap dropdown to match loaded units
+      if (window.__populateSnapSelect) window.__populateSnapSelect();
+    } catch {
+      alert('Could not load that file — is it a BlueCAD JSON?');
+    }
+  });
+}
+
+function exportSVG() {
+  const addShapes = state.shapes.filter(s => s.mode === 'add' && s.type !== 'refline' && s.type !== 'label');
+  const subShapes = state.shapes.filter(s => s.mode === 'subtract');
+
+  if (!addShapes.length && !subShapes.length) { alert('Nothing to export!'); return; }
+
+  const all = [...addShapes, ...subShapes];
+  let minX=Infinity, minY=Infinity, maxX=-Infinity, maxY=-Infinity;
+  for (const s of all) {
+    const b = svgBounds(s);
+    if (b) { minX=Math.min(minX,b.x1); minY=Math.min(minY,b.y1); maxX=Math.max(maxX,b.x2); maxY=Math.max(maxY,b.y2); }
+  }
+  const pad=10, W=maxX-minX+pad*2, H=maxY-minY+pad*2;
+  const ox=-minX+pad, oy=-minY+pad;
+
+  let defs='', clipAttr='';
+  if (subShapes.length) {
+    defs = `<defs><clipPath id="cuts">`;
+    for (const s of subShapes) defs += svgShape(s, ox, oy);
+    defs += `</clipPath></defs>`;
+    clipAttr = ` clip-path="url(#cuts)"`;
+  }
+
+  const style = `stroke="black" stroke-width="0.5" fill="none"`;
+  let body = '';
+  if (subShapes.length) {
+    body = `<g${clipAttr}>`;
+    for (const s of addShapes) body += svgShape(s, ox, oy, style);
+    body += `</g>`;
+    for (const s of subShapes)
+      body += svgShape(s, ox, oy, `stroke="red" stroke-width="0.3" fill="none" stroke-dasharray="2,2"`);
+  } else {
+    for (const s of addShapes) body += svgShape(s, ox, oy, style);
+  }
+
+  // Labels
+  for (const s of state.shapes.filter(s => s.type==='label')) {
+    body += `<text x="${f(s.x+ox)}" y="${f(s.y+oy)}" font-size="${f(s.fontSize||3)}" font-family="monospace" fill="black">${escXml(s.text||'')}</text>
+`;
+  }
+
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}mm" height="${H}mm" viewBox="0 0 ${W} ${H}">
+  <rect width="${W}" height="${H}" fill="white"/>
+  ${defs}
+  ${body}
+</svg>`;
+  download('bluecad-export.svg', svg, 'image/svg+xml');
+}
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+
+function svgShape(s, ox, oy, style='') {
+  const rot = s.rotation ? ` transform="rotate(${f(s.rotation)},${f(cx(s)+ox)},${f(cy(s)+oy)})"` : '';
+  switch (s.type) {
+    case 'line': case 'arrowline':
+      return `<line x1="${f(s.x1+ox)}" y1="${f(s.y1+oy)}" x2="${f(s.x2+ox)}" y2="${f(s.y2+oy)}" ${style}/>
+`;
+    case 'rect':
+      return `<rect x="${f(s.x+ox)}" y="${f(s.y+oy)}" width="${f(s.width)}" height="${f(s.height)}"${rot} ${style}/>
+`;
+    case 'circle':
+      return `<circle cx="${f(s.cx+ox)}" cy="${f(s.cy+oy)}" r="${f(s.radius)}" ${style}/>
+`;
+    case 'ellipse':
+      return `<ellipse cx="${f(s.cx+ox)}" cy="${f(s.cy+oy)}" rx="${f(s.rx)}" ry="${f(s.ry)}"${rot} ${style}/>
+`;
+  }
+  return '';
+}
+
+function cx(s) { if (s.type==='rect') return s.x+s.width/2; if (s.cx!==undefined) return s.cx; return (s.x1+s.x2)/2; }
+function cy(s) { if (s.type==='rect') return s.y+s.height/2; if (s.cy!==undefined) return s.cy; return (s.y1+s.y2)/2; }
+
+function svgBounds(s) {
+  switch (s.type) {
+    case 'line': case 'refline': case 'arrowline':
+      return { x1:Math.min(s.x1,s.x2), y1:Math.min(s.y1,s.y2), x2:Math.max(s.x1,s.x2), y2:Math.max(s.y1,s.y2) };
+    case 'rect':
+      return { x1:s.x, y1:s.y, x2:s.x+s.width, y2:s.y+s.height };
+    case 'circle':
+      return { x1:s.cx-s.radius, y1:s.cy-s.radius, x2:s.cx+s.radius, y2:s.cy+s.radius };
+    case 'ellipse':
+      return { x1:s.cx-s.rx, y1:s.cy-s.ry, x2:s.cx+s.rx, y2:s.cy+s.ry };
+  }
+  return null;
+}
+
+function f(v) { return parseFloat(v.toFixed(4)); }
+function escXml(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function download(filename, content, mime) {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([content], { type: mime }));
+  a.download = filename;
+  a.click();
+}
+
+function pickFile(accept, onLoad) {
+  const input = document.createElement('input');
+  input.type = 'file'; input.accept = accept;
+  input.onchange = () => {
+    const file = input.files[0]; if (!file) return;
+    const reader = new FileReader();
+    reader.onload = e => onLoad(e.target.result);
+    reader.readAsText(file);
+  };
+  input.click();
+}
+
+function syncTitleBlockUI() {
+  const tb = state.titleBlock;
+  const ids  = ['tb-title','tb-project','tb-drawnby','tb-date','tb-scale','tb-rev','tb-sheet'];
+  const keys = ['title','project','drawnBy','date','scale','rev','sheet'];
+  ids.forEach((id, i) => { const el = document.getElementById(id); if (el) el.value = tb[keys[i]] || ''; });
+}
+
+  return { saveProject, loadProject, exportSVG };
+})();
+__M['precision'] = (function(){
+  const { state, primaryShape } = __M['state'];
+  const { pushHistory } = __M['history'];
+  const { render } = __M['renderer'];
+// Precision input modal — type exact dimensions for a selected shape.
+
+
+const modal  = () => document.getElementById('precision-modal');
+const title  = () => document.getElementById('precision-title');
+const fields = () => document.getElementById('precision-fields');
+
+function initPrecision() {
+  document.getElementById('precision-cancel').addEventListener('click', close);
+  document.getElementById('precision-apply').addEventListener('click', apply);
+  document.getElementById('precision-modal').addEventListener('click', e => {
+    if (e.target === modal()) close();
+  });
+  window.addEventListener('keydown', e => {
+    if (e.target.tagName === 'INPUT') return;
+    if (e.key === 'p' || e.key === 'P') openPrecision();
+  });
+}
+
+function openPrecision() {
+  const shape = primaryShape();
+  if (!shape) { alert('Select a shape first, then press P.'); return; }
+  buildFields(shape);
+  modal().classList.add('open');
+  const first = fields().querySelector('input');
+  if (first) first.focus();
+}
+
+function close() { modal().classList.remove('open'); }
+
+function buildFields(shape) {
+  const u = state.units === 'mm' ? 'mm' : '"';
+  title().textContent = `Exact Dimensions — ${shape.type}`;
+
+  let html = '';
+  switch (shape.type) {
+    case 'line':
+      html = row('x1','X1 ('+u+')',toD(shape.x1))
+           + row('y1','Y1 ('+u+')',toD(shape.y1))
+           + row('x2','X2 ('+u+')',toD(shape.x2))
+           + row('y2','Y2 ('+u+')',toD(shape.y2));
+      break;
+    case 'refline':
+      html = row('x1','X1 ('+u+')',toD(shape.x1))
+           + row('y1','Y1 ('+u+')',toD(shape.y1))
+           + row('x2','X2 ('+u+')',toD(shape.x2))
+           + row('y2','Y2 ('+u+')',toD(shape.y2))
+           + rowCheck('arrowStart','Arrow at start', shape.arrowStart||false)
+           + rowCheck('arrowEnd',  'Arrow at end',   shape.arrowEnd||false)
+           + row('thickness','Line thickness',shape.thickness||1)
+           + row('dashScale','Dash scale (1=normal)',shape.dashScale||1);
+      break;
+    case 'arrowline':
+      html = row('x1','X1 ('+u+')',toD(shape.x1))
+           + row('y1','Y1 ('+u+')',toD(shape.y1))
+           + row('x2','X2 ('+u+')',toD(shape.x2))
+           + row('y2','Y2 ('+u+')',toD(shape.y2))
+           + rowCheck('arrowStart','Arrow at start',shape.arrowStart||false)
+           + rowCheck('arrowEnd',  'Arrow at end',  shape.arrowEnd!==false);
+      break;
+    case 'rect':
+      html = row('x','X ('+u+')',toD(shape.x))
+           + row('y','Y ('+u+')',toD(shape.y))
+           + row('width','Width ('+u+')',toD(shape.width))
+           + row('height','Height ('+u+')',toD(shape.height))
+           + row('rotation','Rotation (°)',shape.rotation||0);
+      break;
+    case 'circle':
+      html = row('cx','Center X ('+u+')',toD(shape.cx))
+           + row('cy','Center Y ('+u+')',toD(shape.cy))
+           + row('radius','Radius ('+u+')',toD(shape.radius))
+           + row('rotation','Rotation (°)',shape.rotation||0);
+      break;
+    case 'ellipse':
+      html = row('cx','Center X ('+u+')',toD(shape.cx))
+           + row('cy','Center Y ('+u+')',toD(shape.cy))
+           + row('rx','Radius X ('+u+')',toD(shape.rx))
+           + row('ry','Radius Y ('+u+')',toD(shape.ry))
+           + row('rotation','Rotation (°)',shape.rotation||0);
+      break;
+    case 'label':
+      html = row('x','X ('+u+')',toD(shape.x))
+           + row('y','Y ('+u+')',toD(shape.y))
+           + rowText('text','Text',shape.text||'')
+           + row('fontSize','Font size (mm)',shape.fontSize||3);
+      break;
+  }
+  fields().innerHTML = html;
+  fields().querySelectorAll('input').forEach(inp => {
+    inp.addEventListener('keydown', e => { if (e.key === 'Enter') apply(); });
+  });
+}
+
+function row(name, label, value) {
+  return `<div class="prec-row"><label>${label}</label><input type="number" step="any" data-field="${name}" value="${value}"></div>`;
+}
+function rowCheck(name, label, checked) {
+  return `<div class="prec-row"><label>${label}</label><input type="checkbox" data-field="${name}" data-bool="1" ${checked?'checked':''}></div>`;
+}
+function rowText(name, label, value) {
+  return `<div class="prec-row"><label>${label}</label><input type="text" data-field="${name}" value="${value.replace(/"/g,'&quot;')}"></div>`;
+}
+
+function apply() {
+  const shape = primaryShape();
+  if (!shape) { close(); return; }
+  pushHistory();
+  fields().querySelectorAll('input').forEach(inp => {
+    const key = inp.dataset.field;
+    if (inp.dataset.bool) {
+      shape[key] = inp.checked;
+    } else if (inp.type === 'text') {
+      shape[key] = inp.value;
+    } else {
+      const raw = parseFloat(inp.value);
+      if (!isNaN(raw)) {
+        // Coordinate/size fields convert from display units; rotation stays as degrees
+        const coordFields = ['x','y','x1','y1','x2','y2','cx','cy','width','height','radius','rx','ry'];
+        shape[key] = coordFields.includes(key) ? fromD(raw) : raw;
+      }
+    }
+  });
+  if (shape.type === 'rect')    { shape.width = Math.abs(shape.width); shape.height = Math.abs(shape.height); }
+  if (shape.type === 'circle')  { shape.radius = Math.abs(shape.radius); }
+  if (shape.type === 'ellipse') { shape.rx = Math.abs(shape.rx); shape.ry = Math.abs(shape.ry); }
+  close();
+  render();
+}
+
+function toD(mm)  { return state.units === 'mm' ? parseFloat(mm.toFixed(3)) : parseFloat((mm/25.4).toFixed(4)); }
+function fromD(v) { return state.units === 'mm' ? v : v * 25.4; }
+
+  return { initPrecision, openPrecision };
+})();
+__M['tools'] = (function(){
+  const { state, primaryShape } = __M['state'];
+  const { snap, toMM } = __M['grid'];
+  const { render, setGhost, rotHandlePos, setMarquee } = __M['renderer'];
+  const { computeGuides, offsetShape } = __M['alignment'];
+  const { captureSnapshot, commitSnapshot, pushHistory } = __M['history'];
+  const { makeLine, makeRect, makeCircle, makeEllipse, makeRefline, makeArrowline, makeLabel, shapeCenter, shapeBBox } = __M['shapes'];
+  const { openPrecision } = __M['precision'];
+// tools.js — all pointer/keyboard interaction with the canvas
+
+
+let _canvas = null;
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+
+function initTools(canvas) {
+  _canvas = canvas;
+  canvas.addEventListener('pointerdown',   onDown);
+  canvas.addEventListener('pointermove',   onMove);
+  canvas.addEventListener('pointerup',     onUp);
+  canvas.addEventListener('pointercancel', onUp);
+  canvas.addEventListener('wheel',         onWheel, { passive:false });
+  canvas.addEventListener('dblclick',      onDblClick);
+  initModals();
+}
+
+function initModals() {
+  // ── Label modal ────────────────────────────────────────────────────────────
+  const labelModal = document.getElementById('label-modal');
+  const labelInput = document.getElementById('label-input');
+
+  const labelOk = () => {
+    labelModal.classList.remove('open');
+    const cb = _labelCb; _labelCb = null;
+    if (cb) cb(labelInput.value);
+  };
+  const labelCancel = () => {
+    labelModal.classList.remove('open');
+    const cb = _labelCb; _labelCb = null;
+    if (cb) cb(null);
+  };
+
+  document.getElementById('label-ok').addEventListener('click', labelOk);
+  document.getElementById('label-cancel').addEventListener('click', labelCancel);
+  labelInput.addEventListener('keydown', e => {
+    e.stopPropagation();
+    if (e.key === 'Enter') labelOk();
+    if (e.key === 'Escape') labelCancel();
+  });
+  labelModal.addEventListener('click', e => { if (e.target === labelModal) labelCancel(); });
+
+  // ── Hole modal ─────────────────────────────────────────────────────────────
+  const holeModal  = document.getElementById('hole-modal');
+  const holeType   = document.getElementById('hole-type');
+  const holeDepthRow = document.getElementById('hole-depth-row');
+
+  holeType.addEventListener('change', () => {
+    holeDepthRow.style.display = holeType.value === 'through' ? 'none' : '';
+  });
+
+  document.getElementById('hole-ok').addEventListener('click', () => {
+    if (!_holeShape) { holeModal.classList.remove('open'); return; }
+    const type   = holeType.value;
+    const thread = document.getElementById('hole-thread').value.trim();
+    const depth  = type === 'through' ? null
+                 : (parseFloat(document.getElementById('hole-depth').value) || 10);
+    pushHistory();
+    _holeShape.holeSpec = { type, thread: thread || null, depth };
+    if (type === 'through') _holeShape.mode = 'subtract';
+    _holeShape = null;
+    holeModal.classList.remove('open');
+    render();
+  });
+
+  const holeCancel = () => { _holeShape = null; holeModal.classList.remove('open'); };
+  document.getElementById('hole-cancel').addEventListener('click', holeCancel);
+  holeModal.addEventListener('click', e => { if (e.target === holeModal) holeCancel(); });
+}
+
+function showLabelModal(defaultText, cb) {
+  _labelCb = cb;
+  const input = document.getElementById('label-input');
+  input.value = defaultText;
+  document.getElementById('label-modal').classList.add('open');
+  setTimeout(() => { input.focus(); input.select(); }, 50);
+}
+
+function eventMM(e) {
+  const rect = _canvas.getBoundingClientRect();
+  return toMM(e.clientX - rect.left, e.clientY - rect.top);
+}
+
+function snapMM(e) {
+  const { x, y } = eventMM(e);
+  return { x: snap(x), y: snap(y) };
+}
+
+// ── Shared state for current interaction ─────────────────────────────────────
+
+let spaceHeld     = false;
+let panStart      = null;
+let drawStart     = null;
+let draggingDatum = false;
+let preDragSnap   = null;
+let selectMoved   = false;
+let rotDragging   = false;
+let rotStartAngle = 0, rotShapeStart = 0;
+let rotShapeId    = null;
+let marqueeStart  = null; // { x, y } in mm — rubber-band box select
+
+let _labelCb   = null; // callback(text|null) for label modal
+let _holeShape = null; // shape being edited in hole modal
+
+function setSpaceHeld(v) { spaceHeld = v; }
+
+// ── Wheel / zoom ─────────────────────────────────────────────────────────────
+
+function onWheel(e) {
+  e.preventDefault();
+  const rect   = _canvas.getBoundingClientRect();
+  const mx     = e.clientX - rect.left;
+  const my     = e.clientY - rect.top;
+  const factor = e.deltaY < 0 ? 1.12 : 1/1.12;
+  const vp     = state.viewport;
+  vp.scale    *= factor;
+  vp.offsetX   = mx - (mx - vp.offsetX) * factor;
+  vp.offsetY   = my - (my - vp.offsetY) * factor;
+  render();
+}
+
+// ── Pointer down ──────────────────────────────────────────────────────────────
+
+function onDown(e) {
+  if (e.button !== 0 && e.button !== 1) return;
+  _canvas.setPointerCapture(e.pointerId);
+
+  const tool = state.tool;
+  const mm   = eventMM(e);
+  const sn   = snapMM(e);
+
+  if (e.button === 1 || tool === 'hand' || spaceHeld) {
+    panStart = { clientX: e.clientX, clientY: e.clientY,
+                 offsetX: state.viewport.offsetX, offsetY: state.viewport.offsetY };
+    return;
+  }
+
+  if (tool === 'select') {
+    handleSelectDown(e, mm, sn);
+    return;
+  }
+
+  drawStart = sn;
+  setGhost(null);
+}
+
+// ── Select / move / rotate ────────────────────────────────────────────────────
+
+function handleSelectDown(e, mm, sn) {
+  const selS = state.selectedIds.length === 1
+    ? state.shapes.find(s => s.id === state.selectedIds[0])
+    : null;
+
+  // Rotation handle hit?
+  if (selS) {
+    const hp  = rotHandlePos(selS);
+    const vp  = state.viewport;
+    const rect = _canvas.getBoundingClientRect();
+    const hpx = hp.x * vp.scale + vp.offsetX;
+    const hpy = hp.y * vp.scale + vp.offsetY;
+    const cx  = e.clientX - rect.left;
+    const cy  = e.clientY - rect.top;
+    if (Math.hypot(cx - hpx, cy - hpy) < 10) {
+      rotDragging   = true;
+      rotShapeId    = selS.id;
+      rotShapeStart = selS.rotation || 0;
+      const ctr     = shapeCenter(selS);
+      rotStartAngle = Math.atan2(mm.y - ctr.cy, mm.x - ctr.cx) * 180 / Math.PI;
+      preDragSnap   = captureSnapshot();
+      return;
+    }
+  }
+
+  // Datum hit?
+  const dp = state.datum;
+  const vp = state.viewport;
+  const rect = _canvas.getBoundingClientRect();
+  const dpx = dp.x * vp.scale + vp.offsetX;
+  const dpy = dp.y * vp.scale + vp.offsetY;
+  const cx  = e.clientX - rect.left;
+  const cy  = e.clientY - rect.top;
+  if (Math.hypot(cx - dpx, cy - dpy) < 16) {
+    draggingDatum = true;
+    preDragSnap   = captureSnapshot();
+    return;
+  }
+
+  // Shape hit test
+  const hit = hitShape(mm);
+
+  if (hit) {
+    if (hit.groupId) {
+      const siblings = state.shapes.filter(s => s.groupId === hit.groupId).map(s => s.id);
+      if (e.shiftKey) {
+        for (const id of siblings) {
+          if (!state.selectedIds.includes(id)) state.selectedIds.push(id);
+        }
+      } else {
+        state.selectedIds = [...siblings];
+      }
+    } else {
+      if (e.shiftKey) {
+        const idx = state.selectedIds.indexOf(hit.id);
+        if (idx >= 0) state.selectedIds.splice(idx, 1);
+        else state.selectedIds.push(hit.id);
+      } else {
+        if (!state.selectedIds.includes(hit.id)) state.selectedIds = [hit.id];
+      }
+    }
+    preDragSnap = captureSnapshot();
+    selectMoved = false;
+    drawStart   = sn;
+  } else {
+    if (!e.shiftKey) state.selectedIds = [];
+    // Start marquee
+    marqueeStart = sn;
+    drawStart = null;
+  }
+
+  state.alignGuides = [];
+  render();
+}
+
+// ── Pointer move ──────────────────────────────────────────────────────────────
+
+function onMove(e) {
+  const mm = eventMM(e);
+  const sn = snapMM(e);
+  state.cursor = { x: mm.x - state.datum.x, y: -(mm.y - state.datum.y) };
+
+  if (panStart) {
+    state.viewport.offsetX = panStart.offsetX + (e.clientX - panStart.clientX);
+    state.viewport.offsetY = panStart.offsetY + (e.clientY - panStart.clientY);
+    render(); return;
+  }
+
+  const tool = state.tool;
+
+  if (rotDragging && rotShapeId) {
+    const s = state.shapes.find(s => s.id === rotShapeId);
+    if (s) {
+      const ctr   = shapeCenter(s);
+      const angle = Math.atan2(mm.y - ctr.cy, mm.x - ctr.cx) * 180 / Math.PI;
+      let deg = rotShapeStart + (angle - rotStartAngle);
+      if (e.shiftKey) deg = Math.round(deg / 15) * 15;
+      s.rotation = deg;
+    }
+    render(); return;
+  }
+
+  if (draggingDatum) {
+    state.datum = sn;
+    render(); return;
+  }
+
+  state.hoveredId = hitShape(mm)?.id ?? null;
+
+  // Marquee drag
+  if (tool === 'select' && marqueeStart && !drawStart) {
+    setMarquee({ x1: marqueeStart.x, y1: marqueeStart.y, x2: sn.x, y2: sn.y });
+    render(); return;
+  }
+
+  if (tool === 'select' && drawStart && state.selectedIds.length) {
+    const dx = sn.x - drawStart.x;
+    const dy = sn.y - drawStart.y;
+    if (Math.abs(dx) > 0.001 || Math.abs(dy) > 0.001) {
+      selectMoved = true;
+      for (const id of state.selectedIds) {
+        const idx  = state.shapes.findIndex(s => s.id === id);
+        const orig = preDragSnap.find(s => s.id === id);
+        if (orig && idx >= 0) {
+          const moved = offsetShape(orig, dx, dy);
+          state.shapes[idx] = { ...state.shapes[idx], ...moved };
+        }
+      }
+      if (state.selectedIds.length === 1) {
+        const s = state.shapes.find(s => s.id === state.selectedIds[0]);
+        const { guides } = computeGuides(s, state.shapes.filter(sh => sh.id !== s.id));
+        state.alignGuides = guides;
+      }
+    }
+    render(); return;
+  }
+
+  if (tool !== 'select' && tool !== 'hand' && drawStart) {
+    updateGhost(sn);
+  }
+
+  render();
+}
+
+// ── Pointer up ────────────────────────────────────────────────────────────────
+
+function onUp(e) {
+  panStart = null;
+  const sn = snapMM(e);
+
+  if (rotDragging) {
+    rotDragging = false;
+    if (preDragSnap) { commitSnapshot(preDragSnap); preDragSnap = null; }
+    render(); return;
+  }
+
+  if (draggingDatum) {
+    draggingDatum = false;
+    state.datum = sn;
+    render(); return;
+  }
+
+  const tool = state.tool;
+
+  if (tool === 'select') {
+    // Finish marquee
+    if (marqueeStart) {
+      const mx1 = Math.min(marqueeStart.x, sn.x), mx2 = Math.max(marqueeStart.x, sn.x);
+      const my1 = Math.min(marqueeStart.y, sn.y), my2 = Math.max(marqueeStart.y, sn.y);
+      if (mx2 - mx1 > 1 || my2 - my1 > 1) {
+        const inside = state.shapes.filter(s => {
+          const b = shapeBBox(s);
+          return b.maxX >= mx1 && b.minX <= mx2 && b.maxY >= my1 && b.minY <= my2;
+        });
+        if (e.shiftKey) {
+          for (const s of inside) if (!state.selectedIds.includes(s.id)) state.selectedIds.push(s.id);
+        } else {
+          state.selectedIds = inside.map(s => s.id);
+        }
+      }
+      marqueeStart = null;
+      setMarquee(null);
+    }
+    if (selectMoved && preDragSnap) commitSnapshot(preDragSnap);
+    preDragSnap = null; selectMoved = false;
+    drawStart = null; state.alignGuides = [];
+    render(); return;
+  }
+
+  if (!drawStart) return;
+
+  const dx = sn.x - drawStart.x;
+  const dy = sn.y - drawStart.y;
+
+  if (tool === 'label') {
+    const pos = { x: drawStart.x, y: drawStart.y };
+    drawStart = null; setGhost(null); render();
+    showLabelModal('', text => {
+      if (text) {
+        pushHistory();
+        const lbl = makeLabel(pos.x, pos.y, text, 3);
+        state.shapes.push(lbl);
+        state.selectedIds = [lbl.id];
+        render();
+      }
+    });
+    return;
+  }
+
+  if (Math.hypot(dx, dy) < 1) {
+    drawStart = null; setGhost(null); render(); return;
+  }
+
+  pushHistory();
+  let shape;
+  switch (tool) {
+    case 'line':      shape = makeLine(drawStart.x, drawStart.y, sn.x, sn.y); break;
+    case 'rect': {
+      const x = Math.min(drawStart.x, sn.x), y = Math.min(drawStart.y, sn.y);
+      shape = makeRect(x, y, Math.abs(dx), Math.abs(dy)); break;
+    }
+    case 'circle':    shape = makeCircle(drawStart.x, drawStart.y, Math.hypot(dx, dy)); break;
+    case 'ellipse':   shape = makeEllipse(drawStart.x + dx/2, drawStart.y + dy/2, Math.abs(dx)/2, Math.abs(dy)/2); break;
+    case 'refline':   shape = makeRefline(drawStart.x, drawStart.y, sn.x, sn.y); break;
+    case 'arrowline': shape = makeArrowline(drawStart.x, drawStart.y, sn.x, sn.y); break;
+  }
+
+  if (shape) {
+    state.shapes.push(shape);
+    state.selectedIds = [shape.id];
+  }
+
+  drawStart = null; setGhost(null); render();
+}
+
+function onDblClick(e) {
+  const mm  = eventMM(e);
+  const hit = hitShape(mm);
+  if (!hit) return;
+  if (hit.type === 'label') {
+    showLabelModal(hit.text || '', text => {
+      if (text !== null) { pushHistory(); hit.text = text; render(); }
+    });
+  } else {
+    openPrecision();
+  }
+}
+
+// ── Ghost while drawing ───────────────────────────────────────────────────────
+
+function updateGhost(sn) {
+  const dx = sn.x - drawStart.x, dy = sn.y - drawStart.y;
+  let g;
+  switch (state.tool) {
+    case 'line':      g = { type:'line',      x1:drawStart.x, y1:drawStart.y, x2:sn.x, y2:sn.y }; break;
+    case 'rect': {
+      const x=Math.min(drawStart.x,sn.x), y=Math.min(drawStart.y,sn.y);
+      g = { type:'rect', x, y, width:Math.abs(dx), height:Math.abs(dy) }; break;
+    }
+    case 'circle':    g = { type:'circle',   cx:drawStart.x, cy:drawStart.y, radius:Math.hypot(dx,dy) }; break;
+    case 'ellipse':   g = { type:'ellipse',  cx:drawStart.x+dx/2, cy:drawStart.y+dy/2, rx:Math.abs(dx)/2, ry:Math.abs(dy)/2 }; break;
+    case 'refline':   g = { type:'refline',  x1:drawStart.x, y1:drawStart.y, x2:sn.x, y2:sn.y }; break;
+    case 'arrowline': g = { type:'arrowline',x1:drawStart.x, y1:drawStart.y, x2:sn.x, y2:sn.y, arrowEnd:true }; break;
+  }
+  setGhost(g || null, drawStart);
+}
+
+// ── Hit testing ───────────────────────────────────────────────────────────────
+
+function hitShape(mm) {
+  const THRESH = 3 / state.viewport.scale;
+  for (let i = state.shapes.length - 1; i >= 0; i--) {
+    if (shapeHit(state.shapes[i], mm.x, mm.y, THRESH)) return state.shapes[i];
+  }
+  return null;
+}
+
+function shapeHit(s, mx, my, t) {
+  let lx = mx, ly = my;
+  if (s.rotation) {
+    const { cx, cy } = shapeCenter(s);
+    const a = -s.rotation * Math.PI / 180;
+    const dx = mx-cx, dy = my-cy;
+    lx = cx + dx*Math.cos(a) - dy*Math.sin(a);
+    ly = cy + dx*Math.sin(a) + dy*Math.cos(a);
+  }
+  switch (s.type) {
+    case 'line': case 'refline': case 'arrowline':
+      return distToSeg(lx, ly, s.x1, s.y1, s.x2, s.y2) < t;
+    case 'rect': {
+      const inBox = lx>=s.x-t && lx<=s.x+s.width+t && ly>=s.y-t && ly<=s.y+s.height+t;
+      return inBox;
+    }
+    case 'circle':
+      return Math.hypot(lx-s.cx, ly-s.cy) <= s.radius + t;
+    case 'ellipse': {
+      const nx = (lx-s.cx)/s.rx, ny = (ly-s.cy)/s.ry;
+      return Math.sqrt(nx*nx + ny*ny) <= 1 + t/Math.max(s.rx,s.ry);
+    }
+    case 'label': {
+      const w = (s.text?.length||0)*(s.fontSize||3)*0.6;
+      const h = (s.fontSize||3)*1.3;
+      return lx>=s.x-t && lx<=s.x+w+t && ly>=s.y-t && ly<=s.y+h+t;
+    }
+  }
+  return false;
+}
+
+function distToSeg(px, py, ax, ay, bx, by) {
+  const dx = bx-ax, dy = by-ay;
+  const l2 = dx*dx + dy*dy;
+  if (l2 === 0) return Math.hypot(px-ax, py-ay);
+  const t = Math.max(0, Math.min(1, ((px-ax)*dx + (py-ay)*dy) / l2));
+  return Math.hypot(px-(ax+t*dx), py-(ay+t*dy));
+}
+
+// ── Public actions ────────────────────────────────────────────────────────────
+
+function deleteSelected() {
+  if (!state.selectedIds.length) return;
+  pushHistory();
+  state.shapes = state.shapes.filter(s => !state.selectedIds.includes(s.id));
+  state.selectedIds = [];
+  render();
+}
+
+function toggleSubtract() {
+  if (!state.selectedIds.length) { alert('Select a shape first'); return; }
+  pushHistory();
+  for (const id of state.selectedIds) {
+    const s = state.shapes.find(s => s.id === id);
+    if (s) s.mode = s.mode === 'subtract' ? 'add' : 'subtract';
+  }
+  render();
+}
+
+function groupSelected() {
+  if (state.selectedIds.length < 2) { alert('Select 2 or more shapes to group'); return; }
+  pushHistory();
+  const gid = 'g' + Date.now();
+  const selectedShapes = state.selectedIds.map(id => state.shapes.find(s => s.id === id)).filter(Boolean);
+  // If any selected shape was in a merged group, keep merged:true so Group never downgrades a Merge.
+  const wasMerged = selectedShapes.some(s => s.groupId && state.groups[s.groupId]?.merged);
+  state.groups[gid] = { id: gid, merged: wasMerged };
+  const oldGids = new Set(selectedShapes.map(s => s.groupId).filter(Boolean));
+  for (const s of selectedShapes) s.groupId = gid;
+  // Clean up any groups that are now empty after the re-assign
+  for (const old of oldGids) {
+    if (!state.shapes.some(s => s.groupId === old)) delete state.groups[old];
+  }
+  render();
+}
+
+function mergeSelected() {
+  if (state.selectedIds.length < 2) { alert('Select 2 or more shapes to merge'); return; }
+  pushHistory();
+  const gid = 'g' + Date.now();
+  state.groups[gid] = { id: gid, merged: true };
+  for (const id of state.selectedIds) {
+    const s = state.shapes.find(s => s.id === id);
+    if (s) s.groupId = gid;
+  }
+  render();
+}
+
+function ungroupSelected() {
+  if (!state.selectedIds.length) return;
+  pushHistory();
+  const gidsToRemove = new Set();
+  for (const id of state.selectedIds) {
+    const s = state.shapes.find(sh => sh.id === id);
+    if (s?.groupId) { gidsToRemove.add(s.groupId); s.groupId = null; }
+  }
+  for (const gid of gidsToRemove) {
+    if (!state.shapes.some(s => s.groupId === gid)) delete state.groups[gid];
+  }
+  render();
+}
+
+function openHoleSpec() {
+  const s = primaryShape();
+  if (!s || (s.type !== 'circle' && s.type !== 'ellipse')) return;
+  _holeShape = s;
+  const holeModal    = document.getElementById('hole-modal');
+  const holeType     = document.getElementById('hole-type');
+  const holeDepthRow = document.getElementById('hole-depth-row');
+  holeType.value = s.holeSpec?.type || 'through';
+  document.getElementById('hole-thread').value = s.holeSpec?.thread || '';
+  document.getElementById('hole-depth').value  = s.holeSpec?.depth ?? 10;
+  holeDepthRow.style.display = holeType.value === 'through' ? 'none' : '';
+  holeModal.classList.add('open');
+  document.getElementById('hole-thread').focus();
+}
+
+  return { initTools, setSpaceHeld, hitShape, deleteSelected, toggleSubtract, groupSelected, mergeSelected, ungroupSelected, openHoleSpec };
+})();
+__M['input'] = (function(){
+  const { undo, redo } = __M['history'];
+  const { setSpaceHeld, deleteSelected, toggleSubtract } = __M['tools'];
+// Keyboard shortcuts
+
+
+function initInput() {
+  window.addEventListener('keydown', onKeyDown);
+  window.addEventListener('keyup',   onKeyUp);
+}
+
+function onKeyDown(e) {
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') return;
+  if (e.code === 'Space')            { e.preventDefault(); setSpaceHeld(true); }
+  if (e.ctrlKey && e.key === 'z')    { e.preventDefault(); undo(); }
+  if (e.ctrlKey && e.key === 'y')    { e.preventDefault(); redo(); }
+  if (e.key === '-' || e.key === '_') toggleSubtract();
+}
+
+function onKeyUp(e) {
+  if (e.code === 'Space') setSpaceHeld(false);
+}
+
+  return { initInput };
+})();
+__M['main'] = (function(){
+  const { state, primaryShape } = __M['state'];
+  const { initRenderer, render } = __M['renderer'];
+  const { initTools, setSpaceHeld, deleteSelected, toggleSubtract, groupSelected, mergeSelected, ungroupSelected, openHoleSpec } = __M['tools'];
+  const { initInput } = __M['input'];
+  const { undo, redo } = __M['history'];
+  const { saveProject, loadProject, exportSVG } = __M['io'];
+  const { initPrecision, openPrecision } = __M['precision'];
+  const { snapOptions } = __M['grid'];
+// main.js — boots the app, wires all the pieces together.
+
+
+const canvas = document.getElementById('canvas');
+
+function initViewport() {
+  const W = canvas.offsetWidth, H = canvas.offsetHeight;
+  state.viewport.scale   = 2;
+  state.viewport.offsetX = W * 0.25;
+  state.viewport.offsetY = H * 0.75;
+  state.datum = { x: 0, y: 0 };
+}
+
+initViewport();
+initRenderer(canvas);
+initTools(canvas);
+initInput();
+initPrecision();
+
+// ── Sidebar tool buttons ──────────────────────────────────────────────────────
+
+const TOOL_IDS = {
+  'tool-hand':      'hand',
+  'tool-select':    'select',
+  'tool-line':      'line',
+  'tool-rect':      'rect',
+  'tool-circle':    'circle',
+  'tool-ellipse':   'ellipse',
+  'tool-refline':   'refline',
+  'tool-arrowline': 'arrowline',
+  'tool-label':     'label',
+};
+
+for (const [id, tool] of Object.entries(TOOL_IDS)) {
+  const el = document.getElementById(id);
+  if (el) el.addEventListener('click', () => setTool(tool));
+}
+
+function setTool(tool) {
+  state.tool = tool;
+  for (const [id, t] of Object.entries(TOOL_IDS)) {
+    document.getElementById(id)?.classList.toggle('active', t === tool);
+  }
+  document.getElementById('status-tool').textContent =
+    'Tool: ' + tool.charAt(0).toUpperCase() + tool.slice(1);
+  // Update canvas cursor style
+  canvas.style.cursor = tool === 'hand' ? 'grab' : tool === 'select' ? 'default' : 'crosshair';
+}
+
+window.addEventListener('keydown', e => {
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') return;
+  const map = { h:'hand', s:'select', l:'line', r:'rect', c:'circle', o:'ellipse', f:'refline', a:'arrowline', t:'label' };
+  if (map[e.key]) setTool(map[e.key]);
+});
+
+// ── Toolbar buttons ───────────────────────────────────────────────────────────
+
+document.getElementById('btn-undo').addEventListener('click', undo);
+document.getElementById('btn-redo').addEventListener('click', redo);
+
+const btnGrid = document.getElementById('btn-grid');
+btnGrid.classList.toggle('active', state.grid.visible);
+btnGrid.addEventListener('click', () => {
+  state.grid.visible = !state.grid.visible;
+  btnGrid.classList.toggle('active', state.grid.visible);
+  render();
+});
+
+const btnSnap = document.getElementById('btn-snap');
+btnSnap.classList.toggle('active', state.grid.snap);
+btnSnap.addEventListener('click', () => {
+  state.grid.snap = !state.grid.snap;
+  btnSnap.classList.toggle('active', state.grid.snap);
+});
+
+const snapSelect = document.getElementById('snap-select');
+function populateSnapSelect() {
+  snapSelect.innerHTML = '';
+  for (const opt of snapOptions()) {
+    const el = document.createElement('option');
+    el.value       = opt.value;
+    el.textContent = opt.label;
+    if (Math.abs(opt.value - state.snapSize) < 0.0001) el.selected = true;
+    snapSelect.appendChild(el);
+  }
+}
+populateSnapSelect();
+window.__populateSnapSelect = populateSnapSelect;
+snapSelect.addEventListener('change', () => { state.snapSize = parseFloat(snapSelect.value); render(); });
+
+document.getElementById('btn-units').addEventListener('click', () => {
+  state.units   = state.units === 'mm' ? 'in' : 'mm';
+  state.snapSize = state.units === 'mm' ? 10 : 25.4;
+  document.getElementById('btn-units').textContent = state.units.toUpperCase();
+  populateSnapSelect();
+});
+
+document.getElementById('btn-precision').addEventListener('click', openPrecision);
+
+// Subtract toggle
+const btnSubtract = document.getElementById('btn-subtract');
+btnSubtract.addEventListener('click', toggleSubtract);
+
+// Group / Merge / Ungroup
+document.getElementById('btn-group').addEventListener('click', groupSelected);
+document.getElementById('btn-merge').addEventListener('click', mergeSelected);
+document.getElementById('btn-ungroup').addEventListener('click', ungroupSelected);
+
+// Hole spec
+document.getElementById('btn-hole').addEventListener('click', openHoleSpec);
+
+// Dims toggle
+const btnDims = document.getElementById('btn-dims');
+btnDims.addEventListener('click', () => {
+  state.showDimensions = !state.showDimensions;
+  btnDims.classList.toggle('active', state.showDimensions);
+  render();
+});
+
+// Title block toggle
+const btnTitle = document.getElementById('btn-title');
+btnTitle.addEventListener('click', () => {
+  state.showTitleBlock = !state.showTitleBlock;
+  btnTitle.classList.toggle('active', state.showTitleBlock);
+  document.getElementById('title-block').classList.toggle('open', state.showTitleBlock);
+});
+
+['tb-title','tb-project','tb-drawnby','tb-date','tb-scale','tb-rev','tb-sheet'].forEach(id => {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const key = { 'tb-title':'title','tb-project':'project','tb-drawnby':'drawnBy',
+                'tb-date':'date','tb-scale':'scale','tb-rev':'rev','tb-sheet':'sheet' }[id];
+  el.addEventListener('input', () => { state.titleBlock[key] = el.value; });
+});
+
+document.getElementById('btn-new').addEventListener('click', () => {
+  state.shapes = [];
+  state.groups = {};
+  state.selectedIds = [];
+  state.hoveredId = null;
+  state.datum = { x: 0, y: 0 };
+  Object.assign(state.titleBlock, { title:'', project:'', drawnBy:'', date: new Date().toISOString().slice(0,10), scale:'1:1', rev:'A', sheet:'1 of 1' });
+  render();
+});
+document.getElementById('btn-save').addEventListener('click', saveProject);
+document.getElementById('btn-load').addEventListener('click', loadProject);
+document.getElementById('btn-export').addEventListener('click', exportSVG);
+
+// Delete key
+window.addEventListener('keydown', e => {
+  if (e.target.tagName === 'INPUT') return;
+  if (e.key === 'Delete' || e.key === 'Backspace') deleteSelected();
+});
+
+// ── Status bar ────────────────────────────────────────────────────────────────
+
+setInterval(() => {
+  document.getElementById('status-shapes').textContent = `Shapes: ${state.shapes.length}`;
+  const s = primaryShape();
+  btnSubtract.classList.toggle('active', s?.mode === 'subtract');
+  const selCount = state.selectedIds.length;
+  document.getElementById('btn-group').disabled  = selCount < 2;
+  document.getElementById('btn-merge').disabled  = selCount < 2;
+  document.getElementById('btn-ungroup').disabled = selCount < 1;
+  document.getElementById('btn-hole').disabled   = !(s && (s.type==='circle'||s.type==='ellipse'));
+
+  const cur = state.cursor;
+  document.getElementById('status-coords').textContent =
+    `X: ${fmt(cur.x)}  Y: ${fmt(cur.y)}`;
+  document.getElementById('status-zoom').textContent =
+    `Zoom: ${Math.round(state.viewport.scale * 50)}%`;
+}, 120);
+
+function fmt(v) {
+  return state.units === 'mm'
+    ? `${parseFloat(v.toFixed(2))} mm`
+    : `${parseFloat((v/25.4).toFixed(3))}"`;
+}
+
+// ── Space → pan ───────────────────────────────────────────────────────────────
+
+window.addEventListener('keydown', e => {
+  if (e.code === 'Space' && e.target.tagName !== 'INPUT') {
+    setSpaceHeld(true);
+    canvas.style.cursor = 'grab';
+  }
+});
+window.addEventListener('keyup', e => {
+  if (e.code === 'Space') {
+    setSpaceHeld(false);
+    if (state.tool !== 'hand') canvas.style.cursor = state.tool === 'select' ? 'default' : 'crosshair';
+  }
+});
+
+render();
+
+// ── About modal ───────────────────────────────────────────────────────────────
+
+const aboutModal = document.getElementById('about-modal');
+document.getElementById('btn-about').addEventListener('click', () => aboutModal.classList.add('open'));
+document.getElementById('about-close').addEventListener('click', () => aboutModal.classList.remove('open'));
+aboutModal.addEventListener('click', e => { if (e.target === aboutModal) aboutModal.classList.remove('open'); });
+
+  return { setTool };
+})();
+})();
+</script>
+</body>
+</html>
