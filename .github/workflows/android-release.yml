@@ -1,16 +1,25 @@
 name: Android Release
 
-# Publishes an installable APK as a GitHub Release whenever a version tag is
-# pushed (e.g. v1.1). The debug APK is debug-signed, so it installs directly by
-# sideloading — download it on your phone from the release page.
+# Publishes an installable APK as a GitHub Release. Triggers either on a pushed
+# version tag (e.g. v1.1) or via manual dispatch with a version input — the
+# release action creates the tag from the checked-out commit when dispatched.
+# The debug APK is debug-signed, so it installs directly by sideloading.
 on:
   push:
     tags:
       - "v*"
   workflow_dispatch:
+    inputs:
+      version:
+        description: "Release tag to create (e.g. v1.1)"
+        required: true
+        default: "v1.1"
 
 permissions:
   contents: write
+
+env:
+  VERSION: ${{ github.event.inputs.version || github.ref_name }}
 
 jobs:
   release:
@@ -45,15 +54,16 @@ jobs:
         run: |
           mkdir -p "$GITHUB_WORKSPACE/dist"
           cp app/build/outputs/apk/debug/app-debug.apk \
-             "$GITHUB_WORKSPACE/dist/app-manager-${GITHUB_REF_NAME}.apk"
+             "$GITHUB_WORKSPACE/dist/app-manager-${VERSION}.apk"
 
       - name: Publish GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          name: App Manager ${{ github.ref_name }}
-          files: dist/app-manager-${{ github.ref_name }}.apk
+          tag_name: ${{ env.VERSION }}
+          name: App Manager ${{ env.VERSION }}
+          files: dist/app-manager-${{ env.VERSION }}.apk
           body: |
-            Android App Manager ${{ github.ref_name }}.
+            Android App Manager ${{ env.VERSION }}.
 
             **Install on your phone:** download the `.apk` below, then open it.
             You may need to allow "Install unknown apps" for your browser.
