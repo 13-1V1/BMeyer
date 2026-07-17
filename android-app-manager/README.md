@@ -1,4 +1,4 @@
-# App Manager
+# BEZ App Manager
 
 An Android utility for cleaning house: browse every installed app, **sort and
 filter by size, last-used time, total usage time, and install date**, then

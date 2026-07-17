@@ -12,8 +12,8 @@ android {
         applicationId = "com.bmeyer.appmanager"
         minSdk = 26
         targetSdk = 35
-        versionCode = 2
-        versionName = "1.1"
+        versionCode = 3
+        versionName = "1.2"
     }
 
     buildTypes {
@@ -35,6 +35,11 @@ android {
     buildFeatures {
         compose = true
         aidl = true // for the Shizuku user-service interface
+    }
+    testOptions {
+        // Any stray Android stub call in a unit test returns a default instead
+        // of throwing "Stub!"; our logic tests avoid framework calls anyway.
+        unitTests.isReturnDefaultValues = true
     }
 }
 
@@ -60,4 +65,6 @@ dependencies {
     // Shizuku — optional privileged (ADB/root) backend for silent bulk uninstall.
     implementation("dev.rikka.shizuku:api:13.1.5")
     implementation("dev.rikka.shizuku:provider:13.1.5")
+
+    testImplementation("junit:junit:4.13.2")
 }

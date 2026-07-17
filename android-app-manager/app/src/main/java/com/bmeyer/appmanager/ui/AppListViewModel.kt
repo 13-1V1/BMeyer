@@ -110,11 +110,14 @@ class AppListViewModel(app: Application) : AndroidViewModel(app) {
         val hasAccess = UsageAccess.isGranted(ctx)
         _state.update { it.copy(loading = true, hasUsageAccess = hasAccess) }
         viewModelScope.launch {
-            val apps = repo.loadApps(
-                includeSystem = _state.value.includeSystem,
-                hasUsageAccess = hasAccess,
-                nowMillis = System.currentTimeMillis(),
-            )
+            // Never let a load failure crash the app; surface an empty list instead.
+            val apps = runCatching {
+                repo.loadApps(
+                    includeSystem = _state.value.includeSystem,
+                    hasUsageAccess = hasAccess,
+                    nowMillis = System.currentTimeMillis(),
+                )
+            }.getOrDefault(emptyList())
             val stillPresent = apps.mapTo(HashSet()) { it.packageName }
             _state.update {
                 it.copy(
