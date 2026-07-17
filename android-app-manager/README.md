@@ -20,36 +20,53 @@ Built with **Kotlin + Jetpack Compose** (Material 3).
   - (usage/size chips are disabled until Usage access is granted)
 - **Category filter** — narrow to Games, Audio, Video, Photos, Social, News,
   Maps, Productivity, or Uncategorized (from each app's declared category).
+- **Advanced compound search** — combine multiple criteria (all AND-matched) to
+  refine precisely, e.g. *used within the last year AND for more than 5 minutes*:
+  - Last used — within / older than / never, with a day threshold
+  - Installed — within / older than, with a day threshold
+  - Total usage time (minutes) — min/max
+  - Times opened (last 30 days) — min/max
+  - Storage size (MB) — min/max
+- **Richer per-app info** — each row shows size, last used, total usage time,
+  open count, and last-updated date.
 - **Search** by app name or package name.
 - **Reclaimable-space dashboard** — a header card showing total apps, combined
   app storage, and how many apps are unused (90d+) with an estimate of how much
   space removing them would free, plus a one-tap **Review** to jump to that list.
 - **View totals** — the controls row shows the app count and combined size of
   whatever is currently filtered in.
-- **Bulk selection** with a select-all-shown action and a running count.
+- **Bulk selection** with an always-visible **Select all / Unselect all** toggle
+  and a running count.
 - **Reclaimable size** — a bottom bar totals how much storage your current
   selection would free.
-- **Bulk uninstall**, two backends (auto-selected):
-  - *Standard* — a sequential queue firing one system confirmation per app.
-  - *Silent (Shizuku)* — when [Shizuku](https://shizuku.rikka.app/) is running
-    and permission-granted, removes the whole selection with **no per-app taps**,
-    showing live progress. Falls back to the standard queue automatically.
+- **Bulk uninstall**, three backends (best available is auto-selected):
+  - *Hands-free (Accessibility)* — enable a one-time auto-confirm service and the
+    app taps every system confirmation for you: tap Uninstall once, walk away.
+  - *Silent (Shizuku)* — when [Shizuku](https://shizuku.rikka.app/) is running and
+    permission-granted, removes the whole selection with no dialogs at all.
+  - *Manual* — the always-works fallback: a queue firing one system confirmation
+    per app.
 - **Per-app "App info"** shortcut (ℹ️ on each row) that opens the system settings
   page so you can force-stop, clear cache, or manage permissions.
 - **Remembers your preferences** — sort order, active filter, and the
   system-apps toggle persist across launches.
 
-## How bulk uninstall works (and why it's a queue)
+## How bulk uninstall works
 
-Android does **not** let an ordinary Play-Store-installable app silently remove
-other apps — every uninstall must be confirmed by the user. So "bulk" here means
-you do the *selection and filtering* in bulk, then the app fires the system
-uninstall prompt for each selected app back-to-back. You tap **OK** (or cancel)
-on each one; the app tracks the results and refreshes the list.
+Android does **not** let an ordinary app silently remove other apps — every
+uninstall must be confirmed. The app offers three ways to handle that, and picks
+the best one available when you tap Uninstall:
 
-For genuinely silent one-tap removal, the app includes an optional **Shizuku**
-backend (see below). Without it, the standard queue runs on any phone with no
-setup.
+1. **Hands-free (Accessibility auto-confirm).** Enable BEZ App Manager's
+   accessibility service once (Settings → Accessibility). During a bulk uninstall
+   *you started*, the app watches for the system confirmation dialog and taps it
+   for you — so you tap **Uninstall** once and the batch clears itself. The
+   service only acts while a batch you started is running, and never touches
+   anything else. Keep the screen on and don't interact while it runs.
+2. **Silent (Shizuku).** If [Shizuku](https://shizuku.rikka.app/) is running and
+   permission-granted, the batch runs with no dialogs at all.
+3. **Manual.** With neither enabled, the app fires the system prompt for each app
+   back-to-back and you confirm each — works on any phone, no setup.
 
 ## Silent uninstall with Shizuku (optional)
 

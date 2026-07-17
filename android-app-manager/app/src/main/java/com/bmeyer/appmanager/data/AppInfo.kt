@@ -17,6 +17,10 @@ data class AppInfo(
     val usageMillis: Long,
     /** epoch millis the app was first installed. */
     val firstInstallMillis: Long,
+    /** epoch millis the app was last updated (or first installed if never). */
+    val lastUpdateMillis: Long,
+    /** foreground opens within the usage window (best-effort), or 0 if unknown. */
+    val openCount: Int,
     /** ApplicationInfo.category (CATEGORY_GAME, …), or -1 when undefined. */
     val category: Int,
 )

@@ -41,6 +41,21 @@
             </intent-filter>
         </activity>
 
+        <!-- Hands-free bulk uninstall: auto-confirms the system uninstall dialog
+             while a user-initiated batch is running. Opt-in via Settings. -->
+        <service
+            android:name=".uninstall.UninstallAutoConfirmService"
+            android:exported="false"
+            android:label="@string/app_name"
+            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
+            <intent-filter>
+                <action android:name="android.accessibilityservice.AccessibilityService" />
+            </intent-filter>
+            <meta-data
+                android:name="android.accessibilityservice"
+                android:resource="@xml/accessibility_service_config" />
+        </service>
+
         <!-- Shizuku entry point; initializes the binder for the optional
              silent-uninstall backend. Harmless if Shizuku isn't installed. -->
         <provider
