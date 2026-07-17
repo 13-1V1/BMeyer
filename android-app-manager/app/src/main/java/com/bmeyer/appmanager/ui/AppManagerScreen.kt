@@ -21,6 +21,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Category
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.MoreVert
@@ -40,20 +41,25 @@ import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
@@ -63,10 +69,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.drawable.toBitmap
+import com.bmeyer.appmanager.data.AppCategory
 import com.bmeyer.appmanager.data.AppInfo
 import com.bmeyer.appmanager.data.QuickFilter
 import com.bmeyer.appmanager.data.SortOption
+import com.bmeyer.appmanager.shizuku.ShizukuManager
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -79,6 +88,8 @@ fun AppManagerScreen(
     val state by viewModel.state.collectAsState()
     val nowMillis = remember { System.currentTimeMillis() }
     val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    val snackbarHostState = remember { SnackbarHostState() }
 
     // Opens the system "App info" page so the user can force-stop, clear cache,
     // or manage permissions — things a normal app can't do for others itself.
@@ -92,10 +103,13 @@ fun AppManagerScreen(
     }
 
     var confirmVisible by remember { mutableStateOf(false) }
-    var sortMenuOpen by remember { mutableStateOf(false) }
+    var shizukuMode by remember { mutableStateOf(ShizukuManager.Availability.UNAVAILABLE) }
     var overflowOpen by remember { mutableStateOf(false) }
 
-    // Sequential uninstall queue: one system confirmation dialog per package.
+    // Non-null while a silent Shizuku batch is running: (done, total).
+    var silentProgress by remember { mutableStateOf<Pair<Int, Int>?>(null) }
+
+    // Sequential uninstall queue (fallback): one system confirmation per package.
     var queue by remember { mutableStateOf<List<String>>(emptyList()) }
     var queueIndex by remember { mutableIntStateOf(0) }
 
@@ -107,8 +121,8 @@ fun AppManagerScreen(
         queueIndex += 1
     }
 
-    // Drives the queue forward each time queueIndex advances.
-    androidx.compose.runtime.LaunchedEffect(queue, queueIndex) {
+    // Drives the fallback queue forward each time queueIndex advances.
+    LaunchedEffect(queue, queueIndex) {
         if (queue.isEmpty()) return@LaunchedEffect
         val pkg = queue.getOrNull(queueIndex)
         if (pkg != null) {
@@ -116,9 +130,26 @@ fun AppManagerScreen(
                 .putExtra(Intent.EXTRA_RETURN_RESULT, true)
             uninstallLauncher.launch(intent)
         } else {
-            // Finished the whole batch.
             queue = emptyList()
             queueIndex = 0
+        }
+    }
+
+    fun runSilentUninstall(packages: List<String>) {
+        scope.launch {
+            silentProgress = 0 to packages.size
+            val results = ShizukuManager.uninstall(context, packages) { done, total ->
+                silentProgress = done to total
+            }
+            val succeeded = results.filterValues { it.equals("Success", ignoreCase = true) }.keys
+            viewModel.onUninstalledBatch(succeeded)
+            viewModel.clearSelection()
+            silentProgress = null
+            val failed = results.size - succeeded.size
+            snackbarHostState.showSnackbar(
+                if (failed == 0) "Uninstalled ${succeeded.size} app${plural(succeeded.size)}"
+                else "Uninstalled ${succeeded.size}, $failed failed"
+            )
         }
     }
 
@@ -152,10 +183,14 @@ fun AppManagerScreen(
                 },
             )
         },
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         floatingActionButton = {
             if (state.selectedCount > 0) {
                 ExtendedFloatingActionButton(
-                    onClick = { confirmVisible = true },
+                    onClick = {
+                        shizukuMode = ShizukuManager.availability()
+                        confirmVisible = true
+                    },
                     icon = { Icon(Icons.Filled.Delete, contentDescription = null) },
                     text = { Text("Uninstall ${state.selectedCount}") },
                 )
@@ -187,6 +222,17 @@ fun AppManagerScreen(
     ) { padding ->
         Column(Modifier.padding(padding).fillMaxSize()) {
 
+            if (state.allApps.isNotEmpty()) {
+                DashboardCard(
+                    totalApps = state.allApps.size,
+                    totalBytes = state.totalBytes,
+                    unusedCount = state.unusedCount,
+                    unusedBytes = state.unusedReclaimableBytes,
+                    hasUsageAccess = state.hasUsageAccess,
+                    onReviewUnused = { viewModel.setQuickFilter(QuickFilter.UNUSED_90) },
+                )
+            }
+
             SearchBar(query = state.query, onQueryChange = viewModel::setQuery)
 
             FilterChipsRow(
@@ -195,14 +241,13 @@ fun AppManagerScreen(
                 onPick = viewModel::setQuickFilter,
             )
 
-            SortRow(
+            ControlsRow(
                 sort = state.sort,
-                menuOpen = sortMenuOpen,
-                onOpen = { sortMenuOpen = true },
-                onDismiss = { sortMenuOpen = false },
-                onPick = { sortMenuOpen = false; viewModel.setSort(it) },
+                category = state.category,
                 resultCount = state.visibleApps.size,
                 totalBytes = state.visibleTotalBytes,
+                onPickSort = viewModel::setSort,
+                onPickCategory = viewModel::setCategory,
             )
 
             if (!state.hasUsageAccess) {
@@ -232,26 +277,126 @@ fun AppManagerScreen(
     }
 
     if (confirmVisible) {
-        val count = state.selectedCount
-        AlertDialog(
-            onDismissRequest = { confirmVisible = false },
-            title = { Text("Uninstall $count app${if (count == 1) "" else "s"}?") },
-            text = {
-                Text(
-                    "Android will show a confirmation for each app in turn — tap OK on each. " +
-                        "You can cancel any individual one.",
-                )
+        UninstallConfirmDialog(
+            count = state.selectedCount,
+            mode = shizukuMode,
+            onEnableShizuku = {
+                scope.launch {
+                    val granted = ShizukuManager.ensurePermission()
+                    shizukuMode = if (granted) ShizukuManager.Availability.READY
+                    else ShizukuManager.availability()
+                }
             },
-            confirmButton = {
-                TextButton(onClick = {
-                    confirmVisible = false
-                    // Snapshot selection into the queue and kick it off.
-                    queue = state.selected.toList()
+            onConfirm = {
+                confirmVisible = false
+                val selection = state.selected.toList()
+                if (shizukuMode == ShizukuManager.Availability.READY) {
+                    runSilentUninstall(selection)
+                } else {
+                    queue = selection
                     queueIndex = 0
-                }) { Text("Start") }
+                }
             },
-            dismissButton = { TextButton(onClick = { confirmVisible = false }) { Text("Cancel") } },
+            onDismiss = { confirmVisible = false },
         )
+    }
+
+    silentProgress?.let { (done, total) ->
+        AlertDialog(
+            onDismissRequest = {},
+            title = { Text("Uninstalling silently") },
+            text = {
+                Column {
+                    Text("$done / $total")
+                    Spacer(Modifier.size(8.dp))
+                    val fraction = if (total == 0) 0f else done.toFloat() / total
+                    LinearProgressIndicator(
+                        progress = { fraction },
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                }
+            },
+            confirmButton = {},
+        )
+    }
+}
+
+@Composable
+private fun UninstallConfirmDialog(
+    count: Int,
+    mode: ShizukuManager.Availability,
+    onEnableShizuku: () -> Unit,
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit,
+) {
+    val silent = mode == ShizukuManager.Availability.READY
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Uninstall $count app${plural(count)}?") },
+        text = {
+            Column {
+                if (silent) {
+                    Text("Shizuku is active — these will be removed silently, no per-app taps.")
+                } else {
+                    Text(
+                        "Android will show a confirmation for each app in turn — tap OK on each. " +
+                            "You can cancel any individual one."
+                    )
+                    if (mode == ShizukuManager.Availability.NEEDS_PERMISSION) {
+                        Spacer(Modifier.size(8.dp))
+                        Text(
+                            "Shizuku is running. Grant permission to remove them all silently instead:",
+                            style = MaterialTheme.typography.bodySmall,
+                        )
+                        TextButton(onClick = onEnableShizuku) { Text("Enable silent mode") }
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onConfirm) { Text(if (silent) "Uninstall silently" else "Start") }
+        },
+        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } },
+    )
+}
+
+@Composable
+private fun DashboardCard(
+    totalApps: Int,
+    totalBytes: Long,
+    unusedCount: Int,
+    unusedBytes: Long,
+    hasUsageAccess: Boolean,
+    onReviewUnused: () -> Unit,
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 6.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+    ) {
+        Column(Modifier.padding(14.dp)) {
+            Text("$totalApps apps installed", style = MaterialTheme.typography.titleMedium)
+            if (hasUsageAccess && totalBytes > 0) {
+                Text(
+                    "${formatSize(totalBytes)} used by apps",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+            if (hasUsageAccess && unusedCount > 0) {
+                Spacer(Modifier.size(10.dp))
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Column(Modifier.weight(1f)) {
+                        Text("$unusedCount unused (90d+)", fontWeight = FontWeight.Bold)
+                        Text(
+                            "~${formatSize(unusedBytes)} reclaimable",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                    TextButton(onClick = onReviewUnused) { Text("Review") }
+                }
+            }
+        }
     }
 }
 
@@ -267,29 +412,53 @@ private fun SearchBar(query: String, onQueryChange: (String) -> Unit) {
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun SortRow(
+private fun ControlsRow(
     sort: SortOption,
-    menuOpen: Boolean,
-    onOpen: () -> Unit,
-    onDismiss: () -> Unit,
-    onPick: (SortOption) -> Unit,
+    category: AppCategory,
     resultCount: Int,
     totalBytes: Long,
+    onPickSort: (SortOption) -> Unit,
+    onPickCategory: (AppCategory) -> Unit,
 ) {
+    var sortOpen by remember { mutableStateOf(false) }
+    var catOpen by remember { mutableStateOf(false) }
     Row(
-        Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 2.dp),
+        Modifier
+            .fillMaxWidth()
+            .horizontalScroll(rememberScrollState())
+            .padding(horizontal = 12.dp, vertical = 2.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Box {
-            TextButton(onClick = onOpen) {
+            TextButton(onClick = { sortOpen = true }) {
                 Icon(Icons.Filled.Sort, contentDescription = null)
                 Spacer(Modifier.width(6.dp))
                 Text(sort.label)
             }
-            DropdownMenu(expanded = menuOpen, onDismissRequest = onDismiss) {
+            DropdownMenu(expanded = sortOpen, onDismissRequest = { sortOpen = false }) {
                 SortOption.entries.forEach { option ->
-                    DropdownMenuItem(text = { Text(option.label) }, onClick = { onPick(option) })
+                    DropdownMenuItem(
+                        text = { Text(option.label) },
+                        onClick = { sortOpen = false; onPickSort(option) },
+                    )
+                }
+            }
+        }
+        Spacer(Modifier.width(4.dp))
+        Box {
+            TextButton(onClick = { catOpen = true }) {
+                Icon(Icons.Filled.Category, contentDescription = null)
+                Spacer(Modifier.width(6.dp))
+                Text(category.label)
+            }
+            DropdownMenu(expanded = catOpen, onDismissRequest = { catOpen = false }) {
+                AppCategory.entries.forEach { option ->
+                    DropdownMenuItem(
+                        text = { Text(option.label) },
+                        onClick = { catOpen = false; onPickCategory(option) },
+                    )
                 }
             }
         }
@@ -426,3 +595,5 @@ private fun rememberAppIcon(packageName: String): ImageBitmap? {
         }
     }.value
 }
+
+private fun plural(count: Int): String = if (count == 1) "" else "s"

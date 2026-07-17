@@ -12,8 +12,8 @@ android {
         applicationId = "com.bmeyer.appmanager"
         minSdk = 26
         targetSdk = 35
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 2
+        versionName = "1.1"
     }
 
     buildTypes {
@@ -34,6 +34,7 @@ android {
     }
     buildFeatures {
         compose = true
+        aidl = true // for the Shizuku user-service interface
     }
 }
 
@@ -55,4 +56,8 @@ dependencies {
 
     debugImplementation("androidx.compose.ui:ui-tooling")
     implementation("androidx.compose.ui:ui-tooling-preview")
+
+    // Shizuku — optional privileged (ADB/root) backend for silent bulk uninstall.
+    implementation("dev.rikka.shizuku:api:13.1.5")
+    implementation("dev.rikka.shizuku:provider:13.1.5")
 }
