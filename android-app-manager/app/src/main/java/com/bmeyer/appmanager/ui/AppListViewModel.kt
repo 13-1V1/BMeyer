@@ -3,6 +3,7 @@ package com.bmeyer.appmanager.ui
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.bmeyer.appmanager.data.AppCategory
 import com.bmeyer.appmanager.data.AppInfo
 import com.bmeyer.appmanager.data.AppRepository
 import com.bmeyer.appmanager.data.Prefs
@@ -23,10 +24,11 @@ data class UiState(
     val query: String = "",
     val sort: SortOption = SortOption.LARGEST,
     val quickFilter: QuickFilter = QuickFilter.ALL,
+    val category: AppCategory = AppCategory.ANY,
     val includeSystem: Boolean = false,
     val selected: Set<String> = emptySet(),
 ) {
-    /** Filtered (search + quick filter) then ordered by [sort]. */
+    /** Filtered (search + quick filter + category) then ordered by [sort]. */
     val visibleApps: List<AppInfo> by lazy {
         val now = System.currentTimeMillis()
         val q = query.trim().lowercase()
@@ -34,6 +36,7 @@ data class UiState(
             .asSequence()
             .filter { q.isEmpty() || it.label.lowercase().contains(q) || it.packageName.contains(q) }
             .filter { quickFilter.matches(it, now) }
+            .filter { category.matches(it) }
             .sortedWith(sort.comparator())
             .toList()
     }
@@ -48,6 +51,26 @@ data class UiState(
     /** Combined size of everything currently shown. */
     val visibleTotalBytes: Long by lazy {
         visibleApps.filter { it.sizeBytes > 0 }.sumOf { it.sizeBytes }
+    }
+
+    // ---- Dashboard stats (computed over the whole inventory) ----
+
+    /** Combined size of every app in the inventory. */
+    val totalBytes: Long by lazy {
+        allApps.filter { it.sizeBytes > 0 }.sumOf { it.sizeBytes }
+    }
+
+    /** Apps not opened in 90+ days (or never), the primary cleanup target. */
+    private val unusedApps: List<AppInfo> by lazy {
+        val now = System.currentTimeMillis()
+        allApps.filter { QuickFilter.UNUSED_90.matches(it, now) }
+    }
+
+    val unusedCount: Int get() = unusedApps.size
+
+    /** Estimated storage reclaimable by removing all unused apps. */
+    val unusedReclaimableBytes: Long by lazy {
+        unusedApps.filter { it.sizeBytes > 0 }.sumOf { it.sizeBytes }
     }
 }
 
@@ -115,6 +138,8 @@ class AppListViewModel(app: Application) : AndroidViewModel(app) {
         _state.update { it.copy(quickFilter = filter) }
     }
 
+    fun setCategory(category: AppCategory) = _state.update { it.copy(category = category) }
+
     fun toggleIncludeSystem() {
         val next = !_state.value.includeSystem
         prefs.includeSystem = next
@@ -140,6 +165,15 @@ class AppListViewModel(app: Application) : AndroidViewModel(app) {
         s.copy(
             allApps = s.allApps.filterNot { it.packageName == packageName },
             selected = s.selected - packageName,
+        )
+    }
+
+    /** Several packages removed at once (silent Shizuku batch). */
+    fun onUninstalledBatch(packageNames: Collection<String>) = _state.update { s ->
+        val removed = packageNames.toHashSet()
+        s.copy(
+            allApps = s.allApps.filterNot { it.packageName in removed },
+            selected = s.selected - removed,
         )
     }
 }

@@ -17,4 +17,6 @@ data class AppInfo(
     val usageMillis: Long,
     /** epoch millis the app was first installed. */
     val firstInstallMillis: Long,
+    /** ApplicationInfo.category (CATEGORY_GAME, …), or -1 when undefined. */
+    val category: Int,
 )

@@ -63,6 +63,7 @@ class AppRepository(private val context: Context) {
                     lastUsedMillis = usage?.lastUsed ?: 0L,
                     usageMillis = usage?.foreground ?: 0L,
                     firstInstallMillis = firstInstall(appInfo.packageName),
+                    category = appInfo.category,
                 )
             }
             .sortedBy { it.label.lowercase() }
