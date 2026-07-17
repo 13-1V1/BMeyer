@@ -60,10 +60,10 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ env.VERSION }}
-          name: App Manager ${{ env.VERSION }}
+          name: BEZ App Manager ${{ env.VERSION }}
           files: dist/app-manager-${{ env.VERSION }}.apk
           body: |
-            Android App Manager ${{ env.VERSION }}.
+            BEZ App Manager ${{ env.VERSION }}.
 
             **Install on your phone:** download the `.apk` below, then open it.
             You may need to allow "Install unknown apps" for your browser.

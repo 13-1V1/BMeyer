@@ -156,7 +156,7 @@ fun AppManagerScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("App Manager") },
+                title = { Text("BEZ App Manager") },
                 actions = {
                     IconButton(onClick = { viewModel.refresh() }) {
                         Icon(Icons.Filled.Refresh, contentDescription = "Refresh")
