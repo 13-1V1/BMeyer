@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">BEZ App Manager</string>
+    <string name="accessibility_description">Lets BEZ App Manager auto-confirm the system uninstall dialog during a bulk uninstall you start, so you don\'t have to tap OK on every app. It only acts while you\'re removing apps and never touches anything else.</string>
 </resources>

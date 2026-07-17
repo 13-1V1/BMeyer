@@ -1,6 +1,7 @@
 package com.bmeyer.appmanager.data
 
 import android.app.usage.StorageStatsManager
+import android.app.usage.UsageEvents
 import android.app.usage.UsageStatsManager
 import android.content.Context
 import android.content.pm.ApplicationInfo
@@ -12,8 +13,8 @@ import kotlinx.coroutines.withContext
 
 /**
  * Reads the installed-app inventory and enriches each entry with usage-stats
- * (last used, foreground time) and storage size. Everything runs off the main
- * thread; call [loadApps] from a coroutine.
+ * (last used, foreground time, open count) and storage size. Everything runs
+ * off the main thread; call [loadApps] from a coroutine.
  */
 class AppRepository(private val context: Context) {
 
@@ -21,6 +22,9 @@ class AppRepository(private val context: Context) {
 
     /** Window for aggregating usage stats: roughly the last year. */
     private val usageWindowMillis = 365L * 24 * 60 * 60 * 1000
+
+    /** Shorter window for counting opens (event scans get heavy over a year). */
+    private val openWindowMillis = 30L * 24 * 60 * 60 * 1000
 
     @Suppress("DEPRECATION")
     suspend fun loadApps(
@@ -30,6 +34,8 @@ class AppRepository(private val context: Context) {
     ): List<AppInfo> = withContext(Dispatchers.IO) {
         val usageByPkg: Map<String, UsageSnapshot> =
             if (hasUsageAccess) queryUsage(nowMillis) else emptyMap()
+        val openCounts: Map<String, Int> =
+            if (hasUsageAccess) queryOpenCounts(nowMillis) else emptyMap()
 
         val storageStatsManager = if (hasUsageAccess) {
             context.getSystemService(Context.STORAGE_STATS_SERVICE) as StorageStatsManager
@@ -55,6 +61,8 @@ class AppRepository(private val context: Context) {
                     }.getOrNull()
                 } ?: -1L
 
+                val (firstInstall, lastUpdate) = packageTimes(appInfo.packageName)
+
                 AppInfo(
                     packageName = appInfo.packageName,
                     label = pm.getApplicationLabel(appInfo).toString(),
@@ -62,7 +70,9 @@ class AppRepository(private val context: Context) {
                     sizeBytes = size,
                     lastUsedMillis = usage?.lastUsed ?: 0L,
                     usageMillis = usage?.foreground ?: 0L,
-                    firstInstallMillis = firstInstall(appInfo.packageName),
+                    firstInstallMillis = firstInstall,
+                    lastUpdateMillis = lastUpdate,
+                    openCount = openCounts[appInfo.packageName] ?: 0,
                     category = appInfo.category,
                 )
             }
@@ -82,10 +92,30 @@ class AppRepository(private val context: Context) {
         }.onFailure { Log.w(TAG, "usage query failed", it) }.getOrDefault(emptyMap())
     }
 
-    @Suppress("DEPRECATION")
-    private fun firstInstall(packageName: String): Long = runCatching {
-        pm.getPackageInfo(packageName, 0).firstInstallTime
-    }.getOrDefault(0L)
+    /** Counts foreground launches per package over the open window. */
+    private fun queryOpenCounts(nowMillis: Long): Map<String, Int> {
+        val usm = context.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
+        return runCatching {
+            val events = usm.queryEvents(nowMillis - openWindowMillis, nowMillis)
+            val counts = HashMap<String, Int>()
+            val event = UsageEvents.Event()
+            while (events.hasNextEvent()) {
+                events.getNextEvent(event)
+                // MOVE_TO_FOREGROUND (==1) is also ACTIVITY_RESUMED on API 29+.
+                if (event.eventType == UsageEvents.Event.MOVE_TO_FOREGROUND) {
+                    val pkg = event.packageName ?: continue
+                    counts[pkg] = (counts[pkg] ?: 0) + 1
+                }
+            }
+            counts
+        }.onFailure { Log.w(TAG, "event query failed", it) }.getOrDefault(emptyMap())
+    }
+
+    /** Returns (firstInstallTime, lastUpdateTime) for a package. */
+    private fun packageTimes(packageName: String): Pair<Long, Long> = runCatching {
+        val pi = pm.getPackageInfo(packageName, 0)
+        pi.firstInstallTime to pi.lastUpdateTime
+    }.getOrDefault(0L to 0L)
 
     private fun ApplicationInfo.isSystem(): Boolean =
         (flags and (ApplicationInfo.FLAG_SYSTEM or ApplicationInfo.FLAG_UPDATED_SYSTEM_APP)) != 0

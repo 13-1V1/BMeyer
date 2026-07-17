@@ -3,6 +3,7 @@ package com.bmeyer.appmanager.ui
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.bmeyer.appmanager.data.AdvancedFilter
 import com.bmeyer.appmanager.data.AppCategory
 import com.bmeyer.appmanager.data.AppInfo
 import com.bmeyer.appmanager.data.AppRepository
@@ -25,10 +26,11 @@ data class UiState(
     val sort: SortOption = SortOption.LARGEST,
     val quickFilter: QuickFilter = QuickFilter.ALL,
     val category: AppCategory = AppCategory.ANY,
+    val advanced: AdvancedFilter = AdvancedFilter(),
     val includeSystem: Boolean = false,
     val selected: Set<String> = emptySet(),
 ) {
-    /** Filtered (search + quick filter + category) then ordered by [sort]. */
+    /** Filtered (search + quick filter + category + advanced) then sorted. */
     val visibleApps: List<AppInfo> by lazy {
         val now = System.currentTimeMillis()
         val q = query.trim().lowercase()
@@ -37,6 +39,7 @@ data class UiState(
             .filter { q.isEmpty() || it.label.lowercase().contains(q) || it.packageName.contains(q) }
             .filter { quickFilter.matches(it, now) }
             .filter { category.matches(it) }
+            .filter { advanced.matches(it, now) }
             .sortedWith(sort.comparator())
             .toList()
     }
@@ -142,6 +145,19 @@ class AppListViewModel(app: Application) : AndroidViewModel(app) {
     }
 
     fun setCategory(category: AppCategory) = _state.update { it.copy(category = category) }
+
+    fun setAdvancedFilter(filter: AdvancedFilter) = _state.update { it.copy(advanced = filter) }
+
+    /** Clears every filter dimension back to defaults (keeps sort + selection). */
+    fun resetFilters() = _state.update {
+        it.copy(quickFilter = QuickFilter.ALL, category = AppCategory.ANY, advanced = AdvancedFilter())
+    }
+
+    /** True when every visible app is selected (drives the select-all toggle). */
+    fun allVisibleSelected(): Boolean {
+        val visible = _state.value.visibleApps
+        return visible.isNotEmpty() && visible.all { it.packageName in _state.value.selected }
+    }
 
     fun toggleIncludeSystem() {
         val next = !_state.value.includeSystem

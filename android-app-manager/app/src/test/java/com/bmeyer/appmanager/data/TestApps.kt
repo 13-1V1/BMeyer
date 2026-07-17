@@ -10,6 +10,8 @@ fun app(
     lastUsed: Long = 0,
     usage: Long = 0,
     install: Long = 0,
+    lastUpdate: Long = 0,
+    openCount: Int = 0,
     category: Int = ApplicationInfo.CATEGORY_UNDEFINED,
     system: Boolean = false,
 ) = AppInfo(
@@ -20,5 +22,7 @@ fun app(
     lastUsedMillis = lastUsed,
     usageMillis = usage,
     firstInstallMillis = install,
+    lastUpdateMillis = lastUpdate,
+    openCount = openCount,
     category = category,
 )

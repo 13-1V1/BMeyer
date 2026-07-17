@@ -8,6 +8,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -20,9 +21,12 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Category
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Refresh
@@ -30,6 +34,7 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Sort
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.BottomAppBar
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
@@ -39,10 +44,13 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -50,6 +58,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -66,14 +75,18 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.drawable.toBitmap
+import com.bmeyer.appmanager.data.AdvancedFilter
 import com.bmeyer.appmanager.data.AppCategory
 import com.bmeyer.appmanager.data.AppInfo
 import com.bmeyer.appmanager.data.QuickFilter
 import com.bmeyer.appmanager.data.SortOption
+import com.bmeyer.appmanager.data.TimeMode
 import com.bmeyer.appmanager.shizuku.ShizukuManager
+import com.bmeyer.appmanager.uninstall.UninstallAutoConfirmService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -91,8 +104,6 @@ fun AppManagerScreen(
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
 
-    // Opens the system "App info" page so the user can force-stop, clear cache,
-    // or manage permissions — things a normal app can't do for others itself.
     val openAppInfo: (String) -> Unit = { pkg ->
         runCatching {
             context.startActivity(
@@ -101,17 +112,27 @@ fun AppManagerScreen(
             )
         }
     }
+    val openAccessibilitySettings: () -> Unit = {
+        runCatching {
+            context.startActivity(
+                Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            )
+        }
+    }
 
     var confirmVisible by remember { mutableStateOf(false) }
-    var shizukuMode by remember { mutableStateOf(ShizukuManager.Availability.UNAVAILABLE) }
+    var filtersVisible by remember { mutableStateOf(false) }
     var overflowOpen by remember { mutableStateOf(false) }
+    var shizukuMode by remember { mutableStateOf(ShizukuManager.Availability.UNAVAILABLE) }
+    var autoConfirmEnabled by remember { mutableStateOf(false) }
 
     // Non-null while a silent Shizuku batch is running: (done, total).
     var silentProgress by remember { mutableStateOf<Pair<Int, Int>?>(null) }
 
-    // Sequential uninstall queue (fallback): one system confirmation per package.
+    // Sequential uninstall queue (manual or accessibility auto-confirm).
     var queue by remember { mutableStateOf<List<String>>(emptyList()) }
     var queueIndex by remember { mutableIntStateOf(0) }
+    var autoRunning by remember { mutableStateOf(false) }
 
     val uninstallLauncher = rememberLauncherForActivityResult(StartActivityForResult()) { result ->
         val pkg = queue.getOrNull(queueIndex)
@@ -121,7 +142,6 @@ fun AppManagerScreen(
         queueIndex += 1
     }
 
-    // Drives the fallback queue forward each time queueIndex advances.
     LaunchedEffect(queue, queueIndex) {
         if (queue.isEmpty()) return@LaunchedEffect
         val pkg = queue.getOrNull(queueIndex)
@@ -130,9 +150,20 @@ fun AppManagerScreen(
                 .putExtra(Intent.EXTRA_RETURN_RESULT, true)
             uninstallLauncher.launch(intent)
         } else {
+            // Batch finished — stop auto-confirming and reset.
+            UninstallAutoConfirmService.active.set(false)
+            autoRunning = false
             queue = emptyList()
             queueIndex = 0
         }
+    }
+
+    fun startQueue(packages: List<String>, autoConfirm: Boolean) {
+        if (packages.isEmpty()) return
+        autoRunning = autoConfirm
+        UninstallAutoConfirmService.active.set(autoConfirm)
+        queue = packages
+        queueIndex = 0
     }
 
     fun runSilentUninstall(packages: List<String>) {
@@ -171,12 +202,8 @@ fun AppManagerScreen(
                                 onClick = { overflowOpen = false; viewModel.toggleIncludeSystem() },
                             )
                             DropdownMenuItem(
-                                text = { Text("Select all shown") },
-                                onClick = { overflowOpen = false; viewModel.selectAllVisible() },
-                            )
-                            DropdownMenuItem(
-                                text = { Text("Clear selection") },
-                                onClick = { overflowOpen = false; viewModel.clearSelection() },
+                                text = { Text("Reset filters") },
+                                onClick = { overflowOpen = false; viewModel.resetFilters() },
                             )
                         }
                     }
@@ -189,6 +216,7 @@ fun AppManagerScreen(
                 ExtendedFloatingActionButton(
                     onClick = {
                         shizukuMode = ShizukuManager.availability()
+                        autoConfirmEnabled = UninstallAutoConfirmService.isEnabled(context)
                         confirmVisible = true
                     },
                     icon = { Icon(Icons.Filled.Delete, contentDescription = null) },
@@ -201,10 +229,7 @@ fun AppManagerScreen(
                 BottomAppBar {
                     Spacer(Modifier.width(16.dp))
                     Column(Modifier.weight(1f)) {
-                        Text(
-                            "${state.selectedCount} selected",
-                            style = MaterialTheme.typography.bodyLarge,
-                        )
+                        Text("${state.selectedCount} selected", style = MaterialTheme.typography.bodyLarge)
                         val reclaim = state.selectedReclaimableBytes
                         if (reclaim > 0) {
                             Text(
@@ -244,10 +269,20 @@ fun AppManagerScreen(
             ControlsRow(
                 sort = state.sort,
                 category = state.category,
-                resultCount = state.visibleApps.size,
-                totalBytes = state.visibleTotalBytes,
+                advancedCount = state.advanced.activeCount,
                 onPickSort = viewModel::setSort,
                 onPickCategory = viewModel::setCategory,
+                onOpenFilters = { filtersVisible = true },
+            )
+
+            SelectionBar(
+                resultCount = state.visibleApps.size,
+                totalBytes = state.visibleTotalBytes,
+                allSelected = state.visibleApps.isNotEmpty() &&
+                    state.visibleApps.all { it.packageName in state.selected },
+                enabled = state.visibleApps.isNotEmpty(),
+                onSelectAll = { viewModel.selectAllVisible() },
+                onUnselectAll = { viewModel.clearSelection() },
             )
 
             if (!state.hasUsageAccess) {
@@ -259,7 +294,10 @@ fun AppManagerScreen(
                     CircularProgressIndicator()
                 }
                 state.visibleApps.isEmpty() -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text("No apps match.", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text("No apps match.", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        TextButton(onClick = { viewModel.resetFilters() }) { Text("Clear filters") }
+                    }
                 }
                 else -> LazyColumn(Modifier.fillMaxSize()) {
                     items(state.visibleApps, key = { it.packageName }) { app ->
@@ -276,10 +314,21 @@ fun AppManagerScreen(
         }
     }
 
+    if (filtersVisible) {
+        AdvancedFilterSheet(
+            current = state.advanced,
+            onApply = { viewModel.setAdvancedFilter(it); filtersVisible = false },
+            onDismiss = { filtersVisible = false },
+        )
+    }
+
     if (confirmVisible) {
         UninstallConfirmDialog(
             count = state.selectedCount,
-            mode = shizukuMode,
+            shizukuReady = shizukuMode == ShizukuManager.Availability.READY,
+            shizukuNeedsPermission = shizukuMode == ShizukuManager.Availability.NEEDS_PERMISSION,
+            autoConfirmEnabled = autoConfirmEnabled,
+            onEnableAuto = { confirmVisible = false; openAccessibilitySettings() },
             onEnableShizuku = {
                 scope.launch {
                     val granted = ShizukuManager.ensurePermission()
@@ -290,14 +339,29 @@ fun AppManagerScreen(
             onConfirm = {
                 confirmVisible = false
                 val selection = state.selected.toList()
-                if (shizukuMode == ShizukuManager.Availability.READY) {
-                    runSilentUninstall(selection)
-                } else {
-                    queue = selection
-                    queueIndex = 0
+                when {
+                    shizukuMode == ShizukuManager.Availability.READY -> runSilentUninstall(selection)
+                    autoConfirmEnabled -> startQueue(selection, autoConfirm = true)
+                    else -> startQueue(selection, autoConfirm = false)
                 }
             },
             onDismiss = { confirmVisible = false },
+        )
+    }
+
+    if (autoRunning && queue.isNotEmpty()) {
+        AlertDialog(
+            onDismissRequest = {},
+            title = { Text("Uninstalling hands-free") },
+            text = {
+                Column {
+                    Text("${queueIndex.coerceAtMost(queue.size)} / ${queue.size} — auto-confirming each. Don't touch the screen.")
+                    Spacer(Modifier.size(8.dp))
+                    val fraction = if (queue.isEmpty()) 0f else queueIndex.toFloat() / queue.size
+                    LinearProgressIndicator(progress = { fraction }, modifier = Modifier.fillMaxWidth())
+                }
+            },
+            confirmButton = {},
         )
     }
 
@@ -310,10 +374,7 @@ fun AppManagerScreen(
                     Text("$done / $total")
                     Spacer(Modifier.size(8.dp))
                     val fraction = if (total == 0) 0f else done.toFloat() / total
-                    LinearProgressIndicator(
-                        progress = { fraction },
-                        modifier = Modifier.fillMaxWidth(),
-                    )
+                    LinearProgressIndicator(progress = { fraction }, modifier = Modifier.fillMaxWidth())
                 }
             },
             confirmButton = {},
@@ -324,40 +385,236 @@ fun AppManagerScreen(
 @Composable
 private fun UninstallConfirmDialog(
     count: Int,
-    mode: ShizukuManager.Availability,
+    shizukuReady: Boolean,
+    shizukuNeedsPermission: Boolean,
+    autoConfirmEnabled: Boolean,
+    onEnableAuto: () -> Unit,
     onEnableShizuku: () -> Unit,
     onConfirm: () -> Unit,
     onDismiss: () -> Unit,
 ) {
-    val silent = mode == ShizukuManager.Availability.READY
+    val primaryLabel = when {
+        shizukuReady -> "Uninstall silently"
+        autoConfirmEnabled -> "Uninstall hands-free"
+        else -> "Uninstall one-by-one"
+    }
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text("Uninstall $count app${plural(count)}?") },
         text = {
             Column {
-                if (silent) {
-                    Text("Shizuku is active — these will be removed silently, no per-app taps.")
-                } else {
-                    Text(
-                        "Android will show a confirmation for each app in turn — tap OK on each. " +
-                            "You can cancel any individual one."
+                when {
+                    shizukuReady -> Text("Shizuku is active — removed silently, no taps at all.")
+                    autoConfirmEnabled -> Text(
+                        "Hands-free: the app taps each system confirmation for you. Keep the " +
+                            "screen on and don't touch it until it finishes."
                     )
-                    if (mode == ShizukuManager.Availability.NEEDS_PERMISSION) {
-                        Spacer(Modifier.size(8.dp))
+                    else -> {
                         Text(
-                            "Shizuku is running. Grant permission to remove them all silently instead:",
-                            style = MaterialTheme.typography.bodySmall,
+                            "Android confirms each removal individually. Turn on hands-free " +
+                                "auto-confirm so you only tap once and walk away:"
                         )
-                        TextButton(onClick = onEnableShizuku) { Text("Enable silent mode") }
+                        TextButton(onClick = onEnableAuto) { Text("Enable hands-free (recommended)") }
+                        if (shizukuNeedsPermission) {
+                            Text(
+                                "Shizuku is running — grant permission for fully silent removal:",
+                                style = MaterialTheme.typography.bodySmall,
+                            )
+                            TextButton(onClick = onEnableShizuku) { Text("Enable silent (Shizuku)") }
+                        }
                     }
                 }
             }
         },
-        confirmButton = {
-            TextButton(onClick = onConfirm) { Text(if (silent) "Uninstall silently" else "Start") }
-        },
+        confirmButton = { TextButton(onClick = onConfirm) { Text(primaryLabel) } },
         dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } },
     )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun AdvancedFilterSheet(
+    current: AdvancedFilter,
+    onApply: (AdvancedFilter) -> Unit,
+    onDismiss: () -> Unit,
+) {
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    var draft by remember { mutableStateOf(current) }
+    ModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheetState) {
+        Column(
+            Modifier
+                .fillMaxWidth()
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = 20.dp)
+                .padding(bottom = 28.dp),
+        ) {
+            Text("Advanced filters", style = MaterialTheme.typography.titleLarge)
+            Text(
+                "Combine any criteria — every one you set must match.",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            Spacer(Modifier.size(14.dp))
+
+            TimeModeRow(
+                label = "Last used",
+                mode = draft.lastUsedMode,
+                days = draft.lastUsedDays,
+                allowNever = true,
+                onMode = { draft = draft.copy(lastUsedMode = it) },
+                onDays = { draft = draft.copy(lastUsedDays = it) },
+            )
+            HorizontalDivider(Modifier.padding(vertical = 12.dp))
+            TimeModeRow(
+                label = "Installed",
+                mode = draft.installedMode,
+                days = draft.installedDays,
+                allowNever = false,
+                onMode = { draft = draft.copy(installedMode = it) },
+                onDays = { draft = draft.copy(installedDays = it) },
+            )
+            HorizontalDivider(Modifier.padding(vertical = 12.dp))
+            MinMaxRow(
+                label = "Total usage time (minutes)",
+                min = draft.minUsageMinutes,
+                max = draft.maxUsageMinutes,
+                onMin = { draft = draft.copy(minUsageMinutes = it) },
+                onMax = { draft = draft.copy(maxUsageMinutes = it) },
+            )
+            HorizontalDivider(Modifier.padding(vertical = 12.dp))
+            MinMaxRow(
+                label = "Times opened (last 30 days)",
+                min = draft.minOpenCount,
+                max = draft.maxOpenCount,
+                onMin = { draft = draft.copy(minOpenCount = it) },
+                onMax = { draft = draft.copy(maxOpenCount = it) },
+            )
+            HorizontalDivider(Modifier.padding(vertical = 12.dp))
+            MinMaxRow(
+                label = "Storage size (MB)",
+                min = draft.minSizeMb,
+                max = draft.maxSizeMb,
+                onMin = { draft = draft.copy(minSizeMb = it) },
+                onMax = { draft = draft.copy(maxSizeMb = it) },
+            )
+            Spacer(Modifier.size(20.dp))
+            Row {
+                OutlinedButton(onClick = { draft = AdvancedFilter() }, modifier = Modifier.weight(1f)) {
+                    Text("Reset")
+                }
+                Spacer(Modifier.width(12.dp))
+                Button(onClick = { onApply(draft) }, modifier = Modifier.weight(1f)) { Text("Apply") }
+            }
+        }
+    }
+}
+
+@Composable
+private fun TimeModeRow(
+    label: String,
+    mode: TimeMode,
+    days: Int,
+    allowNever: Boolean,
+    onMode: (TimeMode) -> Unit,
+    onDays: (Int) -> Unit,
+) {
+    Column {
+        Text(label, style = MaterialTheme.typography.titleSmall)
+        Spacer(Modifier.size(4.dp))
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            var open by remember { mutableStateOf(false) }
+            Box {
+                OutlinedButton(onClick = { open = true }) { Text(mode.label) }
+                DropdownMenu(expanded = open, onDismissRequest = { open = false }) {
+                    val modes = TimeMode.entries.filter { allowNever || it != TimeMode.NEVER }
+                    modes.forEach { m ->
+                        DropdownMenuItem(text = { Text(m.label) }, onClick = { open = false; onMode(m) })
+                    }
+                }
+            }
+            if (mode == TimeMode.WITHIN || mode == TimeMode.OLDER_THAN) {
+                Spacer(Modifier.width(10.dp))
+                NumberField(
+                    value = days,
+                    onChange = { onDays(it ?: 0) },
+                    placeholder = "days",
+                    modifier = Modifier.width(110.dp),
+                )
+                Spacer(Modifier.width(6.dp))
+                Text("days", color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+        }
+    }
+}
+
+@Composable
+private fun MinMaxRow(
+    label: String,
+    min: Int?,
+    max: Int?,
+    onMin: (Int?) -> Unit,
+    onMax: (Int?) -> Unit,
+) {
+    Column {
+        Text(label, style = MaterialTheme.typography.titleSmall)
+        Spacer(Modifier.size(4.dp))
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            NumberField(value = min, onChange = onMin, placeholder = "min", modifier = Modifier.weight(1f))
+            Text("to", color = MaterialTheme.colorScheme.onSurfaceVariant)
+            NumberField(value = max, onChange = onMax, placeholder = "max", modifier = Modifier.weight(1f))
+        }
+    }
+}
+
+@Composable
+private fun NumberField(
+    value: Int?,
+    onChange: (Int?) -> Unit,
+    placeholder: String,
+    modifier: Modifier = Modifier,
+) {
+    OutlinedTextField(
+        value = value?.toString() ?: "",
+        onValueChange = { input ->
+            val digits = input.filter { it.isDigit() }.take(9)
+            onChange(if (digits.isEmpty()) null else digits.toIntOrNull())
+        },
+        placeholder = { Text(placeholder) },
+        singleLine = true,
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+        modifier = modifier,
+    )
+}
+
+@Composable
+private fun SelectionBar(
+    resultCount: Int,
+    totalBytes: Long,
+    allSelected: Boolean,
+    enabled: Boolean,
+    onSelectAll: () -> Unit,
+    onUnselectAll: () -> Unit,
+) {
+    Row(
+        Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 2.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(
+            buildString {
+                append("$resultCount apps")
+                if (totalBytes > 0) append(" · ${formatSize(totalBytes)}")
+            },
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.weight(1f),
+        )
+        TextButton(
+            onClick = { if (allSelected) onUnselectAll() else onSelectAll() },
+            enabled = enabled,
+        ) {
+            Text(if (allSelected) "Unselect all" else "Select all")
+        }
+    }
 }
 
 @Composable
@@ -417,10 +674,10 @@ private fun SearchBar(query: String, onQueryChange: (String) -> Unit) {
 private fun ControlsRow(
     sort: SortOption,
     category: AppCategory,
-    resultCount: Int,
-    totalBytes: Long,
+    advancedCount: Int,
     onPickSort: (SortOption) -> Unit,
     onPickCategory: (AppCategory) -> Unit,
+    onOpenFilters: () -> Unit,
 ) {
     var sortOpen by remember { mutableStateOf(false) }
     var catOpen by remember { mutableStateOf(false) }
@@ -446,7 +703,6 @@ private fun ControlsRow(
                 }
             }
         }
-        Spacer(Modifier.width(4.dp))
         Box {
             TextButton(onClick = { catOpen = true }) {
                 Icon(Icons.Filled.Category, contentDescription = null)
@@ -462,15 +718,11 @@ private fun ControlsRow(
                 }
             }
         }
-        Spacer(Modifier.width(8.dp))
-        Text(
-            buildString {
-                append("$resultCount apps")
-                if (totalBytes > 0) append(" · ${formatSize(totalBytes)}")
-            },
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
+        TextButton(onClick = onOpenFilters) {
+            Icon(Icons.Filled.FilterList, contentDescription = null)
+            Spacer(Modifier.width(6.dp))
+            Text(if (advancedCount > 0) "Filters • $advancedCount" else "Filters")
+        }
     }
 }
 
@@ -489,7 +741,6 @@ private fun FilterChipsRow(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         QuickFilter.entries.forEach { filter ->
-            // Usage/size-based presets are meaningless without the grant.
             val enabled = usageAccess || !filter.requiresUsageAccess
             FilterChip(
                 selected = selected == filter,
@@ -512,7 +763,7 @@ private fun UsageAccessBanner(onGrant: () -> Unit) {
             Text("Usage access needed", fontWeight = FontWeight.Bold)
             Spacer(Modifier.size(4.dp))
             Text(
-                "Grant \"Usage access\" to see last-used time, usage time and app sizes.",
+                "Grant \"Usage access\" to see last-used time, usage time, opens and app sizes.",
                 style = MaterialTheme.typography.bodySmall,
             )
             Spacer(Modifier.size(4.dp))
@@ -563,6 +814,17 @@ private fun AppRow(
                     append(formatLastUsed(app.lastUsedMillis, nowMillis))
                     append(" · ")
                     append(formatDuration(app.usageMillis))
+                },
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+            Text(
+                buildString {
+                    append("${app.openCount} open${plural(app.openCount)}")
+                    append(" · updated ")
+                    append(formatLastUsed(app.lastUpdateMillis, nowMillis))
                     if (app.isSystemApp) append(" · system")
                 },
                 style = MaterialTheme.typography.bodySmall,
