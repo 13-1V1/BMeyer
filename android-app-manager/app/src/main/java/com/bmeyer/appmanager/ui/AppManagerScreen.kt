@@ -3,9 +3,11 @@ package com.bmeyer.appmanager.ui
 import android.app.Activity
 import android.content.Intent
 import android.net.Uri
+import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -17,13 +19,16 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Sort
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
@@ -32,6 +37,7 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -58,6 +64,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.drawable.toBitmap
 import com.bmeyer.appmanager.data.AppInfo
+import com.bmeyer.appmanager.data.QuickFilter
 import com.bmeyer.appmanager.data.SortOption
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -71,6 +78,18 @@ fun AppManagerScreen(
 ) {
     val state by viewModel.state.collectAsState()
     val nowMillis = remember { System.currentTimeMillis() }
+    val context = LocalContext.current
+
+    // Opens the system "App info" page so the user can force-stop, clear cache,
+    // or manage permissions — things a normal app can't do for others itself.
+    val openAppInfo: (String) -> Unit = { pkg ->
+        runCatching {
+            context.startActivity(
+                Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:$pkg"))
+                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            )
+        }
+    }
 
     var confirmVisible by remember { mutableStateOf(false) }
     var sortMenuOpen by remember { mutableStateOf(false) }
@@ -142,10 +161,39 @@ fun AppManagerScreen(
                 )
             }
         },
+        bottomBar = {
+            if (state.selectedCount > 0) {
+                BottomAppBar {
+                    Spacer(Modifier.width(16.dp))
+                    Column(Modifier.weight(1f)) {
+                        Text(
+                            "${state.selectedCount} selected",
+                            style = MaterialTheme.typography.bodyLarge,
+                        )
+                        val reclaim = state.selectedReclaimableBytes
+                        if (reclaim > 0) {
+                            Text(
+                                "${formatSize(reclaim)} reclaimable",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
+                    }
+                    TextButton(onClick = { viewModel.clearSelection() }) { Text("Clear") }
+                    Spacer(Modifier.width(8.dp))
+                }
+            }
+        },
     ) { padding ->
         Column(Modifier.padding(padding).fillMaxSize()) {
 
             SearchBar(query = state.query, onQueryChange = viewModel::setQuery)
+
+            FilterChipsRow(
+                selected = state.quickFilter,
+                usageAccess = state.hasUsageAccess,
+                onPick = viewModel::setQuickFilter,
+            )
 
             SortRow(
                 sort = state.sort,
@@ -154,6 +202,7 @@ fun AppManagerScreen(
                 onDismiss = { sortMenuOpen = false },
                 onPick = { sortMenuOpen = false; viewModel.setSort(it) },
                 resultCount = state.visibleApps.size,
+                totalBytes = state.visibleTotalBytes,
             )
 
             if (!state.hasUsageAccess) {
@@ -174,6 +223,7 @@ fun AppManagerScreen(
                             selected = app.packageName in state.selected,
                             nowMillis = nowMillis,
                             onToggle = { viewModel.toggleSelection(app.packageName) },
+                            onInfo = { openAppInfo(app.packageName) },
                         )
                     }
                 }
@@ -225,6 +275,7 @@ private fun SortRow(
     onDismiss: () -> Unit,
     onPick: (SortOption) -> Unit,
     resultCount: Int,
+    totalBytes: Long,
 ) {
     Row(
         Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 2.dp),
@@ -244,10 +295,41 @@ private fun SortRow(
         }
         Spacer(Modifier.width(8.dp))
         Text(
-            "$resultCount apps",
+            buildString {
+                append("$resultCount apps")
+                if (totalBytes > 0) append(" · ${formatSize(totalBytes)}")
+            },
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun FilterChipsRow(
+    selected: QuickFilter,
+    usageAccess: Boolean,
+    onPick: (QuickFilter) -> Unit,
+) {
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .horizontalScroll(rememberScrollState())
+            .padding(horizontal = 12.dp, vertical = 2.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        QuickFilter.entries.forEach { filter ->
+            // Usage/size-based presets are meaningless without the grant.
+            val enabled = usageAccess || !filter.requiresUsageAccess
+            FilterChip(
+                selected = selected == filter,
+                onClick = { onPick(filter) },
+                enabled = enabled,
+                label = { Text(filter.label) },
+            )
+            Spacer(Modifier.width(8.dp))
+        }
     }
 }
 
@@ -276,6 +358,7 @@ private fun AppRow(
     selected: Boolean,
     nowMillis: Long,
     onToggle: () -> Unit,
+    onInfo: () -> Unit,
 ) {
     val icon = rememberAppIcon(app.packageName)
     Row(
@@ -317,6 +400,13 @@ private fun AppRow(
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
+            )
+        }
+        IconButton(onClick = onInfo) {
+            Icon(
+                Icons.Filled.Info,
+                contentDescription = "App info",
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
     }

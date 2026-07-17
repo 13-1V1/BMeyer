@@ -5,6 +5,8 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.bmeyer.appmanager.data.AppInfo
 import com.bmeyer.appmanager.data.AppRepository
+import com.bmeyer.appmanager.data.Prefs
+import com.bmeyer.appmanager.data.QuickFilter
 import com.bmeyer.appmanager.data.SortOption
 import com.bmeyer.appmanager.data.UsageAccess
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -20,20 +22,33 @@ data class UiState(
     val allApps: List<AppInfo> = emptyList(),
     val query: String = "",
     val sort: SortOption = SortOption.LARGEST,
+    val quickFilter: QuickFilter = QuickFilter.ALL,
     val includeSystem: Boolean = false,
     val selected: Set<String> = emptySet(),
 ) {
-    /** The list actually shown: filtered by [query] then ordered by [sort]. */
+    /** Filtered (search + quick filter) then ordered by [sort]. */
     val visibleApps: List<AppInfo> by lazy {
+        val now = System.currentTimeMillis()
         val q = query.trim().lowercase()
         allApps
             .asSequence()
             .filter { q.isEmpty() || it.label.lowercase().contains(q) || it.packageName.contains(q) }
+            .filter { quickFilter.matches(it, now) }
             .sortedWith(sort.comparator())
             .toList()
     }
 
     val selectedCount: Int get() = selected.size
+
+    /** Combined size of the current selection (unknown sizes count as 0). */
+    val selectedReclaimableBytes: Long by lazy {
+        allApps.filter { it.packageName in selected && it.sizeBytes > 0 }.sumOf { it.sizeBytes }
+    }
+
+    /** Combined size of everything currently shown. */
+    val visibleTotalBytes: Long by lazy {
+        visibleApps.filter { it.sizeBytes > 0 }.sumOf { it.sizeBytes }
+    }
 }
 
 private fun SortOption.comparator(): Comparator<AppInfo> = when (this) {
@@ -51,7 +66,15 @@ private fun SortOption.comparator(): Comparator<AppInfo> = when (this) {
 class AppListViewModel(app: Application) : AndroidViewModel(app) {
 
     private val repo = AppRepository(app)
-    private val _state = MutableStateFlow(UiState())
+    private val prefs = Prefs(app)
+
+    private val _state = MutableStateFlow(
+        UiState(
+            sort = prefs.sort,
+            quickFilter = prefs.quickFilter,
+            includeSystem = prefs.includeSystem,
+        )
+    )
     val state: StateFlow<UiState> = _state.asStateFlow()
 
     init {
@@ -69,7 +92,6 @@ class AppListViewModel(app: Application) : AndroidViewModel(app) {
                 hasUsageAccess = hasAccess,
                 nowMillis = System.currentTimeMillis(),
             )
-            // Drop any selections that no longer exist after a reload.
             val stillPresent = apps.mapTo(HashSet()) { it.packageName }
             _state.update {
                 it.copy(
@@ -83,10 +105,20 @@ class AppListViewModel(app: Application) : AndroidViewModel(app) {
 
     fun setQuery(q: String) = _state.update { it.copy(query = q) }
 
-    fun setSort(sort: SortOption) = _state.update { it.copy(sort = sort) }
+    fun setSort(sort: SortOption) {
+        prefs.sort = sort
+        _state.update { it.copy(sort = sort) }
+    }
+
+    fun setQuickFilter(filter: QuickFilter) {
+        prefs.quickFilter = filter
+        _state.update { it.copy(quickFilter = filter) }
+    }
 
     fun toggleIncludeSystem() {
-        _state.update { it.copy(includeSystem = !it.includeSystem) }
+        val next = !_state.value.includeSystem
+        prefs.includeSystem = next
+        _state.update { it.copy(includeSystem = next) }
         refresh()
     }
 
@@ -96,7 +128,7 @@ class AppListViewModel(app: Application) : AndroidViewModel(app) {
         s.copy(selected = next)
     }
 
-    /** Select every app currently visible (respecting the active filter). */
+    /** Select every app currently visible (respecting search + quick filter). */
     fun selectAllVisible() = _state.update { s ->
         s.copy(selected = s.visibleApps.mapTo(HashSet()) { it.packageName })
     }

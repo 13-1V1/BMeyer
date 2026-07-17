@@ -15,10 +15,21 @@ Built with **Kotlin + Jetpack Compose** (Material 3).
   - Least / most usage time (total foreground time)
   - Largest / smallest size (app + data + cache)
   - Name, newest install, oldest install
+- **Quick-filter chips** for one-tap "clean house" views:
+  - Never used · Unused 30d+ · Unused 90d+ · ≥ 500 MB
+  - (usage/size chips are disabled until Usage access is granted)
 - **Search** by app name or package name.
+- **View totals** — the header shows the app count and combined size of whatever
+  is currently filtered in.
 - **Bulk selection** with a select-all-shown action and a running count.
+- **Reclaimable size** — a bottom bar totals how much storage your current
+  selection would free.
 - **Bulk uninstall** via a sequential queue — one system confirmation per app.
   Uninstalled apps drop out of the list immediately.
+- **Per-app "App info"** shortcut (ℹ️ on each row) that opens the system settings
+  page so you can force-stop, clear cache, or manage permissions.
+- **Remembers your preferences** — sort order, active filter, and the
+  system-apps toggle persist across launches.
 
 ## How bulk uninstall works (and why it's a queue)
 
@@ -64,6 +75,8 @@ app/src/main/java/com/bmeyer/appmanager/
 │   ├── AppInfo.kt               # per-app model (size, last used, usage, install date)
 │   ├── AppRepository.kt         # PackageManager + UsageStatsManager + StorageStatsManager
 │   ├── SortOption.kt            # sort dimensions
+│   ├── QuickFilter.kt           # "clean house" filter presets + predicates
+│   ├── Prefs.kt                 # persists sort / filter / system-apps toggle
 │   └── UsageAccess.kt           # checks the Usage-access grant
 └── ui/
     ├── AppListViewModel.kt      # UI state: load, filter, sort, selection
