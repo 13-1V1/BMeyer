@@ -29,7 +29,14 @@ Built with **Kotlin + Jetpack Compose** (Material 3).
   - Storage size (MB) — min/max
 - **Richer per-app info** — each row shows size, last used, total usage time,
   open count, and last-updated date.
+- **App details** — tap the ℹ️ on a row for a details sheet with the full
+  breakdown (app/data/cache size, usage, opens, install & update dates,
+  category, type) and Open / App-info / Uninstall actions.
+- **Storage by category** — an expandable dashboard breakdown of storage per
+  content category (tap a category to filter to it).
 - **Search** by app name or package name.
+- **Remembered filters** — the active category and advanced filter bundle
+  persist across launches (alongside sort and the system-apps toggle).
 - **Reclaimable-space dashboard** — a header card showing total apps, combined
   app storage, and how many apps are unused (90d+) with an estimate of how much
   space removing them would free, plus a one-tap **Review** to jump to that list.

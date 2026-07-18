@@ -50,16 +50,16 @@ class AppRepository(private val context: Context) {
             .filter { includeSystem || !it.isSystem() }
             .map { appInfo ->
                 val usage = usageByPkg[appInfo.packageName]
-                val size = storageStatsManager?.let { ssm ->
+                val storage = storageStatsManager?.let { ssm ->
                     runCatching {
                         val s = ssm.queryStatsForPackage(
                             appInfo.storageUuid,
                             appInfo.packageName,
                             user,
                         )
-                        s.appBytes + s.dataBytes + s.cacheBytes
+                        Storage(s.appBytes, s.dataBytes, s.cacheBytes)
                     }.getOrNull()
-                } ?: -1L
+                }
 
                 val (firstInstall, lastUpdate) = packageTimes(appInfo.packageName)
 
@@ -67,7 +67,10 @@ class AppRepository(private val context: Context) {
                     packageName = appInfo.packageName,
                     label = pm.getApplicationLabel(appInfo).toString(),
                     isSystemApp = appInfo.isSystem(),
-                    sizeBytes = size,
+                    sizeBytes = storage?.let { it.app + it.data + it.cache } ?: -1L,
+                    appBytes = storage?.app ?: -1L,
+                    dataBytes = storage?.data ?: -1L,
+                    cacheBytes = storage?.cache ?: -1L,
                     lastUsedMillis = usage?.lastUsed ?: 0L,
                     usageMillis = usage?.foreground ?: 0L,
                     firstInstallMillis = firstInstall,
@@ -81,6 +84,8 @@ class AppRepository(private val context: Context) {
     }
 
     private data class UsageSnapshot(val lastUsed: Long, val foreground: Long)
+
+    private data class Storage(val app: Long, val data: Long, val cache: Long)
 
     private fun queryUsage(nowMillis: Long): Map<String, UsageSnapshot> {
         val usm = context.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager

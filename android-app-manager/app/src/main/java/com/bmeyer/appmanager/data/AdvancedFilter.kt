@@ -85,5 +85,36 @@ data class AdvancedFilter(
 
     companion object {
         private const val DAY_MS = 24L * 60 * 60 * 1000
+
+        /** Serialize to a compact string for SharedPreferences persistence. */
+        fun encode(f: AdvancedFilter): String = listOf(
+            f.lastUsedMode.name,
+            f.lastUsedDays,
+            f.installedMode.name,
+            f.installedDays,
+            f.minUsageMinutes ?: "",
+            f.maxUsageMinutes ?: "",
+            f.minOpenCount ?: "",
+            f.maxOpenCount ?: "",
+            f.minSizeMb ?: "",
+            f.maxSizeMb ?: "",
+        ).joinToString("|")
+
+        /** Inverse of [encode]; returns a default filter on any malformed input. */
+        fun decode(s: String): AdvancedFilter = runCatching {
+            val p = s.split("|")
+            AdvancedFilter(
+                lastUsedMode = TimeMode.valueOf(p[0]),
+                lastUsedDays = p[1].toInt(),
+                installedMode = TimeMode.valueOf(p[2]),
+                installedDays = p[3].toInt(),
+                minUsageMinutes = p[4].toIntOrNull(),
+                maxUsageMinutes = p[5].toIntOrNull(),
+                minOpenCount = p[6].toIntOrNull(),
+                maxOpenCount = p[7].toIntOrNull(),
+                minSizeMb = p[8].toIntOrNull(),
+                maxSizeMb = p[9].toIntOrNull(),
+            )
+        }.getOrDefault(AdvancedFilter())
     }
 }

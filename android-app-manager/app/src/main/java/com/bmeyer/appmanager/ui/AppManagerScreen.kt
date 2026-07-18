@@ -119,7 +119,13 @@ fun AppManagerScreen(
             )
         }
     }
+    val openApp: (String) -> Unit = { pkg ->
+        runCatching {
+            context.packageManager.getLaunchIntentForPackage(pkg)?.let { context.startActivity(it) }
+        }
+    }
 
+    var detailApp by remember { mutableStateOf<AppInfo?>(null) }
     var confirmVisible by remember { mutableStateOf(false) }
     var filtersVisible by remember { mutableStateOf(false) }
     var overflowOpen by remember { mutableStateOf(false) }
@@ -253,8 +259,10 @@ fun AppManagerScreen(
                     totalBytes = state.totalBytes,
                     unusedCount = state.unusedCount,
                     unusedBytes = state.unusedReclaimableBytes,
+                    breakdown = state.categoryBreakdown,
                     hasUsageAccess = state.hasUsageAccess,
                     onReviewUnused = { viewModel.setQuickFilter(QuickFilter.UNUSED_90) },
+                    onPickCategory = viewModel::setCategory,
                 )
             }
 
@@ -306,7 +314,7 @@ fun AppManagerScreen(
                             selected = app.packageName in state.selected,
                             nowMillis = nowMillis,
                             onToggle = { viewModel.toggleSelection(app.packageName) },
-                            onInfo = { openAppInfo(app.packageName) },
+                            onInfo = { detailApp = app },
                         )
                     }
                 }
@@ -319,6 +327,17 @@ fun AppManagerScreen(
             current = state.advanced,
             onApply = { viewModel.setAdvancedFilter(it); filtersVisible = false },
             onDismiss = { filtersVisible = false },
+        )
+    }
+
+    detailApp?.let { app ->
+        AppDetailsSheet(
+            app = app,
+            nowMillis = nowMillis,
+            onOpenApp = { openApp(app.packageName) },
+            onSystemInfo = { openAppInfo(app.packageName) },
+            onUninstall = { detailApp = null; startQueue(listOf(app.packageName), autoConfirm = false) },
+            onDismiss = { detailApp = null },
         )
     }
 
@@ -617,15 +636,103 @@ private fun SelectionBar(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun AppDetailsSheet(
+    app: AppInfo,
+    nowMillis: Long,
+    onOpenApp: () -> Unit,
+    onSystemInfo: () -> Unit,
+    onUninstall: () -> Unit,
+    onDismiss: () -> Unit,
+) {
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val icon = rememberAppIcon(app.packageName)
+    ModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheetState) {
+        Column(
+            Modifier
+                .fillMaxWidth()
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = 20.dp)
+                .padding(bottom = 28.dp),
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                if (icon != null) {
+                    androidx.compose.foundation.Image(
+                        bitmap = icon,
+                        contentDescription = null,
+                        modifier = Modifier.size(48.dp),
+                    )
+                } else {
+                    Box(Modifier.size(48.dp))
+                }
+                Spacer(Modifier.width(12.dp))
+                Column(Modifier.weight(1f)) {
+                    Text(
+                        app.label,
+                        style = MaterialTheme.typography.titleLarge,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                    Text(
+                        app.packageName,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                }
+            }
+            HorizontalDivider(Modifier.padding(vertical = 12.dp))
+            DetailRow("Total size", formatSize(app.sizeBytes))
+            if (app.appBytes >= 0) {
+                DetailRow(
+                    "App / Data / Cache",
+                    "${formatSize(app.appBytes)} / ${formatSize(app.dataBytes)} / ${formatSize(app.cacheBytes)}",
+                )
+            }
+            DetailRow("Last used", formatLastUsed(app.lastUsedMillis, nowMillis))
+            DetailRow("Total usage", formatDuration(app.usageMillis))
+            DetailRow("Opens (30d)", app.openCount.toString())
+            DetailRow("Installed", formatDate(app.firstInstallMillis))
+            DetailRow("Updated", formatDate(app.lastUpdateMillis))
+            DetailRow("Category", AppCategory.of(app.category).label)
+            DetailRow("Type", if (app.isSystemApp) "System app" else "User app")
+            Spacer(Modifier.size(16.dp))
+            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                OutlinedButton(onClick = onOpenApp, modifier = Modifier.weight(1f)) { Text("Open") }
+                OutlinedButton(onClick = onSystemInfo, modifier = Modifier.weight(1f)) { Text("App info") }
+            }
+            Spacer(Modifier.size(8.dp))
+            Button(onClick = onUninstall, modifier = Modifier.fillMaxWidth()) {
+                Icon(Icons.Filled.Delete, contentDescription = null)
+                Spacer(Modifier.width(6.dp))
+                Text("Uninstall")
+            }
+        }
+    }
+}
+
+@Composable
+private fun DetailRow(label: String, value: String) {
+    Row(Modifier.fillMaxWidth().padding(vertical = 3.dp)) {
+        Text(label, Modifier.weight(1f), color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text(value, style = MaterialTheme.typography.bodyMedium)
+    }
+}
+
 @Composable
 private fun DashboardCard(
     totalApps: Int,
     totalBytes: Long,
     unusedCount: Int,
     unusedBytes: Long,
+    breakdown: List<CategorySize>,
     hasUsageAccess: Boolean,
     onReviewUnused: () -> Unit,
+    onPickCategory: (AppCategory) -> Unit,
 ) {
+    var showBreakdown by remember { mutableStateOf(false) }
     Card(
         modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 6.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
@@ -651,6 +758,30 @@ private fun DashboardCard(
                         )
                     }
                     TextButton(onClick = onReviewUnused) { Text("Review") }
+                }
+            }
+            // Only worth showing a breakdown when more than one category has size.
+            if (hasUsageAccess && breakdown.size > 1) {
+                TextButton(onClick = { showBreakdown = !showBreakdown }) {
+                    Text(if (showBreakdown) "Hide storage by category" else "Storage by category")
+                }
+                if (showBreakdown) {
+                    breakdown.take(6).forEach { row ->
+                        Row(
+                            Modifier
+                                .fillMaxWidth()
+                                .clickable { onPickCategory(row.category) }
+                                .padding(vertical = 4.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Text(row.category.label, Modifier.weight(1f))
+                            Text(
+                                "${formatSize(row.bytes)} · ${row.count}",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
+                    }
                 }
             }
         }

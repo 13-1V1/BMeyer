@@ -1,5 +1,8 @@
 package com.bmeyer.appmanager.ui
 
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 import java.util.concurrent.TimeUnit
 import kotlin.math.abs
 
@@ -27,6 +30,12 @@ fun formatDuration(millis: Long): String {
         m > 0 -> "${m}m"
         else -> "<1m"
     }
+}
+
+/** Absolute date like "Mar 14, 2024", or "—" when unknown. */
+fun formatDate(millis: Long): String {
+    if (millis <= 0) return "—"
+    return SimpleDateFormat("MMM d, yyyy", Locale.getDefault()).format(Date(millis))
 }
 
 /** Relative "last used": "today", "3d ago", "2mo ago", or "never". */

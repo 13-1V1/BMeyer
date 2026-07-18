@@ -75,7 +75,17 @@ data class UiState(
     val unusedReclaimableBytes: Long by lazy {
         unusedApps.filter { it.sizeBytes > 0 }.sumOf { it.sizeBytes }
     }
+
+    /** Storage grouped by content category, largest first. */
+    val categoryBreakdown: List<CategorySize> by lazy {
+        allApps.filter { it.sizeBytes > 0 }
+            .groupBy { AppCategory.of(it.category) }
+            .map { (cat, apps) -> CategorySize(cat, apps.sumOf { it.sizeBytes }, apps.size) }
+            .sortedByDescending { it.bytes }
+    }
 }
+
+data class CategorySize(val category: AppCategory, val bytes: Long, val count: Int)
 
 private fun SortOption.comparator(): Comparator<AppInfo> = when (this) {
     SortOption.LEAST_RECENTLY_USED -> compareBy { it.lastUsedMillis }
@@ -98,6 +108,8 @@ class AppListViewModel(app: Application) : AndroidViewModel(app) {
         UiState(
             sort = prefs.sort,
             quickFilter = prefs.quickFilter,
+            category = prefs.category,
+            advanced = prefs.advanced,
             includeSystem = prefs.includeSystem,
         )
     )
@@ -144,13 +156,24 @@ class AppListViewModel(app: Application) : AndroidViewModel(app) {
         _state.update { it.copy(quickFilter = filter) }
     }
 
-    fun setCategory(category: AppCategory) = _state.update { it.copy(category = category) }
+    fun setCategory(category: AppCategory) {
+        prefs.category = category
+        _state.update { it.copy(category = category) }
+    }
 
-    fun setAdvancedFilter(filter: AdvancedFilter) = _state.update { it.copy(advanced = filter) }
+    fun setAdvancedFilter(filter: AdvancedFilter) {
+        prefs.advanced = filter
+        _state.update { it.copy(advanced = filter) }
+    }
 
     /** Clears every filter dimension back to defaults (keeps sort + selection). */
-    fun resetFilters() = _state.update {
-        it.copy(quickFilter = QuickFilter.ALL, category = AppCategory.ANY, advanced = AdvancedFilter())
+    fun resetFilters() {
+        prefs.quickFilter = QuickFilter.ALL
+        prefs.category = AppCategory.ANY
+        prefs.advanced = AdvancedFilter()
+        _state.update {
+            it.copy(quickFilter = QuickFilter.ALL, category = AppCategory.ANY, advanced = AdvancedFilter())
+        }
     }
 
     /** True when every visible app is selected (drives the select-all toggle). */
