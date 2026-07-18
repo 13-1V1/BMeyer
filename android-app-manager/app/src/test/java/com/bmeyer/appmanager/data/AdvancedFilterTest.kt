@@ -65,4 +65,23 @@ class AdvancedFilterTest {
         assertTrue(f.matches(app("new", install = now - 2 * day), now))
         assertFalse(f.matches(app("old", install = now - 30 * day), now))
     }
+
+    @Test fun codec_roundTripsDefaultAndPopulated() {
+        val default = AdvancedFilter()
+        assertEquals(default, AdvancedFilter.decode(AdvancedFilter.encode(default)))
+
+        val populated = AdvancedFilter(
+            lastUsedMode = TimeMode.WITHIN, lastUsedDays = 365,
+            installedMode = TimeMode.OLDER_THAN, installedDays = 90,
+            minUsageMinutes = 5, maxUsageMinutes = null,
+            minOpenCount = null, maxOpenCount = 10,
+            minSizeMb = 100, maxSizeMb = 2000,
+        )
+        assertEquals(populated, AdvancedFilter.decode(AdvancedFilter.encode(populated)))
+    }
+
+    @Test fun codec_malformedFallsBackToDefault() {
+        assertEquals(AdvancedFilter(), AdvancedFilter.decode("garbage"))
+        assertEquals(AdvancedFilter(), AdvancedFilter.decode(""))
+    }
 }

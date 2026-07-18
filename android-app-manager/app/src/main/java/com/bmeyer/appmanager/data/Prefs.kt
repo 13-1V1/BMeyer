@@ -19,6 +19,14 @@ class Prefs(context: Context) {
         get() = read("filter", QuickFilter.ALL) { QuickFilter.valueOf(it) }
         set(value) = sp.edit().putString("filter", value.name).apply()
 
+    var category: AppCategory
+        get() = read("category", AppCategory.ANY) { AppCategory.valueOf(it) }
+        set(value) = sp.edit().putString("category", value.name).apply()
+
+    var advanced: AdvancedFilter
+        get() = AdvancedFilter.decode(sp.getString("advanced", "") ?: "")
+        set(value) = sp.edit().putString("advanced", AdvancedFilter.encode(value)).apply()
+
     private inline fun <T> read(key: String, default: T, parse: (String) -> T): T =
         sp.getString(key, null)?.let { runCatching { parse(it) }.getOrNull() } ?: default
 }

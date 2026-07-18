@@ -11,6 +11,12 @@ data class AppInfo(
     val isSystemApp: Boolean,
     /** app + data + cache bytes, or -1 when usage access hasn't been granted. */
     val sizeBytes: Long,
+    /** APK/app bytes alone, or -1 when unknown. */
+    val appBytes: Long = -1,
+    /** user-data bytes alone, or -1 when unknown. */
+    val dataBytes: Long = -1,
+    /** cache bytes alone, or -1 when unknown. */
+    val cacheBytes: Long = -1,
     /** epoch millis of last foreground use, or 0 when unknown / never. */
     val lastUsedMillis: Long,
     /** total foreground time in millis, or 0 when unknown. */
