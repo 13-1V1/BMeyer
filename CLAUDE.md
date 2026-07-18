@@ -52,9 +52,15 @@ Single-activity Compose app, one-directional state flow:
   `testDebugUnitTest`. Don't introduce Android runtime calls into tested code paths.
 - **`data/AppRepository.loadApps()`** does all the heavy enrichment off the main thread:
   `PackageManager` inventory + `UsageStatsManager` (last used / foreground time /
-  open-count via `queryEvents`) + `StorageStatsManager` (size). All of this requires the
-  **"Usage access" special permission** (`PACKAGE_USAGE_STATS`); without it size/usage
-  fields are `-1`/`0` and the UI degrades gracefully (see `data/UsageAccess.kt`).
+  open-count via `queryEvents`) + `StorageStatsManager` (size, split into app/data/cache
+  on `AppInfo`). All of this requires the **"Usage access" special permission**
+  (`PACKAGE_USAGE_STATS`); without it size/usage fields are `-1`/`0` and the UI degrades
+  gracefully (see `data/UsageAccess.kt`).
+- **View state is persisted in `data/Prefs.kt`** (SharedPreferences): sort, quick filter,
+  category, the system-apps toggle, and the whole `AdvancedFilter` bundle survive
+  restarts. `AdvancedFilter` serializes via its own `encode`/`decode` (round-trip
+  unit-tested). When you add a new persisted filter dimension, wire it through `Prefs`
+  *and* the ViewModel's initial `UiState` + the relevant setter, or it won't stick.
 
 ### Bulk uninstall — three backends, auto-selected
 
@@ -91,3 +97,10 @@ action creates the tag itself. Before releasing, bump both `versionCode` and
 - The accessibility auto-tap matches the confirm button by `android:id/button1` and a few
   label strings (`uninstall/UninstallAutoConfirmService.kt`); OEM dialogs with different
   wording may need that list extended.
+- **The launcher icon is a plain square bitmap, not an adaptive icon.** It lives at
+  `res/mipmap-*/ic_launcher.png` (+ `ic_launcher_round.png`) across the five densities;
+  the `mipmap-anydpi-v26` adaptive XML and its vector drawables were deliberately removed
+  because the art is a full-bleed badge with its own border/rounded corners (Android's
+  adaptive mask would crop it). To swap the icon, regenerate those five PNGs (48/72/96/
+  144/192 px) from the source art — `pip install Pillow` works in the sandbox — rather
+  than adding an adaptive icon back.
