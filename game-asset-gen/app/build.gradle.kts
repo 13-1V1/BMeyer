@@ -62,10 +62,11 @@ dependencies {
     implementation("androidx.compose.ui:ui-tooling-preview")
 
     // On-device text-to-image (Stable Diffusion 1.5 via MediaPipe Tasks).
-    // The model weights are NOT bundled — they are downloaded to app storage at
-    // first run (see gen/ModelManager.kt). Until then the app uses the built-in
-    // procedural StubAssetGenerator so it always runs.
-    implementation("com.google.mediapipe:tasks-vision:0.10.14")
+    // The Image Generator ships in its OWN artifact (tasks-vision-image-generator),
+    // separate from the general tasks-vision task collection. The model weights are
+    // NOT bundled — the user imports them at runtime (see gen/ModelManager.kt); until
+    // then the app uses the built-in procedural StubAssetGenerator so it always runs.
+    implementation("com.google.mediapipe:tasks-vision-image-generator:0.10.14")
 
     testImplementation("junit:junit:4.13.2")
 }
