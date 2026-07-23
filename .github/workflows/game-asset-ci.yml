@@ -1,0 +1,68 @@
+name: Game Asset Gen CI
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - "game-asset-gen/**"
+      - ".github/workflows/game-asset-ci.yml"
+  pull_request:
+    paths:
+      - "game-asset-gen/**"
+      - ".github/workflows/game-asset-ci.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# Cancel superseded runs on the same ref to save CI minutes.
+concurrency:
+  group: game-asset-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: game-asset-gen
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: gradle
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install SDK packages
+        run: sdkmanager "platforms;android-35" "build-tools;35.0.0"
+
+      - name: Make gradlew executable
+        run: chmod +x ./gradlew
+
+      - name: Run unit tests
+        run: ./gradlew testDebugUnitTest --no-daemon --stacktrace
+
+      - name: Upload test report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: unit-test-report
+          path: game-asset-gen/app/build/reports/tests/testDebugUnitTest
+          if-no-files-found: ignore
+
+      - name: Build debug APK
+        run: ./gradlew assembleDebug --no-daemon --stacktrace
+
+      - name: Upload debug APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: game-asset-debug
+          path: game-asset-gen/app/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
