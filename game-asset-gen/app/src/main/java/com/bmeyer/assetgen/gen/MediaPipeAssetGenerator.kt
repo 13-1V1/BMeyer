@@ -62,7 +62,9 @@ class MediaPipeAssetGenerator(
             last = gen.execute(step == iterations - 1)
             onProgress((step + 1).toFloat() / iterations)
         }
-        BitmapExtractor.extract(last.generatedImage())
+        // execute() is @Nullable in the Java API; guard before extracting.
+        val result = last ?: error("On-device generation returned no image")
+        BitmapExtractor.extract(result.generatedImage())
     }
 
     override fun close() {
