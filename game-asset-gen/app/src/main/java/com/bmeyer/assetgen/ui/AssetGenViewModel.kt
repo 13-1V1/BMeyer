@@ -21,6 +21,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlin.random.Random
@@ -194,8 +195,4 @@ class AssetGenViewModel(private val appContext: Context) : ViewModel() {
                     AssetGenViewModel(context.applicationContext) as T
             }
     }
-}
-
-private inline fun <T> MutableStateFlow<T>.update(transform: (T) -> T) {
-    value = transform(value)
 }

@@ -6,7 +6,9 @@ import android.graphics.LinearGradient
 import android.graphics.Paint
 import android.graphics.RadialGradient
 import android.graphics.Shader
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.withContext
 import kotlin.math.abs
 
 /**
@@ -24,7 +26,10 @@ class StubAssetGenerator : AssetGenerator {
 
     override fun isReady(): Boolean = true
 
-    override suspend fun generate(request: GenRequest, onProgress: (Float) -> Unit): Bitmap {
+    override suspend fun generate(
+        request: GenRequest,
+        onProgress: (Float) -> Unit,
+    ): Bitmap = withContext(Dispatchers.Default) {
         val size = request.prompt.size.coerceIn(64, 1024)
         val rng = java.util.Random(seedFor(request))
 
@@ -69,7 +74,7 @@ class StubAssetGenerator : AssetGenerator {
         canvas.drawCircle(cx, cy, size * 0.22f, shapePaint)
 
         onProgress(1f)
-        return bmp
+        bmp
     }
 
     private fun seedFor(request: GenRequest): Long {
