@@ -29,6 +29,8 @@ this module.
     training, catalysts) that feed leveling.
   - `Player` / `OwnedCreature` — the player's collection: essence inventory + a roster of owned
     creatures, each with a permanent serial, nickname, and recipe (the "signal" identity layer).
+  - `Reveal` — the signature hatch moment as rarity-gated data (anticipation → held silence →
+    burst → settle); rarer creatures build longer and burst brighter. What the UI/audio play back.
   - `Session` — runs one encounter of the real game loop (field a team → fight → award XP).
   - `SaveCodec` — tiny dependency-free save/load (round-trips the whole `Player`).
   - `StarterEssences` — the authored starter catalog (game content/data).

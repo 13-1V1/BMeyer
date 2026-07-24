@@ -69,6 +69,20 @@ fun main() {
     println("  Bloom: Lv ${maxed.level} -> reborn at Lv ${bloomed.level} with ${bloomed.blooms} Bloom " +
         "(permanent x%.2f forever)".format(Leveling.bloomBonus(bloomed.blooms)))
 
+    section("THE HATCH — cadence scales with rarity")
+    for ((label, creature) in listOf(
+        "common (mad + electric)" to StarterEssences.factory.grow(essences("mad", "electric")),
+        "WILD (void + mad)" to StarterEssences.factory.grow(essences("void", "mad")),
+    )) {
+        val seq = Reveal.forCreature(creature)
+        println("  $label  ->  ${seq.tier}, ${seq.totalMs}ms total")
+        seq.beats.forEach { b ->
+            println("    %-13s %4dms  intensity %.2f  %-18s %s".format(
+                b.phase, b.durationMs, b.intensity, b.sfx.ifEmpty { "(silence)" }, b.caption))
+        }
+        println()
+    }
+
     section("A FULL SESSION — collect, grow, battle, level, save")
     var player = Player()
         .collect("mad").collect("electric").collect("ember").collect("solar").collect("beast").collect("thorn")

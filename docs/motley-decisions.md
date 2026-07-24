@@ -158,6 +158,9 @@ crits and collection-completion so the whole game speaks one satisfying language
 **Why:** The documented gacha secret is *the pause* before the reveal. This moment is where
 our whole premise (a creature no one has ever seen) pays off emotionally — it deserves to be
 the most polished five seconds in the game.
+**Implemented (engine):** `Reveal` models the sequence as rarity-gated data — a common hatch
+runs ~2.45s; a Wild hatch stretches to ~3.95s with a longer held silence, a max-intensity
+burst, and its own sting. The UI/audio layer will play these beats back.
 
 ---
 
