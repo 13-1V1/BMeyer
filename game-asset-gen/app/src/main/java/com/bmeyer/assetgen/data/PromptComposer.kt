@@ -24,10 +24,15 @@ object PromptComposer {
     private const val BASE_NEGATIVE =
         "text, watermark, signature, extra limbs, deformed, cropped, low quality, cluttered background"
 
+    /** Valid diffusion-step range the UI slider and generators clamp to. */
+    const val MIN_STEPS = 4
+    const val MAX_STEPS = 50
+
     fun compose(
         userPrompt: String,
         style: StylePreset,
         type: AssetType,
+        steps: Int = style.steps,
     ): ComposedPrompt {
         val subject = userPrompt.trim().ifEmpty { "game asset" }
 
@@ -47,7 +52,7 @@ object PromptComposer {
         return ComposedPrompt(
             positive = positive,
             negative = negative,
-            steps = style.steps,
+            steps = steps.coerceIn(MIN_STEPS, MAX_STEPS),
             size = type.defaultSize,
             seamless = type.wantsSeamless,
             wantsTransparency = type.wantsTransparency,

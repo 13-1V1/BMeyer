@@ -45,6 +45,7 @@ data class UiState(
     val prompt: String = "",
     val style: StylePreset = StylePreset.DEFAULT,
     val type: AssetType = AssetType.DEFAULT,
+    val steps: Int = StylePreset.DEFAULT.steps,
     val removeBackground: Boolean = true,
     val isGenerating: Boolean = false,
     val progress: Float = 0f,
@@ -97,11 +98,19 @@ class AssetGenViewModel(private val appContext: Context) : ViewModel() {
 
     fun setPrompt(text: String) = _state.update { it.copy(prompt = text) }
 
-    fun setStyle(style: StylePreset) = _state.update { it.copy(style = style) }
+    fun setStyle(style: StylePreset) = _state.update {
+        // Snap the step count to the newly-chosen preset's recommendation; the
+        // user can still override it with the slider afterward.
+        it.copy(style = style, steps = style.steps)
+    }
 
     fun setType(type: AssetType) = _state.update {
         // Keep the toggle coherent when switching to a non-transparent type.
         it.copy(type = type, removeBackground = it.removeBackground && type.wantsTransparency)
+    }
+
+    fun setSteps(steps: Int) = _state.update {
+        it.copy(steps = steps.coerceIn(PromptComposer.MIN_STEPS, PromptComposer.MAX_STEPS))
     }
 
     fun toggleRemoveBackground() =
@@ -113,7 +122,7 @@ class AssetGenViewModel(private val appContext: Context) : ViewModel() {
         val s = _state.value
         if (s.isGenerating) return
         val engine = activeEngine()
-        val composed = PromptComposer.compose(s.prompt, s.style, s.type)
+        val composed = PromptComposer.compose(s.prompt, s.style, s.type, s.steps)
         val seed = Random.nextInt(0, Int.MAX_VALUE)
 
         _state.update {

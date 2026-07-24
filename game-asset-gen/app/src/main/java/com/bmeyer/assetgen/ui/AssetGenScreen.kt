@@ -40,6 +40,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Slider
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
@@ -60,7 +61,9 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.bmeyer.assetgen.data.AssetType
+import com.bmeyer.assetgen.data.PromptComposer
 import com.bmeyer.assetgen.data.StylePreset
+import kotlin.math.roundToInt
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -139,6 +142,12 @@ fun AssetGenScreen(vm: AssetGenViewModel) {
                 )
             }
 
+            StepsSlider(
+                steps = state.steps,
+                enabled = !state.isGenerating,
+                onChange = vm::setSteps,
+            )
+
             GenerateButton(state, onClick = vm::generate)
 
             ResultPreview(state.result)
@@ -177,6 +186,31 @@ fun AssetGenScreen(vm: AssetGenViewModel) {
 @Composable
 private fun SectionLabel(text: String) {
     Text(text, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+}
+
+@Composable
+private fun StepsSlider(steps: Int, enabled: Boolean, onChange: (Int) -> Unit) {
+    Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            SectionLabel("Detail steps")
+            Text("$steps", style = MaterialTheme.typography.titleSmall)
+        }
+        Slider(
+            value = steps.toFloat(),
+            onValueChange = { onChange(it.roundToInt()) },
+            valueRange = PromptComposer.MIN_STEPS.toFloat()..PromptComposer.MAX_STEPS.toFloat(),
+            enabled = enabled,
+        )
+        Text(
+            "More steps = higher quality, slower generation.",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+    }
 }
 
 @Composable
