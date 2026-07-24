@@ -68,6 +68,33 @@ class BattleResolverTest {
         assertTrue(bursts.any { it.side == Side.A }, "the type-dominant side should burst at least once")
     }
 
+    private fun leveled(name: String, level: Int, vararg ids: String) =
+        Battler(name, f.grow(ids.map { StarterEssences.require(it) }), CreatureProgress(level = level))
+
+    @Test
+    fun `between identical teams the higher level wins`() {
+        // Same creatures, same (neutral) matchup — only levels differ, so grinding should tell.
+        for (seed in 0L until 12L) {
+            val low = listOf(leveled("Lo1", 1, "mad", "electric"), leveled("Lo2", 1, "ember", "solar"))
+            val high = listOf(leveled("Hi1", 20, "mad", "electric"), leveled("Hi2", 20, "ember", "solar"))
+            val result = BattleResolver(Random(seed)).resolve(low, high)
+            assertEquals(Outcome.B_WINS, result.outcome, "level 20 should beat level 1 on seed $seed")
+        }
+    }
+
+    @Test
+    fun `a lower-level team with type advantage still beats a higher-level one`() {
+        // The thesis, proven through the real resolver: out-think beats out-grind. A level-1 EMBER
+        // team should overcome a level-15 THORN team because super-effective hits + Momentum
+        // compound faster than raw stat scaling.
+        for (seed in 0L until 15L) {
+            val ember = listOf(leveled("Blaze", 1, "mad", "electric"), leveled("Cinder", 1, "ember", "solar"))
+            val thorn = listOf(leveled("Bulwark", 15, "ancient", "giant"), leveled("Bramble", 15, "thorn", "fungal"))
+            val result = BattleResolver(Random(seed)).resolve(ember, thorn)
+            assertEquals(Outcome.A_WINS, result.outcome, "type advantage should beat a 15-level lead on seed $seed")
+        }
+    }
+
     @Test
     fun `a fainted creature is replaced by the next on the bench`() {
         val result = BattleResolver(Random(3)).resolve(emberTeam(), thornTeam())

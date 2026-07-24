@@ -12,18 +12,28 @@ enum class Side { A, B;
 enum class Outcome { A_WINS, B_WINS, DRAW }
 
 /**
- * A creature *in battle* — a [Creature] plus its mutable current HP. Battlers are throwaway
+ * A creature *in battle* — a [Creature] plus its [progress] and mutable current HP. The battler
+ * fights with its **effective** (leveled + Bloomed) stats, so raising a creature actually makes it
+ * hit harder and last longer — this is where the growth loop pays off. Battlers are throwaway
  * per-battle state; the underlying [Creature] is never mutated, so a creature can fight any number
  * of times without wear.
  */
-class Battler(val name: String, val creature: Creature) {
-    var currentHp: Int = creature.stats.hp
+class Battler(
+    val name: String,
+    val creature: Creature,
+    val progress: CreatureProgress = CreatureProgress(),
+) {
+    /** Base kit scaled by level and Blooms (see [Growth]); a level-1 creature fights at base. */
+    val stats: Stats = Growth.effectiveStats(creature.stats, progress)
+
+    var currentHp: Int = stats.hp
         private set
 
+    val level: Int get() = progress.level
     val type: Type get() = creature.type
-    val atk: Int get() = creature.stats.atk
-    val def: Int get() = creature.stats.def
-    val spd: Int get() = creature.stats.spd
+    val atk: Int get() = stats.atk
+    val def: Int get() = stats.def
+    val spd: Int get() = stats.spd
     val isFainted: Boolean get() = currentHp <= 0
 
     /** Apply [amount] damage, floored at 0 HP. Returns true if this hit caused a faint. */
