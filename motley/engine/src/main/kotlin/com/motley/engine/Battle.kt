@@ -29,12 +29,17 @@ class Battler(
     var currentHp: Int = stats.hp
         private set
 
+    /** The mechanical effects this creature's active synergies grant in battle. */
+    val synergyEffects: Set<SynergyEffect> = creature.synergies.flatMap { it.effects }.toSet()
+
     val level: Int get() = progress.level
     val type: Type get() = creature.type
     val atk: Int get() = stats.atk
     val def: Int get() = stats.def
     val spd: Int get() = stats.spd
     val isFainted: Boolean get() = currentHp <= 0
+
+    fun has(effect: SynergyEffect): Boolean = effect in synergyEffects
 
     /** Apply [amount] damage, floored at 0 HP. Returns true if this hit caused a faint. */
     internal fun takeDamage(amount: Int): Boolean {

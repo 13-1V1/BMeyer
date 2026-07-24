@@ -16,7 +16,9 @@ this module.
     more essences → *wilder, not stronger*).
   - `TypeChart` — the `EMBER > THORN > TIDE` triangle + neutral `WILD` hidden types.
   - `Momentum` — the tempo mechanic (exploiting a weakness earns extra actions).
-  - `Synergy` — named combos certain essence pairings unlock.
+  - `Synergy` / `SynergyEffect` — named combos certain essence pairings unlock, with real battle
+    effects (e.g. Skyborne acts first regardless of Speed; Overload builds Momentum faster).
+  - `Opponents` — generates fair enemy teams (same catalog, same rules, no stat cheating) to battle.
   - `BattleResolver` / `Damage` — 3v3 turn-based battles with a bench, type-scaled damage, and
     Momentum bursts. RNG is injectable, so a fixed seed makes a battle fully reproducible.
   - `Leveling` / `Growth` / `CreatureProgress` — infinite but **asymptotic** leveling, growth

@@ -57,9 +57,19 @@ class BattleResolver(
         )
     }
 
-    /** Faster creature acts first; a tie is broken in Side A's favour so results stay deterministic. */
-    private fun turnOrder(a: Battler, b: Battler): List<Side> =
-        if (a.spd >= b.spd) listOf(Side.A, Side.B) else listOf(Side.B, Side.A)
+    /**
+     * Turn order: an `ACTS_FIRST` synergy (e.g. Skyborne) takes priority over raw Speed; otherwise
+     * the faster creature goes first. Ties break in Side A's favour so results stay deterministic.
+     */
+    private fun turnOrder(a: Battler, b: Battler): List<Side> {
+        val aFirst = a.has(SynergyEffect.ACTS_FIRST)
+        val bFirst = b.has(SynergyEffect.ACTS_FIRST)
+        return when {
+            aFirst != bFirst -> if (aFirst) listOf(Side.A, Side.B) else listOf(Side.B, Side.A)
+            a.spd >= b.spd -> listOf(Side.A, Side.B)
+            else -> listOf(Side.B, Side.A)
+        }
+    }
 
     /**
      * One creature's action for the round: a base attack, plus an extra attack each time a Momentum
@@ -96,7 +106,10 @@ class BattleResolver(
         events += BattleEvent.Attack(side, attacker.name, defender.name, dmg, eff, crit)
         if (fainted) events += BattleEvent.Faint(side.opponent, defender.name)
 
-        momentum[side] = Momentum.accrue(momentum.getValue(side), eff)
+        // Momentum: FAST_MOMENTUM (Overload) adds a point on top of any gaining hit.
+        val base = Momentum.delta(eff)
+        val gain = if (attacker.has(SynergyEffect.FAST_MOMENTUM) && base > 0) base + 1 else base
+        momentum[side] = (momentum.getValue(side) + gain).coerceAtLeast(0)
         if (Momentum.triggersBurst(momentum.getValue(side))) {
             momentum[side] = Momentum.START
             events += BattleEvent.Burst(side, attacker.name)

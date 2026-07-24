@@ -75,18 +75,24 @@ object StarterEssences {
     fun require(id: String): Essence =
         byId[id] ?: throw IllegalArgumentException("no such essence: $id")
 
-    /** Starter synergies — named combos certain essence pairings unlock. */
+    /**
+     * Starter synergies — named combos certain essence pairings unlock. Those with a mechanical
+     * [SynergyEffect] change how the creature fights; the rest are flavor whose effects are still
+     * to be wired into the battle system (status, damage reduction, etc.).
+     */
     val synergies: List<Synergy> = listOf(
         Synergy("Overload", setOf("mad", "electric"),
-            "Momentum builds faster while the creature is above half HP."),
-        Synergy("War Machine", setOf("robo", "mad"),
-            "Gains Defence each turn it attacks — anger, weaponized."),
+            "Builds Momentum faster — anger and current, feeding each other.",
+            effects = setOf(SynergyEffect.FAST_MOMENTUM)),
         Synergy("Skyborne", setOf("feathered", "storm"),
-            "Always acts first on the opening turn of a battle."),
+            "Rides the storm: always acts first, whatever its Speed.",
+            effects = setOf(SynergyEffect.ACTS_FIRST)),
+        Synergy("War Machine", setOf("robo", "mad"),
+            "Gains Defence each turn it attacks — anger, weaponized."),   // effect: TODO (fortify)
         Synergy("Titan", setOf("ancient", "giant"),
-            "Immovable: takes reduced damage from Momentum bursts."),
+            "Immovable: takes reduced damage from Momentum bursts."),     // effect: TODO (braced)
         Synergy("Miasma", setOf("fungal", "venom"),
-            "Status effects it inflicts spread to adjacent enemies."),
+            "Status effects it inflicts spread to adjacent enemies."),    // effect: TODO (needs status)
     )
 
     /** A [CreatureFactory] preloaded with the starter synergies. */
