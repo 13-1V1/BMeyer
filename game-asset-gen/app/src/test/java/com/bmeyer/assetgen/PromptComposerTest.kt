@@ -51,6 +51,26 @@ class PromptComposerTest {
     }
 
     @Test
+    fun `explicit steps override the preset default`() {
+        val p = PromptComposer.compose("crate", StylePreset.PIXEL_ART, AssetType.ITEM, steps = 8)
+        assertEquals(8, p.steps)
+    }
+
+    @Test
+    fun `steps are clamped to the valid range`() {
+        val low = PromptComposer.compose("x", StylePreset.PIXEL_ART, AssetType.ITEM, steps = 1)
+        val high = PromptComposer.compose("x", StylePreset.PIXEL_ART, AssetType.ITEM, steps = 999)
+        assertEquals(PromptComposer.MIN_STEPS, low.steps)
+        assertEquals(PromptComposer.MAX_STEPS, high.steps)
+    }
+
+    @Test
+    fun `omitting steps uses the preset default`() {
+        val p = PromptComposer.compose("x", StylePreset.PAINTERLY, AssetType.ITEM)
+        assertEquals(StylePreset.PAINTERLY.steps, p.steps)
+    }
+
+    @Test
     fun `no duplicate comma terms in positive prompt`() {
         val p = PromptComposer.compose("game asset", StylePreset.PIXEL_ART, AssetType.CHARACTER)
         val terms = p.positive.split(",").map { it.trim().lowercase() }
