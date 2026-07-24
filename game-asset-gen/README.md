@@ -26,9 +26,11 @@ backend available at generate time:
 
 1. **On-device Stable Diffusion 1.5** via MediaPipe's Image Generator
    (`MediaPipeAssetGenerator`). Runs offline. Requires a converted SD 1.5 model
-   directory, which is **far too large to ship in an APK**, so you import a model
-   bundle (`.zip`) once via **Import model** in-app; it's extracted to app storage
-   (`ModelManager`) and reused from then on.
+   directory, which is **far too large to ship in an APK**, so you add a model
+   bundle (`.zip`) once — either **Download model** from a direct HTTPS link
+   (`ModelDownloader`, streamed with a progress bar and cancel) or **Import** a
+   local `.zip`. It's extracted to app storage (`ModelManager`) and reused from
+   then on. Bundles are large (~1–2 GB).
 2. **Procedural preview** (`StubAssetGenerator`) — a dependency-free, deterministic
    placeholder painter used whenever no model is installed. It makes the whole
    pipeline (generate → cut-out → gallery → export) usable immediately and keeps
