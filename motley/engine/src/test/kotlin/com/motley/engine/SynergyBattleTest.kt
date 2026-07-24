@@ -36,6 +36,27 @@ class SynergyBattleTest {
     }
 
     @Test
+    fun `FORTIFY hardens Defence as the creature attacks`() {
+        val mech = Battler("Mech", StarterEssences.factory.grow(   // robo + mad = War Machine
+            listOf(StarterEssences.ROBO, StarterEssences.MAD)))
+        assertTrue(mech.has(SynergyEffect.FORTIFY), "War Machine should grant FORTIFY")
+        val startDef = mech.def
+
+        val wall = Battler("Wall", StarterEssences.factory.grow(
+            listOf(StarterEssences.ANCIENT, StarterEssences.GIANT)), CreatureProgress(level = 25))
+        BattleResolver(Random(4)).resolve(listOf(mech), listOf(wall))
+
+        assertTrue(mech.def > startDef, "attacking should have raised Defence (was $startDef, now ${mech.def})")
+    }
+
+    @Test
+    fun `CONTAGION is granted by the Miasma pairing`() {
+        val plague = StarterEssences.factory.grow(listOf(StarterEssences.FUNGAL, StarterEssences.VENOM))
+        assertTrue(SynergyEffect.CONTAGION in plague.synergies.flatMap { it.effects },
+            "fungal + venom should unlock Miasma / CONTAGION")
+    }
+
+    @Test
     fun `FAST_MOMENTUM reaches a burst in fewer hits`() {
         // Overload (mad + electric) has FAST_MOMENTUM; an ordinary EMBER creature does not. Both
         // pound a durable EMBER wall (neutral hits), so only the Momentum rate differs.

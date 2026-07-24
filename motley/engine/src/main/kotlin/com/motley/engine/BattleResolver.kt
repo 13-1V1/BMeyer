@@ -98,9 +98,12 @@ class BattleResolver(
         }
 
         do {
-            val defender = active(side.opponent) ?: return
+            val defender = active(side.opponent) ?: break
             val burst = attackOnce(side, attacker, defender, momentum, events)
         } while (burst && active(side.opponent) != null)
+
+        // FORTIFY (War Machine): a turn spent attacking hardens the creature's Defence.
+        if (attacker.has(SynergyEffect.FORTIFY)) attacker.fortify(config.fortifyPerAttack)
     }
 
     /** Resolves a single hit. Returns true if it triggered a Momentum burst (an extra action). */
@@ -120,11 +123,13 @@ class BattleResolver(
         events += BattleEvent.Attack(side, attacker.name, defender.name, dmg, eff, crit)
         if (fainted) events += BattleEvent.Faint(side.opponent, defender.name)
 
-        // On-hit status infliction (only on a still-standing target).
+        // On-hit status infliction (only on a still-standing target). CONTAGION (Miasma) makes
+        // inflicted statuses linger extra turns.
         if (!fainted) {
+            val extra = if (attacker.has(SynergyEffect.CONTAGION)) config.contagionExtraDuration else 0
             for (ability in attacker.onHitStatuses) {
                 if (random.nextDouble() < ability.chance) {
-                    defender.inflict(ability.status, ability.duration)
+                    defender.inflict(ability.status, ability.duration + extra)
                     events += BattleEvent.StatusInflicted(side.opponent, defender.name, ability.status)
                 }
             }

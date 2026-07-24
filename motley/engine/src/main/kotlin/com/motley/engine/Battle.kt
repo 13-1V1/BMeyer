@@ -37,11 +37,18 @@ class Battler(
 
     private val statuses = LinkedHashMap<Status, Int>() // status -> remaining turns
 
+    private var defBuff = 0 // accumulated by FORTIFY
+
     val level: Int get() = progress.level
     val type: Type get() = creature.type
     val atk: Int get() = stats.atk
-    val def: Int get() = stats.def
+    val def: Int get() = stats.def + defBuff
     val isFainted: Boolean get() = currentHp <= 0
+
+    /** Permanently (for this battle) raise Defence — the FORTIFY synergy effect. */
+    internal fun fortify(amount: Int) {
+        defBuff += amount
+    }
 
     val baseSpd: Int get() = stats.spd
     /** Speed after status: CHILL halves it, which can flip the turn order. */
@@ -136,6 +143,8 @@ data class BattleConfig(
     val critChance: Double = 1.0 / 16.0,
     val critMultiplier: Double = 1.5,
     val maxRounds: Int = 200,
+    val fortifyPerAttack: Int = 8,        // FORTIFY: Defence gained per attacking turn
+    val contagionExtraDuration: Int = 2,  // CONTAGION: extra turns on inflicted statuses
 )
 
 /**

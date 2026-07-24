@@ -10,6 +10,12 @@ enum class SynergyEffect {
 
     /** This creature builds Momentum faster — each of its effective hits gains extra tempo. */
     FAST_MOMENTUM,
+
+    /** This creature gains Defence each turn it attacks (War Machine). */
+    FORTIFY,
+
+    /** Status conditions this creature inflicts last longer (Miasma). */
+    CONTAGION,
 }
 
 /**

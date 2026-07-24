@@ -88,11 +88,13 @@ object StarterEssences {
             "Rides the storm: always acts first, whatever its Speed.",
             effects = setOf(SynergyEffect.ACTS_FIRST)),
         Synergy("War Machine", setOf("robo", "mad"),
-            "Gains Defence each turn it attacks — anger, weaponized."),   // effect: TODO (fortify)
+            "Gains Defence each turn it attacks — anger, weaponized.",
+            effects = setOf(SynergyEffect.FORTIFY)),
+        Synergy("Miasma", setOf("fungal", "venom"),
+            "Its poisons and plagues cling longer — status effects last extra turns.",
+            effects = setOf(SynergyEffect.CONTAGION)),
         Synergy("Titan", setOf("ancient", "giant"),
             "Immovable: takes reduced damage from Momentum bursts."),     // effect: TODO (braced)
-        Synergy("Miasma", setOf("fungal", "venom"),
-            "Status effects it inflicts spread to adjacent enemies."),    // effect: TODO (needs status)
     )
 
     /** A [CreatureFactory] preloaded with the starter synergies. */
