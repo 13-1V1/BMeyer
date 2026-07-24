@@ -146,6 +146,7 @@ data class BattleConfig(
     val maxRounds: Int = 200,
     val fortifyPerAttack: Int = 8,        // FORTIFY: Defence gained per attacking turn
     val contagionExtraDuration: Int = 2,  // CONTAGION: extra turns on inflicted statuses
+    val bracedReduction: Double = 0.5,    // BRACED: burst follow-up hits deal this fraction
 )
 
 /**

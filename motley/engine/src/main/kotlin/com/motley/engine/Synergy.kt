@@ -16,6 +16,9 @@ enum class SynergyEffect {
 
     /** Status conditions this creature inflicts last longer (Miasma). */
     CONTAGION,
+
+    /** This creature takes reduced damage from Momentum burst follow-up hits (Titan). */
+    BRACED,
 }
 
 /**

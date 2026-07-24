@@ -94,7 +94,8 @@ object StarterEssences {
             "Its poisons and plagues cling longer — status effects last extra turns.",
             effects = setOf(SynergyEffect.CONTAGION)),
         Synergy("Titan", setOf("ancient", "giant"),
-            "Immovable: takes reduced damage from Momentum bursts."),     // effect: TODO (braced)
+            "Immovable: takes reduced damage from Momentum burst follow-ups.",
+            effects = setOf(SynergyEffect.BRACED)),
     )
 
     /** A [CreatureFactory] preloaded with the starter synergies. */

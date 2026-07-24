@@ -1,5 +1,6 @@
 package com.motley.engine
 
+import kotlin.math.roundToInt
 import kotlin.random.Random
 
 /**
@@ -98,10 +99,13 @@ class BattleResolver(
             return
         }
 
-        do {
+        var isBurstFollowUp = false // the first swing is normal; extra swings after a burst are not
+        while (true) {
             val defender = active(side.opponent) ?: break
-            val burst = attackOnce(side, attacker, defender, momentum, events)
-        } while (burst && active(side.opponent) != null)
+            val triggeredBurst = attackOnce(side, attacker, defender, isBurstFollowUp, momentum, events)
+            if (!triggeredBurst || active(side.opponent) == null) break
+            isBurstFollowUp = true // the extra action a burst grants is a follow-up hit
+        }
 
         // FORTIFY (War Machine): a turn spent attacking hardens the creature's Defence.
         if (attacker.has(SynergyEffect.FORTIFY)) attacker.fortify(config.fortifyPerAttack)
@@ -112,6 +116,7 @@ class BattleResolver(
         side: Side,
         attacker: Battler,
         defender: Battler,
+        isBurstFollowUp: Boolean,
         momentum: MutableMap<Side, Int>,
         events: MutableList<BattleEvent>,
     ): Boolean {
@@ -119,7 +124,12 @@ class BattleResolver(
         val eff = TypeChart.effectiveness(attacker.type, defender.type)
         val variance = config.varianceMin + random.nextDouble() * (1.0 - config.varianceMin)
         val crit = random.nextDouble() < config.critChance
-        val dmg = Damage.compute(attacker.atk, defender.def, eff, config, variance, crit, move.power)
+        var dmg = Damage.compute(attacker.atk, defender.def, eff, config, variance, crit, move.power)
+
+        // BRACED (Titan): the extra hit a Momentum burst grants is softened.
+        if (isBurstFollowUp && defender.has(SynergyEffect.BRACED)) {
+            dmg = (dmg * config.bracedReduction).roundToInt().coerceAtLeast(1)
+        }
 
         val fainted = defender.takeDamage(dmg)
         events += BattleEvent.Attack(side, attacker.name, defender.name, move.name, dmg, eff, crit)

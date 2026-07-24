@@ -57,6 +57,28 @@ class SynergyBattleTest {
     }
 
     @Test
+    fun `BRACED softens Momentum burst follow-ups`() {
+        // Same battle, two configs: with the reduction a Titan takes less burst-hit damage.
+        fun titanDamageTaken(reduction: Double): Int {
+            val burster = Battler("Zap",  // Overload -> FAST_MOMENTUM -> bursts; EMBER vs THORN = super
+                StarterEssences.factory.grow(listOf(StarterEssences.MAD, StarterEssences.ELECTRIC)),
+                CreatureProgress(level = 10))
+            val titan = Battler("Titan",  // ancient + giant = Titan / BRACED, and very tanky
+                StarterEssences.factory.grow(listOf(StarterEssences.ANCIENT, StarterEssences.GIANT)),
+                CreatureProgress(level = 60))
+            assertTrue(titan.has(SynergyEffect.BRACED), "ancient + giant should grant BRACED")
+            val cfg = BattleConfig(bracedReduction = reduction, maxRounds = 8)
+            val result = BattleResolver(Random(1), cfg).resolve(listOf(burster), listOf(titan))
+            return result.events.filterIsInstance<BattleEvent.Attack>()
+                .filter { it.defender == "Titan" }.sumOf { it.damage }
+        }
+        assertTrue(
+            titanDamageTaken(0.5) < titanDamageTaken(1.0),
+            "the BRACED reduction should lower total burst damage taken",
+        )
+    }
+
+    @Test
     fun `FAST_MOMENTUM reaches a burst in fewer hits`() {
         // Overload (mad + electric) has FAST_MOMENTUM; an ordinary EMBER creature does not. Both
         // pound a durable EMBER wall (neutral hits), so only the Momentum rate differs.
