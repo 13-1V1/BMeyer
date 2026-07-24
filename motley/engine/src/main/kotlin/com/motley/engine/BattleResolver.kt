@@ -39,6 +39,13 @@ class BattleResolver(
                 if (defeated(Side.A) || defeated(Side.B)) break
                 takeAction(side, ::active, momentum, events)
             }
+            // End of round: statuses tick (damage-over-time, then durations count down).
+            for (side in listOf(Side.A, Side.B)) {
+                val creature = active(side) ?: continue
+                val tick = creature.tickStatuses()
+                if (tick.damage > 0) events += BattleEvent.StatusDamage(side, creature.name, tick.damage)
+                if (tick.fainted) events += BattleEvent.Faint(side, creature.name)
+            }
         }
 
         val outcome = when {
@@ -83,6 +90,13 @@ class BattleResolver(
         events: MutableList<BattleEvent>,
     ) {
         val attacker = active(side) ?: return
+
+        // Paralysis can steal the whole action (base attack and any burst follow-ups).
+        if (attacker.has(Status.PARALYZE) && random.nextDouble() < StatusRules.PARALYZE_SKIP_CHANCE) {
+            events += BattleEvent.ActionSkipped(side, attacker.name, Status.PARALYZE)
+            return
+        }
+
         do {
             val defender = active(side.opponent) ?: return
             val burst = attackOnce(side, attacker, defender, momentum, events)
@@ -105,6 +119,16 @@ class BattleResolver(
         val fainted = defender.takeDamage(dmg)
         events += BattleEvent.Attack(side, attacker.name, defender.name, dmg, eff, crit)
         if (fainted) events += BattleEvent.Faint(side.opponent, defender.name)
+
+        // On-hit status infliction (only on a still-standing target).
+        if (!fainted) {
+            for (ability in attacker.onHitStatuses) {
+                if (random.nextDouble() < ability.chance) {
+                    defender.inflict(ability.status, ability.duration)
+                    events += BattleEvent.StatusInflicted(side.opponent, defender.name, ability.status)
+                }
+            }
+        }
 
         // Momentum: FAST_MOMENTUM (Overload) adds a point on top of any gaining hit.
         val base = Momentum.delta(eff)

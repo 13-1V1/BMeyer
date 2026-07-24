@@ -21,6 +21,8 @@ this module.
   - `Opponents` — generates fair enemy teams (same catalog, same rules, no stat cheating) to battle.
   - `BattleResolver` / `Damage` — 3v3 turn-based battles with a bench, type-scaled damage, and
     Momentum bursts. RNG is injectable, so a fixed seed makes a battle fully reproducible.
+  - `Status` / `StatusRules` / `Abilities` — Burn/Poison/Chill/Paralyze: damage-over-time, speed
+    drops, and skipped turns. Wild types take extra DoT, so status hard-counters them (D4).
   - `Leveling` / `Growth` / `CreatureProgress` — infinite but **asymptotic** leveling, growth
     stages, and Bloom (prestige rebirth). Raw level never becomes the whole game.
   - `BattleReward` / `Training` / `Catalyst` — the three XP paths (battle, idle-or-puzzle

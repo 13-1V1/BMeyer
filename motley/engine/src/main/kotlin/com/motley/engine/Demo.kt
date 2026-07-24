@@ -115,6 +115,9 @@ private fun narrate(e: BattleEvent): String = when (e) {
     )
     is BattleEvent.Faint -> "-- ${e.name} faints --"
     is BattleEvent.Burst -> ">> Momentum burst! ${e.name} acts again"
+    is BattleEvent.StatusInflicted -> "   ${e.name} is afflicted with ${e.status}"
+    is BattleEvent.StatusDamage -> "   ${e.name} takes ${e.damage} from status"
+    is BattleEvent.ActionSkipped -> "   ${e.name} is ${e.status} and can't move!"
     is BattleEvent.Victory -> "== ${e.outcome} =="
 }
 

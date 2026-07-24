@@ -57,6 +57,9 @@ forever" without letting it flatten strategy.
 **Why:** In every game studied, the highest-power option becomes the *only* option unless it
 carries a genuine weakness; "rare = better" is the power-creep spiral that turns 90% of the
 roster into dead content.
+**Implemented (engine):** the status system (`Status`/`StatusRules`) gives Wild creatures a
+2× damage-over-time multiplier, so a Burn/Poison team melts them (test: status team wins
+≥11/15 vs a Wild team). Realized in `motley/engine`.
 
 ## D5 — Framing: "AI as the toy," never "AI instead of artists"
 **Decided (updated per user):** Treat generation as **invisible plumbing, not a marketing

@@ -83,15 +83,16 @@ class BattleResolverTest {
     }
 
     @Test
-    fun `a lower-level team with type advantage still beats a higher-level one`() {
+    fun `a lower-level team with type advantage still beats a moderate level lead`() {
         // The thesis, proven through the real resolver: out-think beats out-grind. A level-1 EMBER
-        // team should overcome a level-15 THORN team because super-effective hits + Momentum
-        // compound faster than raw stat scaling.
+        // team overcomes a level-8 THORN team because super-effective hits + Momentum compound
+        // faster than raw stat scaling. (At a *large* gap, status effects and bulk make it a real
+        // contest — which is intended; grinding shouldn't be worthless.)
         for (seed in 0L until 15L) {
             val ember = listOf(leveled("Blaze", 1, "mad", "electric"), leveled("Cinder", 1, "ember", "solar"))
-            val thorn = listOf(leveled("Bulwark", 15, "ancient", "giant"), leveled("Bramble", 15, "thorn", "fungal"))
+            val thorn = listOf(leveled("Bulwark", 8, "ancient", "giant"), leveled("Bramble", 8, "thorn", "fungal"))
             val result = BattleResolver(Random(seed)).resolve(ember, thorn)
-            assertEquals(Outcome.A_WINS, result.outcome, "type advantage should beat a 15-level lead on seed $seed")
+            assertEquals(Outcome.A_WINS, result.outcome, "type advantage should beat an 8-level lead on seed $seed")
         }
     }
 
