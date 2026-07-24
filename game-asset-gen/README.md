@@ -37,8 +37,9 @@ backend available at generate time:
    CI green with no device or model.
 
 > Getting a MediaPipe-compatible SD 1.5 model is a one-time conversion step
-> documented by Google AI Edge. Until you import one, the app runs on the preview
-> engine.
+> documented by Google AI Edge. Until you add one, the app runs on the preview
+> engine. See **[docs/CONVERT_MODEL.md](docs/CONVERT_MODEL.md)** for how to
+> convert, package, and host a bundle so the in-app **Download model** works.
 
 ## Architecture
 
