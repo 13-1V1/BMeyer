@@ -1,0 +1,52 @@
+name: Motley CI
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - "motley/**"
+      - ".github/workflows/motley-ci.yml"
+  pull_request:
+    paths:
+      - "motley/**"
+      - ".github/workflows/motley-ci.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: motley-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: motley
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: gradle
+
+      - name: Make gradlew executable
+        run: chmod +x ./gradlew
+
+      # Pure Kotlin/JVM engine — no Android SDK needed, so this is fast.
+      - name: Run engine unit tests
+        run: ./gradlew :engine:test --no-daemon --stacktrace
+
+      - name: Upload test report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: motley-engine-test-report
+          path: motley/engine/build/reports/tests/test
+          if-no-files-found: ignore

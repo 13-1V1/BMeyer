@@ -1,8 +1,8 @@
-# 🌱 Seedlings — Decision Log
+# 🌱 Motley — Decision Log
 
 Studio memory. Each entry: **what** we decided, **why** (grounded in research), what we
 **rejected**, and what would make us **revisit**. Newest decisions build on the GDD
-(`seedlings-gdd.md`); this file holds the reasoning so we don't re-litigate settled calls.
+(`motley-gdd.md`); this file holds the reasoning so we don't re-litigate settled calls.
 
 **North-star (the creative promise):**
 > *Grow a one-of-a-kind creature from ideas you combine — then win by out-thinking, not
@@ -109,7 +109,7 @@ glow intensity/palette tier, consistent across all creatures.
 
 ## D9 — Retention: idle-collection daily loop + seasonal pass + collection codex
 **Decided:** Daily loop is **low-friction return-to-collect** (offline training accrual +
-a "check on your Seedlings" moment) — **no punitive energy gate**. Ship **one seasonal
+a "check on your Motleys" moment) — **no punitive energy gate**. Ship **one seasonal
 battle pass** (daily/weekly quests) and a **codex** where completing essence-families grants
 small **permanent** buffs. Build this 20–50h retention layer **before launch** (the Temtem
 lesson), using generation as the infinite mid-game content engine.
@@ -158,22 +158,20 @@ the most polished five seconds in the game.
 
 ---
 
-## D14 — Naming (IN PROGRESS — user's call)
-"Seedlings" is a placeholder the user doesn't love; "Creatures" and "Criaturas" are both
-taken by existing games. Collision-checked candidates (WebSearch, July 2026):
-- **Motley / Motleys** — a *motley* is a diverse mixture, and historically the patchwork
-  costume of a jester. Perfect for creatures assembled from mismatched essences
-  (`Mad + Robo + Electric`). **No creature-collector uses it.** Studio's top pick.
-- **Myriad / Myriads** — "countless, infinite variety." Clean in-genre. Elegant, slightly
-  abstract.
-- **Whimsy / Whims** — creatures born of whims/imagination. Clean in-genre; leans cozy/cute.
-- Rejected on collision: **Amalgam** (taken on Steam), **Menagerie** (crowded w/ board
-  games), **Oddlings** (published platformer + NFT set).
-- In-world term for creation (replaces "AI-grown"): creatures are **grown** — you *sow* an
-  essence-seed and it *blooms*. No "AI" word anywhere player-facing (see D5).
-**Status:** awaiting user pick / more directions.
+## D14 — Naming — **LOCKED: "Motley"** (user chose)
+**Decided:** the game is **Motley**; the creatures are **Motleys**.
+**Why:** a *motley* is a diverse mixture of mismatched things — and historically the patchwork
+multicolored costume of a jester. It describes the core object of the game (a creature fused
+from clashing essences, `Mad + Robo + Electric`) *and* "motley crew" already means a band of
+oddball misfits — i.e. your 3-creature team. It's a real, short, brandable word, and
+collision-checked clear: no creature-collector uses it (WebSearch, July 2026).
+**Rejected:** Seedlings (placeholder, didn't ring); Creatures/Criaturas (taken); Amalgam
+(taken on Steam); Menagerie (crowded w/ board games); Oddlings (published platformer + NFT).
+Runners-up held in reserve: **Myriad**, **Whimsy**.
+**In-world creation term (replaces "AI-grown"):** creatures are simply **grown** — you *sow*
+essences and they *bloom*. No "AI" word anywhere player-facing (see D5).
 
 ---
 
-*Open forks: only the **name** (D14) remains a user call. F2P (D10) and AI-framing (D5) are
-now locked. Everything else the studio is driving.*
+*All decisions locked. No open user forks remain — the studio is driving. Current build target:
+the essence engine (`../motley/engine`), then battle.*

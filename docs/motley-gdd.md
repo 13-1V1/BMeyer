@@ -1,8 +1,10 @@
-# 🌱 SEEDLINGS — Game Design Doc (v0.1)
+# 🌱 MOTLEY — Game Design Doc (v0.1)
 
-*A creature-collector where you **plant, grow, and battle** monsters no one has ever seen.*
+*A creature-collector where you **combine, grow, and battle** creatures no one has ever seen.*
 
-> Status: brainstorm / early design. Working title. Nothing here is locked except the pillars.
+> Name **locked: Motley** (a *motley* = a diverse mix of mismatched things — exactly what a
+> creature fused from clashing essences is). Creatures are called **Motleys**. Core pillars and
+> all major systems are locked; see §15 for what remains open.
 
 ---
 
@@ -317,7 +319,7 @@ speaks one satisfying language.
 **Retention — build the 20–50h layer *before* launch** (the Temtem lesson; use generation as
 the infinite mid-game content engine):
 - **Daily loop = low-friction return-to-collect**, *not* a punitive energy gate: offline
-  training accrual (§5 idle) + a "check on your Seedlings" moment.
+  training accrual (§5 idle) + a "check on your Motleys" moment.
 - **One seasonal battle pass** with daily/weekly quests — highest retention-per-eng-hour for a
   solo dev.
 - **Collection codex:** completing essence-families grants small **permanent** buffs — turns
@@ -364,7 +366,7 @@ power:**
 
 ## 15. Resolved & open
 
-**Resolved** (full rationale in `seedlings-decisions.md`)
+**Resolved** (full rationale in `motley-decisions.md`)
 - Creation = **combine 2+ collectible essences, no maximum**; essences carry stat-tags +
   art-prompt fragment; the essence **library** is the collectible (§4, §4a, §6, §8).
 - **Fixed stat budget** → more essences = wilder, not stronger (§6).
@@ -386,8 +388,7 @@ power:**
 - **Momentum tuning:** how much tempo a weakness-hit grants before it snowballs too hard.
 - **Puzzle design:** what *is* the training puzzle — match-3, logic, word-themed?
 - **Multiplayer:** async garden-vs-garden? Trading essences (never creatures)?
-- **Final name** — "Seedlings" is a placeholder; naming shortlist in `seedlings-decisions.md`.
-  *(F2P locked; AI-framing locked as "invisible plumbing.")*
+- *(Name **Motley**, F2P, and AI-framing all locked — see `motley-decisions.md`.)*
 
 ---
 
