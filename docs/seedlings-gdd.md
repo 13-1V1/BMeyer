@@ -332,15 +332,15 @@ power:**
   published odds**. Anything touching battle strength is **earnable through play.**
 
 > Because the game's soul is *your* unique creature, pay-to-win would poison the well — ethical
-> monetization is on-brand, not just nice. *(Premium paid-once vs. F2P is a values/business
-> fork flagged for the user.)*
+> monetization is on-brand, not just nice. **Business model: F2P, locked.**
 
 ## 13. AI content: policy & moderation (D5, D6)
 
-- **Framing:** "**infinite creatures only you can make**" — AI is the *toy*, wrapped in a
-  human-authored art style. We disclose AI use honestly; we never pitch it as replacing
-  artists. (Concealed-AI reveals have gotten games cancelled; disclosed-but-honest + AI-as-
-  mechanic is the posture players accept.)
+- **Framing (D5):** generation is **invisible plumbing** — we neither hide it nor sell it.
+  Player-facing language never says "AI"; creatures are simply **grown** (from essences). The
+  public promise is "**every creature is one-of-a-kind — and yours**," not "AI-powered." We
+  still tick the mandatory store **disclosure checkbox** at submission — compliance, not
+  marketing.
 - **Moderation is a launch blocker, shipped with generation — two layers:**
   1. **Pre-generation:** the essence vocabulary is **fully pre-vetted**; unusual *combinations*
      are screened. (Curated words instead of free text is our structural safety edge.)
@@ -386,8 +386,8 @@ power:**
 - **Momentum tuning:** how much tempo a weakness-hit grants before it snowballs too hard.
 - **Puzzle design:** what *is* the training puzzle — match-3, logic, word-themed?
 - **Multiplayer:** async garden-vs-garden? Trading essences (never creatures)?
-- **[User forks]** premium vs. F2P business model; AI-disclosure copy; final name ("Seedlings"
-  is a placeholder).
+- **Final name** — "Seedlings" is a placeholder; naming shortlist in `seedlings-decisions.md`.
+  *(F2P locked; AI-framing locked as "invisible plumbing.")*
 
 ---
 

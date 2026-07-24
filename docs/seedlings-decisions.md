@@ -59,13 +59,18 @@ carries a genuine weakness; "rare = better" is the power-creep spiral that turns
 roster into dead content.
 
 ## D5 — Framing: "AI as the toy," never "AI instead of artists"
-**Decided:** Public posture is **"infinite creatures only *you* can make."** A human-authored
-art style and curation visibly wrap every generation. Disclose AI use honestly.
-**Why:** Steam-disclosed AI titles see up to ~53% fewer reviews/sales and concealment is
-worse (Postal: Bullet Paradise cancelled a day after a hidden-AI reveal). Players
-review-bomb AI that *replaces* craft, but embrace AI that *is the interactive mechanic*
-(Suck Up!). Our generation is the toy, so we win by leaning in, not hiding.
-**Revisit if:** platform sentiment shifts materially.
+**Decided (updated per user):** Treat generation as **invisible plumbing, not a marketing
+hook and not a confession.** Player-facing language never says "AI" — creatures are simply
+**grown** (from essences); the in-world verbs are sow / grow / bloom. The public promise is
+**"every creature is one-of-a-kind — and yours."** We do **not** hide it and do **not** sell
+it. Compliance note: the app-store submission still has a mandatory AI-content **disclosure
+checkbox** (Google Play/Steam) — we tick it. That's a form field at launch, not messaging.
+**Why:** The user's framing is the healthiest posture and the research supports it — players
+review-bomb AI *sold as a cost-cutting replacement for artists*, but don't care when it's
+just how a fun toy works. Leading with "AI-grown" would make the tech the story; leading with
+"a creature only you have" makes the *player* the story. Honest disclosure stays (concealed-AI
+reveals have gotten games cancelled), but honesty ≠ marketing it.
+**Revisit if:** platform disclosure rules change materially.
 
 ## D6 — Moderation is a launch blocker, and our curated vocabulary is the advantage
 **Decided:** Two-layer safety, shipped at v1-with-generation, not later: **(1)** pre-vet the
@@ -121,8 +126,8 @@ published odds**. Anything affecting battle strength is earnable through play.
 **Why:** Cosmetics are the accepted "ethical" lever; Fortnite/Genshin are the reputational
 templates. For a game whose soul is *your* unique creature, pay-to-win would poison the well —
 so ethical monetization isn't just nice, it's on-brand.
-**Revisit if:** the user wants a premium (paid-once, no F2P) model instead — this is a
-values/business fork worth a direct check-in.
+**Business model: F2P — LOCKED (user confirmed).** Free-to-play with the cosmetic-first stack
+above; not premium/paid-once.
 
 ## D11 — "Bloom" (prestige rebirth) gives infinite leveling a purpose
 **Decided:** A **voluntary** reset: sacrifice a maxed creature's levels for a **permanent
@@ -153,5 +158,22 @@ the most polished five seconds in the game.
 
 ---
 
-*Open forks flagged for the user (values/business, not craft): premium vs. F2P model (D10),
-and the AI-content disclosure copy. Everything else the studio is driving.*
+## D14 — Naming (IN PROGRESS — user's call)
+"Seedlings" is a placeholder the user doesn't love; "Creatures" and "Criaturas" are both
+taken by existing games. Collision-checked candidates (WebSearch, July 2026):
+- **Motley / Motleys** — a *motley* is a diverse mixture, and historically the patchwork
+  costume of a jester. Perfect for creatures assembled from mismatched essences
+  (`Mad + Robo + Electric`). **No creature-collector uses it.** Studio's top pick.
+- **Myriad / Myriads** — "countless, infinite variety." Clean in-genre. Elegant, slightly
+  abstract.
+- **Whimsy / Whims** — creatures born of whims/imagination. Clean in-genre; leans cozy/cute.
+- Rejected on collision: **Amalgam** (taken on Steam), **Menagerie** (crowded w/ board
+  games), **Oddlings** (published platformer + NFT set).
+- In-world term for creation (replaces "AI-grown"): creatures are **grown** — you *sow* an
+  essence-seed and it *blooms*. No "AI" word anywhere player-facing (see D5).
+**Status:** awaiting user pick / more directions.
+
+---
+
+*Open forks: only the **name** (D14) remains a user call. F2P (D10) and AI-framing (D5) are
+now locked. Everything else the studio is driving.*
