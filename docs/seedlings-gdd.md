@@ -149,8 +149,29 @@ Turn-based tactics — Pokémon's DNA, kept **small and tight**:
 
 - **3v3**, no items to start, clean type chart.
 - HP / Speed / Attack / Defense; a handful of moves per creature.
-- Depth comes from **team composition across your one-of-a-kind roster**, not a huge move
-  database.
+- Depth comes from **team composition + synergy**, not a huge move database.
+
+> **Design note (see decision D1):** a bare 3-type triangle is too shallow to hold 50+
+> hours on its own — genre research is unambiguous. So depth lives on **two orthogonal
+> axes**, added *instead of* more types (type bloat is where balance rots).
+
+### Depth axis 1 — Momentum (reward smart play with tempo)
+
+Inspired by SMT's Press Turn: **exploiting a weakness earns tempo.** When you hit a type
+weakness or a creature's exposed vulnerability, you gain **Momentum** — an extra action or a
+charge toward a burst; whiffing or hitting a resist loses it. This makes the *small* chart
+feel deep, because exploiting it **compounds**: a well-sequenced turn snowballs, a sloppy one
+stalls. Skill and read-the-board matter more than raw stats — which is exactly what keeps
+infinite leveling (§7a) from flattening strategy.
+
+### Depth axis 2 — Essence synergy (team-building = combining ideas)
+
+Each essence grants a **passive/trait**, and essences **combine into synergy combos** — e.g.
+`Mad + Electric` → an "Overload" stack that pays off over several turns. Because a creature's
+essences drive *both* its look and its kit, **building a team is combining ideas**, not
+memorizing a movepool. This collapses collection, breeding, and theorycrafting into one novel
+loop — the genre's open, ownable gap (no shipped game pairs one-of-a-kind generated creatures
+with deep synergy combat).
 
 ### Type chart — the triangle + hidden types
 
@@ -168,9 +189,10 @@ Ember → Thorn → Tide → Ember     (each beats one, loses to one)
 - **Neutral to the triangle.** No advantage *or* disadvantage vs. Ember/Tide/Thorn — the
   natural order doesn't apply to them. They win or lose on raw stats and abilities, not
   matchup.
-- **Glass cannon.** Generally **high attack, low defense**: hits like a truck, folds under
-  pressure. Fielding one is a *decision* (it can carry a fight or evaporate turn one), not
-  a free upgrade.
+- **Glass cannon with a real drawback (D4).** Generally **high attack, low defense**, *and*
+  **hard-countered by common status** — a status-teching team reliably beats them. Rare must
+  never mean *strictly stronger*: that's the power-creep spiral that turns 90% of the roster
+  into dead content. Fielding a Wild is a high-risk *decision*, not a free upgrade.
 - **Rarity ≈ 5% (1 in 20).** Sowing a seed has roughly a 1-in-20 chance to turn up a Wild
   variant instead of a normal creature (tunable, and nudgeable by rare hidden essences).
   Common enough that a dedicated player *will* find one; rare enough that each is an event.
@@ -196,6 +218,24 @@ thing to actually build.
     able to upset a brute-forced level-90 — skill and authorship stay relevant.
   - The prestige of a high level is **social/personal** ("look what I raised"), not a
     pay-to-skip power wall.
+- **Bloom (prestige rebirth, D11).** A *voluntary* reset: sacrifice a maxed creature's levels
+  for a **permanent essence bonus** or a **rare cosmetic evolution**. Gives infinite leveling
+  a purpose (the idle-game ascension loop) — and fits "your garden is forever": you don't lose
+  the creature, you *bloom* it.
+
+### 7b. Why players will love a *specific* creature (attachment — D2)
+
+Research is blunt here: players bond with **their individual creature**, not a species, and
+generated content only feels *authored* when it visibly encodes their choices ("AI lacks
+signal, not soul"). So every creature carries **signal**:
+
+- **Its recipe** — the exact essences you combined, shown on its card.
+- **A unique serial / discovery ID**, **your name** as its creator, and a **birth date**.
+- **A player-chosen nickname.**
+- **Permanence + earned-ness:** creatures never die (above), and **generation is gated by
+  cost/effort — never spammable.** A creature is a companion you grew, not a slot-machine pull.
+
+This is the single biggest attachment lever *and* the anti-slop moat — protect it.
 
 ## 8. Progression = essences, not creatures
 
@@ -208,62 +248,153 @@ cap, even a modest library yields a combinatorial explosion of possible creature
 ## 9. Generation approach (how the art actually happens)
 
 Because creatures are **open-ended essence combinations** (`Mad + Robo + Electric`), a
-pre-built composite-parts library can't cover the space. So generation leans on **live
-generative image-gen**, driven by the concatenated **art-prompt fragments** of the chosen
-essences (§4a). Three facts make that workable:
+pre-built composite-parts library can't cover the space. So generation is **cloud image-gen
+through a consistent house-style model** (LoRA / fixed style), driven by the concatenated
+**art-prompt fragments** of the chosen essences (§4a). Decision D7:
 
-- **Pay once, own forever.** Generate the image at seed-time, then **cache it as that
-  creature's permanent asset**. Creatures never die (§7a), so the one-time cost amortizes
-  over the creature's entire life. Growth stages = a few re-gens (sprout → mature), not one
-  per battle.
-- **Moderation is mostly structural.** Players combine from a **designer-vetted essence
-  pool**, not raw typed text, so the abuse surface is small by construction. A light check
-  on unusual essence *combinations* is the only extra guard needed.
-- **Prompts are semi-structured, so art is more consistent.** Each essence contributes a
-  reliable descriptive fragment, giving the model coherent, art-directed input instead of
-  whatever a player free-typed.
+- **One house style, always.** Every creature runs through the same style model **and** the
+  cohesion pipeline in §10, so a chaotic generated menagerie still looks like *one game*.
+- **Pay once, own forever.** Generate at seed-time (~$0.01–0.08/image — our dominant variable
+  cost, modeled against monetization), then **cache permanently** as that creature's asset.
+  Creatures never die (§7a), so the cost amortizes over the creature's whole life.
+- **Hide latency inside the hatch ritual.** The 3–8s generation happens *behind* the
+  hatch set-piece (§11) — the wait becomes anticipation, not a spinner. Pre-generate popular
+  combos server-side for instant serves.
+- **On-device gen is later, not launch.** Quantized mobile models can't match the quality a
+  creature-beauty game lives on; cloud + caching is the launch path.
 
-**Fallbacks / hybrids to de-risk cost & latency:**
-- **Composite art for a stylized MVP.** A parts library keyed to *stat-tags* (not exact
-  essences) can still render a recognizable creature offline for v0, before wiring live gen.
-- **Deferred reveal.** Sowing kicks off async generation; the creature "grows" while the
-  image renders in the background — the wait is diegetic, not a spinner.
+**MVP fallback:** a composite-parts library keyed to *stat-tags* can render stylized
+creatures offline for v0, before live gen is wired in v2.
 
-## 10. Build path (fits the Android/Compose repo)
+Moderation is **not** optional and not "mostly structural" — see the full policy in §13.
+
+## 10. Art direction (D8)
+
+House style is **flat/vector + minimalist** — cheap to iterate, tiny files, scales across
+devices, and reads bright and high-contrast on small phone screens. **Creatures are the only
+fully-saturated element** on screen; the UI is a calm, rounded, botanical frame with generous
+whitespace and large tap targets, so the creature always pops.
+
+**The cohesion pipeline (make-or-break).** Unconstrained procedural variety reads as *noise*
+(Spore, early No Man's Sky). Every generated creature is forced through the **same runtime
+treatment** — ideally a **shader + palette LUT** so it's automatic and free:
+
+1. **Locked master palette** (~12–16 colors) — quantize/recolor every creature to it.
+2. **One consistent outline** (uniform stroke) on all creatures.
+3. **Single fixed light direction + 3-shade cel structure**, identical everywhere.
+4. **Identical card framing / vignette** — every creature sits in the same "container."
+
+Consistent *palette + outline + light-source* are the three documented cohesion levers;
+enforcing them programmatically is what makes the menagerie feel authored.
+
+**Palette theme ("growing living essence"):** organic neutrals (moss, cream, loam) + luminous
+accent gradients (teal→lime, amber→magenta) reserved for essence energy, **rarity glow**, and
+the hatch. Rarity is read as glow intensity / palette tier, consistent across all creatures.
+
+## 11. Audio & game feel (D12, D13)
+
+- **Adaptive music via FMOD** (free indie tier): one garden ambient bed that layers in
+  percussion as battle intensity rises and resolves to a short victory sting. Adaptive stems
+  from one composition beat many static loops on a tiny budget (~5–10% of scope).
+- **Spend on the feel-SFX cluster:** UI/collect "pop," attack impacts, level-up chime, and
+  above all the **hatch stinger** — high-frequency micro-sounds drive satisfaction more than
+  music does.
+
+**The hatch/reveal is the signature set-piece** — the five most-polished seconds in the game,
+where "a creature no one has ever seen" pays off emotionally. Structure = **anticipation →
+held silence → burst → settle**:
+1. **Anticipation:** shell shakes, cracks, light leaks; audio rises, then **drops to silence.**
+2. **Burst:** ~0.05s screen freeze, screen shake, radial particle burst, palette-glow bloom,
+   rising chime + bass hit.
+3. **Settle:** the creature lands into its card with a soft chime.
+
+Rarity is gated into the cadence (rarer = longer anticipation, brighter burst, unique sting).
+**Reuse this exact juice recipe** for battle crits and collection-completion so the whole game
+speaks one satisfying language.
+
+## 12. Retention & monetization (D9, D10, D11)
+
+**Retention — build the 20–50h layer *before* launch** (the Temtem lesson; use generation as
+the infinite mid-game content engine):
+- **Daily loop = low-friction return-to-collect**, *not* a punitive energy gate: offline
+  training accrual (§5 idle) + a "check on your Seedlings" moment.
+- **One seasonal battle pass** with daily/weekly quests — highest retention-per-eng-hour for a
+  solo dev.
+- **Collection codex:** completing essence-families grants small **permanent** buffs — turns
+  "collect 'em all" into long-term retention.
+- **Bloom** prestige loop (§7a) for the endless soft-cap → reset → boost cadence.
+
+**Monetization — cosmetic-first, as a brand differentiator. Money buys time and looks, never
+power:**
+- One-time **"Gardener's Pack"** — removes ads + a cosmetic set (cleanest goodwill move).
+- **~$5 seasonal pass** — cosmetic + convenience.
+- **Light gacha ONLY on cosmetic essence-skins/colorways**, with a **visible pity counter +
+  published odds**. Anything touching battle strength is **earnable through play.**
+
+> Because the game's soul is *your* unique creature, pay-to-win would poison the well — ethical
+> monetization is on-brand, not just nice. *(Premium paid-once vs. F2P is a values/business
+> fork flagged for the user.)*
+
+## 13. AI content: policy & moderation (D5, D6)
+
+- **Framing:** "**infinite creatures only you can make**" — AI is the *toy*, wrapped in a
+  human-authored art style. We disclose AI use honestly; we never pitch it as replacing
+  artists. (Concealed-AI reveals have gotten games cancelled; disclosed-but-honest + AI-as-
+  mechanic is the posture players accept.)
+- **Moderation is a launch blocker, shipped with generation — two layers:**
+  1. **Pre-generation:** the essence vocabulary is **fully pre-vetted**; unusual *combinations*
+     are screened. (Curated words instead of free text is our structural safety edge.)
+  2. **Post-generation:** an image classifier auto-hides anything over threshold; **user
+     flag/block** on every shared creature; **age-gating** per store policy.
+- **Why non-negotiable:** platforms now hold us liable for user-generated AI output and require
+  *proactive* prevention + in-app flagging. An unmoderated generator gets rejected or pulled.
+
+## 14. Build path (fits the Android/Compose repo)
 
 - **v0 (weekend):** essences → combine → seed → reveal (composite art for the MVP); the
-  type chart + the essence-combination/stat-budget math as tested pure functions. Battle
-  stubbed.
-- **v1:** real turn-based 3v3 battle; growth-over-battles/training; branching Mature forms.
-- **v2:** live generative image-gen (cache-once); essence-collection progression.
-- **v3:** hidden essences/types + discovery; catalysts; Awakened forms.
-- **later:** biome exploration; multiplayer battles; async garden-vs-garden.
+  **type chart + Momentum + essence-combination/stat-budget math** as tested pure functions.
+  Battle stubbed. The reveal already carries signal (recipe + serial + nickname).
+- **v1:** real turn-based 3v3 battle with **Momentum + essence synergy**;
+  growth-over-battles/training; branching Mature forms; the hatch juice recipe (§11).
+- **v2:** live generative image-gen (house-style model, cache-once) **+ the full moderation
+  layer (§13, ships together)**; the cohesion pipeline (§10); essence-collection codex.
+- **v3:** hidden essences/types + discovery; catalysts; Awakened + Bloom forms; daily loop +
+  seasonal pass.
+- **later:** biome exploration; multiplayer battles; async garden-vs-garden; on-device gen.
 
-## 11. Resolved & open
+## 15. Resolved & open
 
-**Resolved**
-- Creation = **combine 2+ collectible essences, no maximum**. Each essence is a concept-word
-  carrying stat-tags + an art-prompt fragment; the essence **library** is the collectible
-  (§4, §4a, §6, §8).
-- **Fixed stat budget** → more essences = wilder, not stronger; keeps "no max" balanced (§6).
-- Curated essence pool = **structural moderation** (no raw text input) (§9).
-- Training = **idle timer + puzzle**, player's choice, same growth currency (§5).
-- Hidden types ≈ **5% / 1-in-20** sow chance (§7).
-- Creatures **never die**, level **infinitely**, level 500 ≈ tens of thousands of hours;
-  level is asymptotic so matchup/comp still matter (§7a).
-- Art via **live gen, cached once per creature**, prompt built from essence fragments (§9).
+**Resolved** (full rationale in `seedlings-decisions.md`)
+- Creation = **combine 2+ collectible essences, no maximum**; essences carry stat-tags +
+  art-prompt fragment; the essence **library** is the collectible (§4, §4a, §6, §8).
+- **Fixed stat budget** → more essences = wilder, not stronger (§6).
+- Battle depth = **Momentum (tempo) + essence synergy**, not more types (§7, D1).
+- Hidden types: **glass cannon + hard-countered by status**, ≈5% sow chance (§7, D4).
+- **Attachment via signal:** recipe + serial + creator + nickname + permanence; generation
+  gated, never spammable (§7b, D2).
+- Creatures **never die**, level **infinitely** (asymptotic); **Bloom** prestige loop (§7a).
+- **Art:** flat/vector + programmatic cohesion pipeline over house-style live gen (§9, §10).
+- **Audio/juice:** FMOD adaptive layers; the **hatch** is the signature set-piece (§11).
+- **Retention:** idle daily loop + seasonal pass + codex, built pre-launch (§12).
+- **Monetization:** cosmetic-first, money buys time & looks, never power (§12).
+- **AI policy:** "AI as the toy," honest disclosure; two-layer moderation is a launch blocker
+  (§13).
 
 **Still open**
-- **Essence stat-tag design:** how many tag dimensions, and how does the stat-budget split
-  across N essences (even? weighted by rarity?)?
-- **Puzzle design:** what *is* the puzzle — match-3, logic/Sokoban, word-themed?
-- **Move system:** fixed signature move per essence, or a small learnable movepool?
-- **Multiplayer:** async battle vs. friends' gardens? Trading essences (not creatures)?
-- **Economy of catalysts:** earned only, or the monetization surface?
-- **Name / IP:** "Seedlings" is a placeholder.
+- **Essence stat-tag design:** how many tag dimensions; how the stat-budget splits across N
+  essences (even? rarity-weighted?). *← the studio's next build target.*
+- **Momentum tuning:** how much tempo a weakness-hit grants before it snowballs too hard.
+- **Puzzle design:** what *is* the training puzzle — match-3, logic, word-themed?
+- **Multiplayer:** async garden-vs-garden? Trading essences (never creatures)?
+- **[User forks]** premium vs. F2P business model; AI-disclosure copy; final name ("Seedlings"
+  is a placeholder).
 
 ---
 
-*Pillars locked: anything-can-be-grown (combine collectible essences, no cap) ·
-player-as-creator · plant-and-grow (surprise over control) · battle · grow through
-investment · clean triangle + rare hidden glass-cannon types.*
+*North-star: grow a one-of-a-kind creature from ideas you combine — then win by out-thinking,
+not out-grinding.*
+
+*Pillars locked: anything-can-be-grown (combine essences, no cap) · player-as-creator ·
+plant-and-grow (surprise over control) · out-think-don't-out-grind battle (Momentum + synergy)
+· grow through investment · signal-rich, permanent, beloved creatures · one cohesive look over
+a chaotic menagerie · ethical cosmetic-first monetization.*
