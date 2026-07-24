@@ -21,6 +21,15 @@ class StarterEssencesTest {
     }
 
     @Test
+    fun `every essence ability maps to a move`() {
+        // Guards against adding an essence but forgetting to register its signature move.
+        for (essence in StarterEssences.all) {
+            val ability = essence.ability ?: continue
+            assertTrue(Moves.forAbility(ability) != null, "ability '$ability' (${essence.id}) has no move")
+        }
+    }
+
+    @Test
     fun `hidden essences are consistently flagged`() {
         val hidden = StarterEssences.all.filter { it.hidden }
         assertTrue(hidden.isNotEmpty(), "there should be some hidden essences")

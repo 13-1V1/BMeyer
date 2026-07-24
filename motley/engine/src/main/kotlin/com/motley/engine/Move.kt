@@ -28,6 +28,7 @@ object Moves {
         "Frenzy" to 1.15, "Overclock" to 1.25, "Flare" to 1.2, "Maul" to 1.2, "Stomp" to 1.15,
         "Barbs" to 1.0, "Gust" to 1.05, "Endure" to 0.7, "Veil" to 0.9, "Douse" to 1.0,
         "Pressure" to 1.15, "Squall" to 1.1, "Unmake" to 1.3, "Lucid" to 1.25, "Corrupt" to 1.3,
+        "Erupt" to 1.2, "Overheat" to 1.0, "Entangle" to 0.85, "Freeze" to 0.9, "Fracture" to 1.3,
     )
 
     fun forAbility(ability: String): Move? {

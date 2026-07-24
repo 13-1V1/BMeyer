@@ -50,6 +50,17 @@ object StarterEssences {
     val STORM = Essence("storm", "Storm", Element.TIDE, StatWeights(1.0, 2.0, 1.0, 3.0),
         "wreathed in storm clouds, rain-lashed, wind-torn", Rarity.UNCOMMON, ability = "Squall")
 
+    val MAGMA = Essence("magma", "Magma", Element.EMBER, StatWeights(3.0, 3.0, 1.0, 0.0),
+        "molten rock body, dripping lava, cracked obsidian crust", Rarity.UNCOMMON, ability = "Erupt")
+    val PLASMA = Essence("plasma", "Plasma", Element.EMBER, StatWeights(1.0, 3.0, 0.0, 3.0),
+        "superheated plasma, blinding arcs, unstable glow", Rarity.RARE, ability = "Overheat")
+
+    val ROOT = Essence("root", "Root", Element.THORN, StatWeights(3.0, 1.0, 3.0, 0.0),
+        "gnarled roots and vines, earthen limbs, deep-anchored", Rarity.COMMON, ability = "Entangle")
+
+    val GLACIER = Essence("glacier", "Glacier", Element.TIDE, StatWeights(3.0, 1.0, 3.0, 0.0),
+        "a walking glacier, blue ice, frozen mist", Rarity.UNCOMMON, ability = "Freeze")
+
     // --- HIDDEN — the rare Wild family: glass cannons, off the triangle ------------------------
     val VOID = Essence("void", "Void", Element.THORN, StatWeights(1.0, 3.0, 0.0, 3.0),
         "a hole in reality, starless void, edges that hurt to look at",
@@ -60,13 +71,16 @@ object StarterEssences {
     val GLITCH = Essence("glitch", "Glitch", Element.EMBER, StatWeights(1.0, 3.0, 0.0, 3.0),
         "glitching and datamoshed, flickering artifacts, corrupted texture",
         Rarity.HIDDEN, ability = "Corrupt", hidden = true)
+    val ECHO = Essence("echo", "Echo", Element.TIDE, StatWeights(1.0, 3.0, 1.0, 3.0),
+        "a fractured mirror-image, phase-shifted, half here and half elsewhere",
+        Rarity.HIDDEN, ability = "Fracture", hidden = true)
 
     /** Every starter essence, common through hidden. */
     val all: List<Essence> = listOf(
-        EMBER, ELECTRIC, MAD, ROBO, SOLAR,
-        THORN, FEATHERED, ANCIENT, GIANT, FUNGAL, BEAST,
-        TIDE, FROST, MIST, VENOM, DEEP, STORM,
-        VOID, DREAM, GLITCH,
+        EMBER, ELECTRIC, MAD, ROBO, SOLAR, MAGMA, PLASMA,
+        THORN, FEATHERED, ANCIENT, GIANT, FUNGAL, BEAST, ROOT,
+        TIDE, FROST, MIST, VENOM, DEEP, STORM, GLACIER,
+        VOID, DREAM, GLITCH, ECHO,
     )
 
     val byId: Map<String, Essence> = all.associateBy { it.id }
@@ -96,6 +110,15 @@ object StarterEssences {
         Synergy("Titan", setOf("ancient", "giant"),
             "Immovable: takes reduced damage from Momentum burst follow-ups.",
             effects = setOf(SynergyEffect.BRACED)),
+        Synergy("Volcano", setOf("magma", "ember"),
+            "Runs molten-hot — builds Momentum faster.",
+            effects = setOf(SynergyEffect.FAST_MOMENTUM)),
+        Synergy("Permafrost", setOf("glacier", "frost"),
+            "An unmelting wall — braces against Momentum bursts.",
+            effects = setOf(SynergyEffect.BRACED)),
+        Synergy("Overgrowth", setOf("root", "thorn"),
+            "Ever-thickening bark — hardens as it fights.",
+            effects = setOf(SynergyEffect.FORTIFY)),
     )
 
     /** A [CreatureFactory] preloaded with the starter synergies. */

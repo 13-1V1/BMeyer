@@ -38,5 +38,8 @@ object Abilities {
         "Chill" to AbilityStatus(Status.CHILL, chance = 0.35, duration = 3),      // frost
         "Envenom" to AbilityStatus(Status.POISON, chance = 0.35, duration = 4),   // venom
         "Spore" to AbilityStatus(Status.POISON, chance = 0.30, duration = 3),     // fungal
+        "Overheat" to AbilityStatus(Status.BURN, chance = 0.35, duration = 3),    // plasma
+        "Entangle" to AbilityStatus(Status.CHILL, chance = 0.35, duration = 3),   // root
+        "Freeze" to AbilityStatus(Status.CHILL, chance = 0.40, duration = 3),     // glacier
     )
 }

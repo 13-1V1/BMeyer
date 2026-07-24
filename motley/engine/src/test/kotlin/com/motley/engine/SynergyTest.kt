@@ -37,6 +37,13 @@ class SynergyTest {
     }
 
     @Test
+    fun `the new content synergies unlock from their pairings`() {
+        assertTrue("Volcano" in f.grow(e("magma", "ember")).synergies.map { it.name })
+        assertTrue("Permafrost" in f.grow(e("glacier", "frost")).synergies.map { it.name })
+        assertTrue("Overgrowth" in f.grow(e("root", "thorn")).synergies.map { it.name })
+    }
+
+    @Test
     fun `every starter synergy references real catalog essences`() {
         for (s in StarterEssences.synergies) {
             for (id in s.requires) {
