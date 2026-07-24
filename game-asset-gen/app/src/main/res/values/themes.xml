@@ -1,0 +1,4 @@
+<resources>
+    <!-- Base theme. Material3 dynamic color is applied from Compose at runtime. -->
+    <style name="Theme.GameAssetGen" parent="android:Theme.Material.NoActionBar" />
+</resources>
