@@ -25,10 +25,16 @@ this module.
     stages, and Bloom (prestige rebirth). Raw level never becomes the whole game.
   - `BattleReward` / `Training` / `Catalyst` — the three XP paths (battle, idle-or-puzzle
     training, catalysts) that feed leveling.
+  - `Player` / `OwnedCreature` — the player's collection: essence inventory + a roster of owned
+    creatures, each with a permanent serial, nickname, and recipe (the "signal" identity layer).
+  - `Session` — runs one encounter of the real game loop (field a team → fight → award XP).
+  - `SaveCodec` — tiny dependency-free save/load (round-trips the whole `Player`).
   - `StarterEssences` — the authored starter catalog (game content/data).
 
-The full core loop — **grow** (`CreatureFactory`) → **fight** (`BattleResolver`) → **invest &
-grow stronger** (`Leveling`/`Training`) — is all here, all pure, all tested.
+The full game loop — **collect** essences → **grow** a creature (`CreatureFactory`) → **train**
+(`Training`) → **fight** (`Session`/`BattleResolver`) → **level up** (`Leveling`) → **save**
+(`SaveCodec`) → repeat — is all here, all pure Kotlin, all tested. `Demo` runs a headless
+end-to-end playthrough (`./gradlew :engine:run`).
 
 ## Build & test
 

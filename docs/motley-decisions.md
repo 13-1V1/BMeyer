@@ -171,7 +171,17 @@ Runners-up held in reserve: **Myriad**, **Whimsy**.
 **In-world creation term (replaces "AI-grown"):** creatures are simply **grown** — you *sow*
 essences and they *bloom*. No "AI" word anywhere player-facing (see D5).
 
+## D15 — Balance note: the early game is matchup-driven, by design (observed in playtest)
+**Observed:** in the headless session demo, a level-6 team could lose to a level-2 foe. Not a
+bug — the asymptotic level curve (D3/§7a) is *nearly flat at low levels* (Lv6 ≈ 1.15×, Lv2 ≈
+1.03×, only ~11% apart), so early outcomes hinge on **type matchup + team comp, not level**.
+**Verdict:** this is the "out-think, don't out-grind" intent working — but it makes the early
+game swingy. Keep it, but two follow-ups when we tune balance: (a) consider a slightly steeper
+early curve so the first ~10 levels *feel* rewarding, and (b) give the player some matchup
+agency pre-battle (scouting the foe's type, or switching order) so swinginess reads as strategy,
+not luck. Tracked for the balance pass; not blocking.
+
 ---
 
-*All decisions locked. No open user forks remain — the studio is driving. Current build target:
-the essence engine (`../motley/engine`), then battle.*
+*All major decisions locked; no open user forks. Engine core loop (collect → grow → train →
+fight → level → save) is built and tested. Next build targets: the UI layer, and a balance pass.*

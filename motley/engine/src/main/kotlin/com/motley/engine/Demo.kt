@@ -68,6 +68,35 @@ fun main() {
     val bloomed = Leveling.bloom(maxed)
     println("  Bloom: Lv ${maxed.level} -> reborn at Lv ${bloomed.level} with ${bloomed.blooms} Bloom " +
         "(permanent x%.2f forever)".format(Leveling.bloomBonus(bloomed.blooms)))
+
+    section("A FULL SESSION — collect, grow, battle, level, save")
+    var player = Player()
+        .collect("mad").collect("electric").collect("ember").collect("solar").collect("beast").collect("thorn")
+        .grow("Blaze", listOf("mad", "electric"))
+        .grow("Cinder", listOf("ember", "solar"))
+        .grow("Fang", listOf("beast", "thorn"))
+    println("  Player's roster:")
+    player.roster.forEach { println("    #${it.serial} ${it.nickname} (${it.creature.type}) — ${it.recipe.joinToString(" + ")}") }
+    println()
+
+    // Train the team first (idle + puzzle), then head out — investment before battle.
+    val trainingXp = Training.idleXp(minutes = 120) + Training.puzzleXp(solves = 15)
+    player.roster.forEach { player = player.awardXp(it.serial, trainingXp) }
+    println("  after training: ${player.roster.joinToString("  ") { "${it.nickname} Lv${it.progress.level} (${it.progress.stage})" }}")
+    println()
+
+    repeat(4) { i ->
+        val foeLevel = 2 + i
+        val enc = Session.encounter(player, Random((i + 1).toLong()), opponentLevel = foeLevel)
+        player = enc.player
+        val levels = player.roster.joinToString(" ") { "${it.nickname[0]}:Lv${it.progress.level}" }
+        println("    encounter ${i + 1} (foe Lv $foeLevel): ${if (enc.won) "WON " else "lost"}  ->  roster $levels")
+    }
+
+    println()
+    val save = SaveCodec.encode(player)
+    val reloaded = SaveCodec.decode(save)
+    println("  saved ${save.length} chars; reloaded roster matches original: ${reloaded == player}")
     println()
 }
 
