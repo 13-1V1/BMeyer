@@ -18,53 +18,71 @@ Here you love your creature because *you made it exist* — nobody else in the w
 
 ## 2. Design pillars
 
-1. **Anything can be grown.** Creatures are free-form — `dog with feathers`, `angry robot
-   tv`, `man bear pig`. The AI-grown premise only pays off if the space is truly open.
-2. **You steer, the world surprises.** The player controls the *concepts* (which words, how
+1. **Anything can be grown.** Creatures are open-ended combinations of essences — `Feathered
+   + Dog`, `Mad + Robo + Electric`, `Man + Bear + Pig` — with **no cap**. The AI-grown
+   premise only pays off if the space is truly open.
+2. **You steer, the world surprises.** The player controls the *essences* (which ones, how
    it's raised); the game controls the *execution* (what actually grows). The gap between
-   "what I described" and "what I got" is the game.
+   "what I combined" and "what I got" is the game.
 3. **Authorship through investment.** Attachment comes from effort — sowing the seed *and*
    raising it — not from a lucky pull.
 4. **AI is diegetic.** Creatures are grown from raw living essence, so of course each is
    unique and strange. The fiction *explains* the procedural weirdness instead of
    apologizing for it.
 5. **Discovery never runs out.** Creatures are infinite; the collectible is your finite,
-   growing **vocabulary of concept-words**, and the hidden words keep mystery alive deep
-   into the game.
+   growing **library of essences**, and the hidden essences keep mystery alive deep into
+   the game.
 
 ## 3. Core loop
 
 ```
-Explore → Unlock concept-words → Sow a seed (describe a creature) → Raise it (battle / train / catalysts)
-   → Watch it grow through stages → Battle with your team → earn rarer words → sow bolder creatures
+Explore → Collect essences → Sow a seed (combine 2+ essences) → Raise it (battle / train / catalysts)
+   → Watch it grow through stages → Battle with your team → earn rarer essences → sow bolder creatures
 ```
 
 ## 4. Creation: the seed ritual
 
-1. **Sow.** Describe the creature you want with **~3 concept-words** — free-form, from your
-   unlocked vocabulary (see §4a). Creatures can be *anything*: `dog with feathers`,
-   `angry robot tv`, `man bear pig`, `spiky lava crab`. This is the player's steering — you
-   pick the concepts, the world decides how they fuse.
+1. **Sow.** Combine **2 or more essences** from your collection into a seed. Each essence is
+   a collectible **concept-word** (`Mad`, `Robo`, `Electric`, `Feathered`, `Cosmic`…).
+   `Mad + Robo + Electric` → an angry robot TV-thing. Creatures can be *anything*, and
+   there's **no maximum** — stack as many essences as you dare for gloriously weird results.
+   You pick the essences; the world decides how they fuse.
 2. **Grow.** The seed matures through **investment**, not passive time (see §5).
 3. **Reveal.** At each growth milestone the art gains detail — a real reveal moment each
    stage, ending in a unique AI-authored **art + name + flavor** that is yours alone.
 
-### 4a. Concepts are the input — and the collectible
+### 4a. Essences — the input, the collectible, and the balance layer
 
-The old "fixed essence palette" is replaced by **free-form concept-words**, because
-AI-grown creatures only pay off if they can be *anything*. Two rules keep it a game, not a
-text box:
+An **essence is a collectible concept-word** (an adjective, adverb, or noun-ish theme). It
+is the single unit that ties the whole game together, because each authored essence carries
+*three* things:
 
-- **Soft cap of ~3 concepts** (not a rigid word count — `man bear pig` = 3, `dog with
-  feathers` = 2, "with" is free). Three concepts keep the generated art **coherent** and
-  map cleanly onto ~3 stat-tags for balance. It's the same "2–3 essences" slot as before —
-  the words simply *are* the essences, free-form instead of from a menu.
-- **Vocabulary is the collectible.** You don't start able to type anything. You **unlock
-  concept-words** by exploring and battling: begin with animals + basic traits
-  (`feathered dog`), later earn `robot`, `cosmic`, `undead`, `tv`, `ancient`… so late-game
-  you can sow `angry robot tv`. *"Gotta collect all the words"* replaces *"gotta catch 'em
-  all"* — creativity and power both grow with progression, and the **hidden types** are
-  just rare **hidden words** you discover.
+```
+Essence "Robo":
+  stat-tags:    +DEF, -SPD, Metal-leaning        # → balance
+  ability-seed: "Overclock" (a grantable move)   # → kit
+  art-prompt:   "robotic, chrome plating, glowing eyes"   # → generation
+  rarity:       uncommon                          # → progression
+```
+
+Sowing a seed **sums the essences' stat-tags** into a balanced kit and **concatenates their
+art-prompts** into one generation prompt. Battle-fairness and appearance both come straight
+from authored data — no parsing arbitrary text, no undefined words.
+
+**Design rules:**
+
+- **No maximum essences per creature.** Combining more makes a creature *wilder*, not
+  *stronger* — see §6 (fixed stat budget). The only soft limit is art coherence at very
+  high counts, which is emergent, not enforced.
+- **Essences are the finite collectible.** You start with a handful (animals + basic
+  traits → `Feathered Dog`) and **unlock more** by exploring and battling (`Robo`, `Cosmic`,
+  `Undead`, `Electric`, `Ancient`…). *"Gotta collect every essence"* replaces *"gotta catch
+  'em all"* — creativity and power both grow with progression.
+- **Curated pool = built-in moderation.** Because players combine from a designer-vetted
+  essence set (not raw typed text), the abuse surface of free-form image generation
+  largely disappears. The vocabulary *is* the safety layer.
+- **Hidden types are hidden essences.** The rare Wild variants (§7) come from rare essences
+  you discover — the mystery lives in the collection.
 
 ## 5. Growth system
 
@@ -100,22 +118,30 @@ Same reward currency (growth), two paces. Idle for the busy, puzzle for the enga
 
 ## 6. Stats without AI balance chaos
 
-**The concept-words carry the numbers; the AI only carries the soul.** Each concept the
-player types is distilled into **stat-tags** that deterministically contribute to type,
-stat curve, and a signature move. The words do double duty: art prompt *and* balanced kit.
+**The essences carry the numbers; the AI only carries the soul.** Each essence has authored
+**stat-tags** that contribute to type, stat curve, and a signature move. The essence does
+double duty: art prompt *and* balanced kit.
 
-> **"angry robot tv"**
-> - `angry` → aggressive temperament, +ATK
-> - `robot` → Metal-leaning, +DEF, slow
-> - `tv` → quirky signature ability ("Broadcast" — a confuse/status move)
+> **`Mad + Robo + Electric`**
+> - `Mad` → aggressive temperament, +ATK
+> - `Robo` → Metal-leaning, +DEF, −SPD
+> - `Electric` → Electric type, a shock/paralyze move
 >
 > → **Art & soul:** whatever the generator dreams up. **Kit:** balanced, derived, predictable.
 
-Under the hood this is a **keyword → stat-tag table** (a `robot`-like word grants the
-"mechanical" tag, etc.), with a sensible default for words the table hasn't seen. So the
-**build is fully player-authored and always balanced**, while the **appearance is a genuine
-surprise**. The magic sentence: *"It plays exactly how I designed it, but it looks like
-nothing I expected."* Balance stays under the designer's control — never the model's.
+### The fixed-budget rule (why "no max" doesn't break balance)
+
+Every creature is built from the **same total stat budget**, distributed across its
+essences — so combining *more* essences makes a creature **wilder, not stronger**:
+
+- **3 essences** → focused: the budget splits 3 ways, punchy and specialized.
+- **6 essences** → chaotic generalist: same budget spread thin, huge type coverage and many
+  abilities but master of none.
+
+Stacking essences is a genuine strategic tradeoff (focused vs. versatile), never a power
+cheat. So the **build is player-authored and always balanced**, while the **appearance is a
+genuine surprise**. The magic sentence: *"It plays exactly how I designed it, but it looks
+like nothing I expected."* Balance stays under the designer's control — never the model's.
 
 ## 7. Battle
 
@@ -171,67 +197,73 @@ thing to actually build.
   - The prestige of a high level is **social/personal** ("look what I raised"), not a
     pay-to-skip power wall.
 
-## 8. Progression = vocabulary, not creatures
+## 8. Progression = essences, not creatures
 
-Creatures are infinite; **your concept-word vocabulary is the finite collectible.** Rarer
-words (earned from tougher battles / deeper biomes) unlock bolder, stranger creatures — and
-rare *hidden words* unlock the Wild types. "Gotta collect every word" replaces "gotta catch
-'em all," and every new word multiplies what you can grow. Full vocabulary unlocked = you
-can describe truly anything.
+Creatures are infinite; **your essence library is the finite collectible.** Rarer essences
+(earned from tougher battles / deeper biomes) unlock bolder, stranger creatures — and rare
+*hidden essences* unlock the Wild types. "Gotta collect every essence" replaces "gotta catch
+'em all," and every new essence multiplies what you can grow. Because combination has no
+cap, even a modest library yields a combinatorial explosion of possible creatures.
 
 ## 9. Generation approach (how the art actually happens)
 
-Because creatures can be **anything** (`angry robot tv`), a pre-built composite-parts
-library can't cover the space — you can't pre-draw a "tv." So free-form concepts push
-toward **live generative image-gen** as the core path. Two facts make that affordable:
+Because creatures are **open-ended essence combinations** (`Mad + Robo + Electric`), a
+pre-built composite-parts library can't cover the space. So generation leans on **live
+generative image-gen**, driven by the concatenated **art-prompt fragments** of the chosen
+essences (§4a). Three facts make that workable:
 
 - **Pay once, own forever.** Generate the image at seed-time, then **cache it as that
   creature's permanent asset**. Creatures never die (§7a), so the one-time cost amortizes
   over the creature's entire life. Growth stages = a few re-gens (sprout → mature), not one
   per battle.
-- **Moderation is mandatory, not optional.** Free-form user text → generated images *will*
-  attract abuse. A **content filter on the concept-words** (allow/deny + classifier) gates
-  what can be sown. The vocabulary-unlock system (§4a) helps: the pool of usable words is
-  curated, not the open dictionary.
+- **Moderation is mostly structural.** Players combine from a **designer-vetted essence
+  pool**, not raw typed text, so the abuse surface is small by construction. A light check
+  on unusual essence *combinations* is the only extra guard needed.
+- **Prompts are semi-structured, so art is more consistent.** Each essence contributes a
+  reliable descriptive fragment, giving the model coherent, art-directed input instead of
+  whatever a player free-typed.
 
 **Fallbacks / hybrids to de-risk cost & latency:**
 - **Composite art for a stylized MVP.** A parts library keyed to *stat-tags* (not exact
-  words) can still render a recognizable creature offline for v0, before wiring live gen.
+  essences) can still render a recognizable creature offline for v0, before wiring live gen.
 - **Deferred reveal.** Sowing kicks off async generation; the creature "grows" while the
   image renders in the background — the wait is diegetic, not a spinner.
 
 ## 10. Build path (fits the Android/Compose repo)
 
-- **v0 (weekend):** concept-words → stat-tags → seed → reveal (composite art for the MVP);
-  the type chart + the keyword→stat-tag mapping as tested pure functions. Battle stubbed.
+- **v0 (weekend):** essences → combine → seed → reveal (composite art for the MVP); the
+  type chart + the essence-combination/stat-budget math as tested pure functions. Battle
+  stubbed.
 - **v1:** real turn-based 3v3 battle; growth-over-battles/training; branching Mature forms.
-- **v2:** live generative image-gen (cache-once) + prompt moderation; vocabulary-unlock
-  progression.
-- **v3:** hidden words/types + discovery; catalysts; Awakened forms.
+- **v2:** live generative image-gen (cache-once); essence-collection progression.
+- **v3:** hidden essences/types + discovery; catalysts; Awakened forms.
 - **later:** biome exploration; multiplayer battles; async garden-vs-garden.
 
 ## 11. Resolved & open
 
 **Resolved**
-- Creatures are **free-form** — describe anything with ~3 concept-words; words are both art
-  prompt and stat-tags; **vocabulary** is the collectible (§4, §4a, §6, §8).
+- Creation = **combine 2+ collectible essences, no maximum**. Each essence is a concept-word
+  carrying stat-tags + an art-prompt fragment; the essence **library** is the collectible
+  (§4, §4a, §6, §8).
+- **Fixed stat budget** → more essences = wilder, not stronger; keeps "no max" balanced (§6).
+- Curated essence pool = **structural moderation** (no raw text input) (§9).
 - Training = **idle timer + puzzle**, player's choice, same growth currency (§5).
 - Hidden types ≈ **5% / 1-in-20** sow chance (§7).
 - Creatures **never die**, level **infinitely**, level 500 ≈ tens of thousands of hours;
   level is asymptotic so matchup/comp still matter (§7a).
-- Art via **live gen, cached once per creature**, with mandatory prompt moderation;
-  composite art as the v0 fallback (§9).
+- Art via **live gen, cached once per creature**, prompt built from essence fragments (§9).
 
 **Still open**
-- **Keyword → stat-tag table:** how many tags, and how do unseen/novel words default?
+- **Essence stat-tag design:** how many tag dimensions, and how does the stat-budget split
+  across N essences (even? weighted by rarity?)?
 - **Puzzle design:** what *is* the puzzle — match-3, logic/Sokoban, word-themed?
-- **Move system:** fixed signature move per concept, or a small learnable movepool?
-- **Multiplayer:** async battle vs. friends' gardens? Trading words (not creatures)?
+- **Move system:** fixed signature move per essence, or a small learnable movepool?
+- **Multiplayer:** async battle vs. friends' gardens? Trading essences (not creatures)?
 - **Economy of catalysts:** earned only, or the monetization surface?
 - **Name / IP:** "Seedlings" is a placeholder.
 
 ---
 
-*Pillars locked: anything-can-be-grown (free-form concepts) · player-as-creator ·
-plant-and-grow (surprise over control) · battle · grow through investment · clean triangle +
-rare hidden glass-cannon types.*
+*Pillars locked: anything-can-be-grown (combine collectible essences, no cap) ·
+player-as-creator · plant-and-grow (surprise over control) · battle · grow through
+investment · clean triangle + rare hidden glass-cannon types.*
