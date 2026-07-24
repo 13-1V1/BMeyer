@@ -20,6 +20,7 @@ import kotlin.random.Random
 class BattleResolver(
     private val random: Random = Random.Default,
     private val config: BattleConfig = BattleConfig(),
+    private val policy: MovePolicy = BasicAi,
 ) {
     fun resolve(teamA: List<Battler>, teamB: List<Battler>): BattleResult {
         require(teamA.isNotEmpty() && teamB.isNotEmpty()) { "both teams need at least one creature" }
@@ -114,25 +115,23 @@ class BattleResolver(
         momentum: MutableMap<Side, Int>,
         events: MutableList<BattleEvent>,
     ): Boolean {
+        val move = policy.choose(attacker, defender, attacker.moves)
         val eff = TypeChart.effectiveness(attacker.type, defender.type)
         val variance = config.varianceMin + random.nextDouble() * (1.0 - config.varianceMin)
         val crit = random.nextDouble() < config.critChance
-        val dmg = Damage.compute(attacker.atk, defender.def, eff, config, variance, crit)
+        val dmg = Damage.compute(attacker.atk, defender.def, eff, config, variance, crit, move.power)
 
         val fainted = defender.takeDamage(dmg)
-        events += BattleEvent.Attack(side, attacker.name, defender.name, dmg, eff, crit)
+        events += BattleEvent.Attack(side, attacker.name, defender.name, move.name, dmg, eff, crit)
         if (fainted) events += BattleEvent.Faint(side.opponent, defender.name)
 
-        // On-hit status infliction (only on a still-standing target). CONTAGION (Miasma) makes
-        // inflicted statuses linger extra turns.
-        if (!fainted) {
+        // The chosen move's status (if any) lands on a still-standing target; CONTAGION (Miasma)
+        // makes it linger extra turns.
+        val inflicts = move.inflicts
+        if (!fainted && inflicts != null && random.nextDouble() < inflicts.chance) {
             val extra = if (attacker.has(SynergyEffect.CONTAGION)) config.contagionExtraDuration else 0
-            for (ability in attacker.onHitStatuses) {
-                if (random.nextDouble() < ability.chance) {
-                    defender.inflict(ability.status, ability.duration + extra)
-                    events += BattleEvent.StatusInflicted(side.opponent, defender.name, ability.status)
-                }
-            }
+            defender.inflict(inflicts.status, inflicts.duration + extra)
+            events += BattleEvent.StatusInflicted(side.opponent, defender.name, inflicts.status)
         }
 
         // Momentum: FAST_MOMENTUM (Overload) adds a point on top of any gaining hit.

@@ -32,8 +32,8 @@ class Battler(
     /** The mechanical effects this creature's active synergies grant in battle. */
     val synergyEffects: Set<SynergyEffect> = creature.synergies.flatMap { it.effects }.toSet()
 
-    /** The status conditions this creature can inflict on hit (from its abilities). */
-    val onHitStatuses: List<AbilityStatus> = Abilities.onHitFor(creature)
+    /** This creature's moves — a basic Strike plus one signature move per ability seed. */
+    val moves: List<Move> = Moves.forCreature(creature)
 
     private val statuses = LinkedHashMap<Status, Int>() // status -> remaining turns
 
@@ -105,6 +105,7 @@ sealed interface BattleEvent {
         val side: Side,
         val attacker: String,
         val defender: String,
+        val move: String,
         val damage: Int,
         val effectiveness: Double,
         val crit: Boolean,
@@ -160,9 +161,10 @@ object Damage {
         config: BattleConfig,
         variance: Double = 1.0,
         crit: Boolean = false,
+        power: Double = 1.0,
     ): Int {
         val critMult = if (crit) config.critMultiplier else 1.0
-        val raw = config.basePower * (atk.toDouble() / def) * effectiveness * variance * critMult
+        val raw = config.basePower * power * (atk.toDouble() / def) * effectiveness * variance * critMult
         return max(1, raw.roundToInt())
     }
 }

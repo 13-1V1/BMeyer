@@ -39,7 +39,4 @@ object Abilities {
         "Envenom" to AbilityStatus(Status.POISON, chance = 0.35, duration = 4),   // venom
         "Spore" to AbilityStatus(Status.POISON, chance = 0.30, duration = 3),     // fungal
     )
-
-    /** The status-inflicting abilities a creature actually has. */
-    fun onHitFor(creature: Creature): List<AbilityStatus> = creature.abilities.mapNotNull { onHit[it] }
 }

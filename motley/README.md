@@ -21,6 +21,9 @@ this module.
   - `Opponents` — generates fair enemy teams (same catalog, same rules, no stat cheating) to battle.
   - `BattleResolver` / `Damage` — 3v3 turn-based battles with a bench, type-scaled damage, and
     Momentum bursts. RNG is injectable, so a fixed seed makes a battle fully reproducible.
+  - `Move` / `Moves` / `MovePolicy` / `BasicAi` — each creature's movepool (a basic Strike plus a
+    signature move per ability); battle is a choice of hit-hard vs. apply-status. `MovePolicy` is
+    where the UI will plug in the player's move choice; `BasicAi` is the deterministic default.
   - `Status` / `StatusRules` / `Abilities` — Burn/Poison/Chill/Paralyze: damage-over-time, speed
     drops, and skipped turns. Wild types take extra DoT, so status hard-counters them (D4).
   - `Leveling` / `Growth` / `CreatureProgress` — infinite but **asymptotic** leveling, growth

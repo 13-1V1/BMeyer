@@ -118,8 +118,8 @@ private fun battler(name: String, vararg ids: String): Battler =
     Battler(name, StarterEssences.factory.grow(ids.map { StarterEssences.require(it) }))
 
 private fun narrate(e: BattleEvent): String = when (e) {
-    is BattleEvent.Attack -> "%s hits %s for %d%s%s".format(
-        e.attacker, e.defender, e.damage,
+    is BattleEvent.Attack -> "%s uses %s on %s for %d%s%s".format(
+        e.attacker, e.move, e.defender, e.damage,
         when {
             e.effectiveness > 1.0 -> "  (super!)"
             e.effectiveness < 1.0 -> "  (resisted)"
