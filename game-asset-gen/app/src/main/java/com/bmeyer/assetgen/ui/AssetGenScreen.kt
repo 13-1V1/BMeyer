@@ -155,6 +155,14 @@ fun AssetGenScreen(vm: AssetGenViewModel) {
 
             ModelSection(
                 installed = state.modelInstalled,
+                modelUrl = state.modelUrl,
+                isDownloading = state.isDownloading,
+                downloadFraction = state.downloadFraction,
+                downloadedBytes = state.downloadedBytes,
+                totalBytes = state.totalBytes,
+                onUrlChange = vm::setModelUrl,
+                onDownload = vm::downloadModel,
+                onCancel = vm::cancelDownload,
                 onImport = { importLauncher.launch("*/*") },
             )
 
@@ -274,29 +282,88 @@ private fun ResultPreview(bitmap: Bitmap?) {
 }
 
 @Composable
-private fun ModelSection(installed: Boolean, onImport: () -> Unit) {
+private fun ModelSection(
+    installed: Boolean,
+    modelUrl: String,
+    isDownloading: Boolean,
+    downloadFraction: Float?,
+    downloadedBytes: Long,
+    totalBytes: Long,
+    onUrlChange: (String) -> Unit,
+    onDownload: () -> Unit,
+    onCancel: () -> Unit,
+    onImport: () -> Unit,
+) {
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(
             modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp),
         ) {
             Text("On-device engine", style = MaterialTheme.typography.titleSmall)
             Text(
                 if (installed)
                     "Stable Diffusion model installed — generations run fully offline."
                 else
-                    "No model yet. Generations use the built-in preview. Import a converted " +
-                        "SD 1.5 model bundle (.zip) to generate real images on-device.",
+                    "No model yet. Generations use the built-in preview. Add a converted " +
+                        "SD 1.5 model bundle (.zip) — download from a link or import a local file — " +
+                        "to generate real images on-device. Bundles are large (~1–2 GB).",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
-            OutlinedButton(onClick = onImport) {
-                Icon(Icons.Filled.Download, contentDescription = null, modifier = Modifier.size(18.dp))
-                Text(if (installed) "  Replace model (.zip)" else "  Import model (.zip)")
+
+            OutlinedTextField(
+                value = modelUrl,
+                onValueChange = onUrlChange,
+                enabled = !isDownloading,
+                singleLine = true,
+                label = { Text("Model bundle URL (.zip)") },
+                placeholder = { Text("https://…/sd15-mediapipe.zip") },
+                modifier = Modifier.fillMaxWidth(),
+            )
+
+            if (isDownloading) {
+                if (downloadFraction != null) {
+                    LinearProgressIndicator(
+                        progress = { downloadFraction },
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                    Text(
+                        "Downloading… ${(downloadFraction * 100).toInt()}%  " +
+                            "(${mb(downloadedBytes)} / ${mb(totalBytes)})",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                } else {
+                    LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+                    Text(
+                        "Downloading… ${mb(downloadedBytes)}",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+                OutlinedButton(onClick = onCancel, modifier = Modifier.fillMaxWidth()) {
+                    Text("Cancel download")
+                }
+            } else {
+                Button(
+                    onClick = onDownload,
+                    enabled = modelUrl.isNotBlank(),
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    Icon(Icons.Filled.Download, contentDescription = null, modifier = Modifier.size(18.dp))
+                    Text(if (installed) "  Download & replace model" else "  Download model")
+                }
+                OutlinedButton(onClick = onImport, modifier = Modifier.fillMaxWidth()) {
+                    Text(if (installed) "Import local .zip instead" else "Import local .zip instead")
+                }
             }
         }
     }
 }
+
+/** Bytes -> compact "123 MB" string (or "?" when size is unknown). */
+private fun mb(bytes: Long): String =
+    if (bytes < 0) "?" else "${(bytes / 1_000_000.0).toInt()} MB"
 
 @Composable
 private fun GalleryGrid(entries: List<GalleryEntry>) {

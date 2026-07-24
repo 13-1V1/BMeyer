@@ -15,15 +15,20 @@ import com.bmeyer.assetgen.gen.BitmapTransforms
 import com.bmeyer.assetgen.gen.GalleryExport
 import com.bmeyer.assetgen.gen.GenRequest
 import com.bmeyer.assetgen.gen.MediaPipeAssetGenerator
+import com.bmeyer.assetgen.gen.ModelDownloader
 import com.bmeyer.assetgen.gen.ModelManager
 import com.bmeyer.assetgen.gen.StubAssetGenerator
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.io.File
+import java.io.FileInputStream
 import kotlin.random.Random
 
 /** One finished generation kept in the session gallery. */
@@ -48,10 +53,21 @@ data class UiState(
     val result: Bitmap? = null,
     val gallery: List<GalleryEntry> = emptyList(),
     val message: String? = null,
+    // On-device model download.
+    val modelUrl: String = "",
+    val isDownloading: Boolean = false,
+    val downloadedBytes: Long = 0,
+    val totalBytes: Long = -1,
 ) {
     /** Background removal only makes sense for cut-out asset types. */
     val backgroundToggleEnabled: Boolean get() = type.wantsTransparency
-    val canGenerate: Boolean get() = !isGenerating
+    val canGenerate: Boolean get() = !isGenerating && !isDownloading
+
+    /** Download fraction 0f..1f, or null when the total size is unknown. */
+    val downloadFraction: Float?
+        get() = if (isDownloading && totalBytes > 0) {
+            (downloadedBytes.toFloat() / totalBytes).coerceIn(0f, 1f)
+        } else null
 }
 
 /**
@@ -62,8 +78,11 @@ data class UiState(
 class AssetGenViewModel(private val appContext: Context) : ViewModel() {
 
     private val models = ModelManager(appContext)
+    private val downloader = ModelDownloader(appContext)
     private val onDevice: AssetGenerator = MediaPipeAssetGenerator(appContext, models)
     private val preview: AssetGenerator = StubAssetGenerator()
+
+    private var downloadJob: Job? = null
 
     private val _state = MutableStateFlow(
         UiState(
@@ -179,10 +198,62 @@ class AssetGenViewModel(private val appContext: Context) : ViewModel() {
         }
     }
 
+    fun setModelUrl(url: String) = _state.update { it.copy(modelUrl = url) }
+
+    /**
+     * Download a model bundle (.zip) from [UiState.modelUrl], unzip it into the
+     * on-device model directory, and switch the active engine to it. Cancelable
+     * via [cancelDownload].
+     */
+    fun downloadModel() {
+        val url = _state.value.modelUrl.trim()
+        if (url.isEmpty() || _state.value.isDownloading) return
+
+        _state.update {
+            it.copy(isDownloading = true, downloadedBytes = 0, totalBytes = -1, message = null)
+        }
+        downloadJob = viewModelScope.launch {
+            try {
+                val file: File = downloader.downloadToCache(url) { downloaded, total ->
+                    _state.update { it.copy(downloadedBytes = downloaded, totalBytes = total) }
+                }
+                _state.update { it.copy(message = "Installing model…") }
+                val installed = withContext(Dispatchers.IO) {
+                    FileInputStream(file).use { models.installFromZip(it) }
+                    file.delete()
+                    models.isInstalled()
+                }
+                _state.update {
+                    it.copy(
+                        isDownloading = false,
+                        modelInstalled = models.isInstalled(),
+                        engineLabel = activeEngine().displayName,
+                        message = if (installed) "On-device model installed" else "Install failed",
+                    )
+                }
+            } catch (e: CancellationException) {
+                _state.update { it.copy(isDownloading = false, message = "Download canceled") }
+                throw e // let the coroutine actually cancel
+            } catch (e: Exception) {
+                _state.update {
+                    it.copy(
+                        isDownloading = false,
+                        message = "Download failed: ${e.message ?: e.javaClass.simpleName}",
+                    )
+                }
+            }
+        }
+    }
+
+    fun cancelDownload() {
+        downloadJob?.cancel()
+    }
+
     /** A stable per-seed pseudo-timestamp for file naming (no clock in tests). */
     private fun seedStamp(seed: Int): Long = seed.toLong() and 0xFFFFFFFFL
 
     override fun onCleared() {
+        downloadJob?.cancel()
         onDevice.close()
         preview.close()
     }
