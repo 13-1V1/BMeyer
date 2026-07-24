@@ -85,10 +85,10 @@ fun main() {
 
     section("A FULL SESSION — collect, grow, battle, level, save")
     var player = Player()
-        .collect("mad").collect("electric").collect("ember").collect("solar").collect("beast").collect("thorn")
-        .grow("Blaze", listOf("mad", "electric"))
-        .grow("Cinder", listOf("ember", "solar"))
-        .grow("Fang", listOf("beast", "thorn"))
+        .collect("mad").collect("electric").collect("beast").collect("thorn").collect("tide").collect("frost")
+        .grow("Blaze", listOf("mad", "electric"))   // EMBER
+        .grow("Fang", listOf("beast", "thorn"))     // THORN
+        .grow("Ripple", listOf("tide", "frost"))    // TIDE
     println("  Player's roster:")
     player.roster.forEach { println("    #${it.serial} ${it.nickname} (${it.creature.type}) — ${it.recipe.joinToString(" + ")}") }
     println()
@@ -101,10 +101,10 @@ fun main() {
 
     repeat(4) { i ->
         val foeLevel = 2 + i
-        val enc = Session.encounter(player, Random((i + 1).toLong()), opponentLevel = foeLevel)
+        val enc = Session.encounter(player, Random((i + 1).toLong()), opponentLevel = foeLevel, scout = true)
         player = enc.player
         val levels = player.roster.joinToString(" ") { "${it.nickname[0]}:Lv${it.progress.level}" }
-        println("    encounter ${i + 1} (foe Lv $foeLevel): ${if (enc.won) "WON " else "lost"}  ->  roster $levels")
+        println("    encounter ${i + 1} (foe Lv $foeLevel, scouted): ${if (enc.won) "WON " else "lost"}  ->  roster $levels")
     }
 
     println()

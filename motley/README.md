@@ -31,7 +31,9 @@ this module.
     creatures, each with a permanent serial, nickname, and recipe (the "signal" identity layer).
   - `Reveal` — the signature hatch moment as rarity-gated data (anticipation → held silence →
     burst → settle); rarer creatures build longer and burst brighter. What the UI/audio play back.
-  - `Session` — runs one encounter of the real game loop (field a team → fight → award XP).
+  - `TeamPlanner` — pre-battle matchup agency: scout the foe's lead and order your team for the
+    best opening matchup (turns early-game swing into strategy).
+  - `Session` — runs one encounter of the real game loop (scout → field a team → fight → award XP).
   - `SaveCodec` — tiny dependency-free save/load (round-trips the whole `Player`).
   - `StarterEssences` — the authored starter catalog (game content/data).
 

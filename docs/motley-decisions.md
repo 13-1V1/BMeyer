@@ -185,7 +185,12 @@ bug — the asymptotic level curve (D3/§7a) is *nearly flat at low levels* (Lv6
 game swingy. Keep it, but two follow-ups when we tune balance: (a) consider a slightly steeper
 early curve so the first ~10 levels *feel* rewarding, and (b) give the player some matchup
 agency pre-battle (scouting the foe's type, or switching order) so swinginess reads as strategy,
-not luck. Tracked for the balance pass; not blocking.
+not luck.
+**Implemented (engine):** went with (b) — `TeamPlanner` + `Session(scout = true)` let the player
+scout the enemy lead and reorder their team for the best opening matchup. Chose this over (a)
+deliberately: steepening the curve would let grinding beat type advantage, against the whole
+thesis. Agency turns the swing into a decision. (Test: scouting never wins less than fielding
+blindly.) A finer numeric tuning pass can still come later with real playtest data.
 
 ---
 

@@ -17,12 +17,22 @@ data class EncounterResult(
 object Session {
     const val TEAM_SIZE = 3
 
-    fun encounter(player: Player, random: Random, opponentLevel: Int): EncounterResult {
+    /**
+     * Run one encounter. With [scout] on, the player sees the enemy's lead and reorders their team
+     * for the best opening matchup (D15 matchup agency); off, they field roster order as-is.
+     */
+    fun encounter(
+        player: Player,
+        random: Random,
+        opponentLevel: Int,
+        scout: Boolean = false,
+    ): EncounterResult {
         require(player.roster.isNotEmpty()) { "the player needs at least one creature to battle" }
 
-        val fielded = player.roster.take(TEAM_SIZE)
-        val team = fielded.map { it.toBattler() }
         val enemy = Opponents.team(random, opponentLevel, size = TEAM_SIZE)
+        val bench = player.roster.take(TEAM_SIZE)
+        val fielded = if (scout) TeamPlanner.bestOrder(bench, TeamPlanner.scoutLead(enemy)) else bench
+        val team = fielded.map { it.toBattler() }
 
         val result = BattleResolver(random).resolve(team, enemy)
         val won = result.outcome == Outcome.A_WINS
