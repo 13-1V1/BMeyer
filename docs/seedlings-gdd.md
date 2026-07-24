@@ -59,13 +59,24 @@ creature). You literally watch it grow.
 | Input | Feel | Risk | Effect |
 |---|---|---|---|
 | **Battling** | "raise it in the field" | risky — a sprout can lose | organic growth, biases toward aggressive Mature forms |
-| **Training** | "the gym" — safe minigame/idle grind | none | slower, biases toward tanky/utility forms |
+| **Training** | "the gym" — safe, player-chosen mode | none | slower, biases toward tanky/utility forms |
 | **Powerups / catalysts** | consumables | varies | accelerate *or bend* growth; the scarcity + surprise lever |
 
 **Care shapes the outcome.** Same seed, different upbringing → different Mature form
 (Tyrogue → Hitmon-style branching). Grow mostly by battle → lean/aggressive; mostly by
 training → tanky; feed a rare catalyst at Juvenile → branch into a strange **Awakened**
 variant. The upbringing is part of the design, not just the seed.
+
+**Training — two modes, player's choice:**
+
+- **Idle timer.** Set a creature to train and walk away; it accrues growth over real time
+  (offline-friendly, respects the player's time, the "check back later" hook). Capped per
+  session so it supplements battle rather than replacing it.
+- **Puzzle.** An active minigame — solve to earn a burst of growth. Rewards engagement for
+  players who want to lean in, and gives a skill outlet on days they don't feel like
+  battling.
+
+Same reward currency (growth), two paces. Idle for the busy, puzzle for the engaged.
 
 ## 6. Stats without AI balance chaos
 
@@ -109,12 +120,31 @@ Ember → Thorn → Tide → Ember     (each beats one, loses to one)
 - **Glass cannon.** Generally **high attack, low defense**: hits like a truck, folds under
   pressure. Fielding one is a *decision* (it can carry a fight or evaporate turn one), not
   a free upgrade.
+- **Rarity ≈ 5% (1 in 20).** Sowing a seed has roughly a 1-in-20 chance to turn up a Wild
+  variant instead of a normal creature (tunable, and nudgeable by rare hidden essences).
+  Common enough that a dedicated player *will* find one; rare enough that each is an event.
 - **Discovery is the reward.** You don't know they exist until you stumble into one; you
   learn each variant's tricks by experimenting. The unknown *is* the fun.
 
 The whole chart is a small **pure function** — trivially unit-testable on the JVM (fits the
 repo's "pure Kotlin, no Android calls in tested code" rule). This is the recommended first
 thing to actually build.
+
+## 7a. Leveling & permanence
+
+- **Creatures never die and never retire.** Your garden is permanent — every creature you
+  grow stays yours forever. This is the emotional backbone: you build a lifelong menagerie.
+- **Levels are uncapped.** Creatures level **infinitely**; **level 500 is practically
+  unreachable** — tens of thousands of hours of investment — so a maxed creature is a
+  monument to dedication, not a normal goal.
+- **Level is a slow, asymptotic axis — not the whole game.** So that infinite leveling +
+  no death doesn't collapse into "whoever grinded longest always wins":
+  - Per-level stat gains **diminish hard** at high levels (a level-500 is meaningfully but
+    not absurdly stronger than a level-200).
+  - **Type matchup and team comp can beat raw level.** A clever level-40 team should be
+    able to upset a brute-forced level-90 — skill and authorship stay relevant.
+  - The prestige of a high level is **social/personal** ("look what I raised"), not a
+    pay-to-skip power wall.
 
 ## 8. Progression = essences, not creatures
 
@@ -142,12 +172,20 @@ network). Instead:
 - **v2:** hidden types + discovery; catalysts; Awakened forms.
 - **later:** biome exploration; live "premium bloom" generation; multiplayer battles.
 
-## 11. Open questions
+## 11. Resolved & open
 
-- **Training minigame:** what's the actual verb — idle timer, rhythm/tap game, puzzle?
-- **How rare is "rare"** for hidden essences — one hidden type in the first 10 hours? First hour?
-- **Do creatures die / retire,** or is your garden permanent? (Affects attachment + stakes.)
+**Resolved**
+- Training = **idle timer + puzzle**, player's choice, same growth currency (§5).
+- Hidden types ≈ **5% / 1-in-20** sow chance (§7).
+- Creatures **never die**, level **infinitely**, level 500 ≈ tens of thousands of hours;
+  level is asymptotic so matchup/comp still matter (§7a).
+
+**Still open**
+- **Puzzle design:** what *is* the puzzle — match-3, logic/Sokoban, wordy, something themed
+  to essences?
+- **Move system:** fixed signature move per essence, or a small learnable movepool?
 - **Multiplayer:** async battle vs. friends' gardens? Trading essences (not creatures)?
+- **Economy of catalysts:** earned only, or the monetization surface?
 - **Name / IP:** "Seedlings" is a placeholder.
 
 ---
