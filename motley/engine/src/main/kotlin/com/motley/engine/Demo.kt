@@ -1,5 +1,7 @@
 package com.motley.engine
 
+import kotlin.random.Random
+
 /**
  * A tiny console demo of the essence engine — run with `./gradlew :engine:run`. It grows a few
  * creatures, shows that the stat budget is fixed no matter how many essences you fuse, and prints
@@ -29,7 +31,36 @@ fun main() {
         }
         println("  $row")
     }
+
+    section("A BATTLE — Ember team vs Thorn team (seed 7)")
+    val teamA = listOf(battler("Blaze", "mad", "electric"), battler("Cinder", "ember", "solar"))
+    val teamB = listOf(battler("Bulwark", "ancient", "giant"), battler("Bramble", "thorn", "fungal"))
+    println("  A: ${teamA.joinToString(", ") { "${it.name} (${it.type})" }}")
+    println("  B: ${teamB.joinToString(", ") { "${it.name} (${it.type})" }}")
     println()
+    val result = BattleResolver(Random(7)).resolve(teamA, teamB)
+    result.events.forEach { println("    ${narrate(it)}") }
+    println()
+    println("  ${result.outcome} in ${result.rounds} rounds  (survivors  A:${result.survivorsA}  B:${result.survivorsB})")
+    println()
+}
+
+private fun battler(name: String, vararg ids: String): Battler =
+    Battler(name, StarterEssences.factory.grow(ids.map { StarterEssences.require(it) }))
+
+private fun narrate(e: BattleEvent): String = when (e) {
+    is BattleEvent.Attack -> "%s hits %s for %d%s%s".format(
+        e.attacker, e.defender, e.damage,
+        when {
+            e.effectiveness > 1.0 -> "  (super!)"
+            e.effectiveness < 1.0 -> "  (resisted)"
+            else -> ""
+        },
+        if (e.crit) "  CRIT" else "",
+    )
+    is BattleEvent.Faint -> "-- ${e.name} faints --"
+    is BattleEvent.Burst -> ">> Momentum burst! ${e.name} acts again"
+    is BattleEvent.Victory -> "== ${e.outcome} =="
 }
 
 private fun essences(vararg ids: String): List<Essence> = ids.map { StarterEssences.require(it) }

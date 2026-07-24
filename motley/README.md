@@ -11,13 +11,18 @@ this module.
 
 ## Modules
 
-- **`:engine`** — the essence combination engine and battle math (`com.motley.engine`):
+- **`:engine`** — the essence combination engine and battle system (`com.motley.engine`):
   - `CreatureFactory` — grows a `Creature` from essences under a **fixed stat budget** (combine
     more essences → *wilder, not stronger*).
   - `TypeChart` — the `EMBER > THORN > TIDE` triangle + neutral `WILD` hidden types.
   - `Momentum` — the tempo mechanic (exploiting a weakness earns extra actions).
   - `Synergy` — named combos certain essence pairings unlock.
+  - `BattleResolver` / `Damage` — 3v3 turn-based battles with a bench, type-scaled damage, and
+    Momentum bursts. RNG is injectable, so a fixed seed makes a battle fully reproducible.
   - `StarterEssences` — the authored starter catalog (game content/data).
+
+The two halves of the core loop — **grow** (`CreatureFactory`) and **fight** (`BattleResolver`)
+— are both here, both pure, both tested.
 
 ## Build & test
 
