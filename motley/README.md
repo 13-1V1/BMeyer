@@ -19,10 +19,14 @@ this module.
   - `Synergy` — named combos certain essence pairings unlock.
   - `BattleResolver` / `Damage` — 3v3 turn-based battles with a bench, type-scaled damage, and
     Momentum bursts. RNG is injectable, so a fixed seed makes a battle fully reproducible.
+  - `Leveling` / `Growth` / `CreatureProgress` — infinite but **asymptotic** leveling, growth
+    stages, and Bloom (prestige rebirth). Raw level never becomes the whole game.
+  - `BattleReward` / `Training` / `Catalyst` — the three XP paths (battle, idle-or-puzzle
+    training, catalysts) that feed leveling.
   - `StarterEssences` — the authored starter catalog (game content/data).
 
-The two halves of the core loop — **grow** (`CreatureFactory`) and **fight** (`BattleResolver`)
-— are both here, both pure, both tested.
+The full core loop — **grow** (`CreatureFactory`) → **fight** (`BattleResolver`) → **invest &
+grow stronger** (`Leveling`/`Training`) — is all here, all pure, all tested.
 
 ## Build & test
 

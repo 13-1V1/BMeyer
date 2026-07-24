@@ -42,6 +42,32 @@ fun main() {
     result.events.forEach { println("    ${narrate(it)}") }
     println()
     println("  ${result.outcome} in ${result.rounds} rounds  (survivors  A:${result.survivorsA}  B:${result.survivorsB})")
+
+    section("GROWTH — raise a creature through investment")
+    val base = StarterEssences.factory.grow(essences("beast", "thorn")).stats
+    var progress = CreatureProgress()
+    println("  fresh creature — base stats  ${base.asList()}  total ${base.total}")
+    fun report(what: String) {
+        val s = Growth.effectiveStats(base, progress)
+        println("    after %-22s Lv %-3d %-9s stats %s (total %d)".format(
+            what, progress.level, progress.stage, s.asList(), s.total))
+    }
+    progress = Leveling.gainXp(progress, BattleReward.xp(won = true, opponentLevel = 8)); report("a battle win")
+    progress = Leveling.gainXp(progress, Training.puzzleXp(solves = 6)); report("6 puzzle solves")
+    progress = Leveling.gainXp(progress, Training.idleXp(minutes = 120)); report("2h idle training")
+    progress = Leveling.gainXp(progress, Catalyst("Sunburst", 5_000).xp); report("a Sunburst catalyst")
+
+    println()
+    println("  asymptotic leveling (why grinding alone can't win):")
+    for (lv in listOf(1, 40, 90, 200, 500)) {
+        println("    Lv %-3d  stat x%.2f".format(lv, Leveling.levelMultiplier(lv)))
+    }
+
+    println()
+    val maxed = CreatureProgress(level = Leveling.BLOOM_MIN_LEVEL)
+    val bloomed = Leveling.bloom(maxed)
+    println("  Bloom: Lv ${maxed.level} -> reborn at Lv ${bloomed.level} with ${bloomed.blooms} Bloom " +
+        "(permanent x%.2f forever)".format(Leveling.bloomBonus(bloomed.blooms)))
     println()
 }
 

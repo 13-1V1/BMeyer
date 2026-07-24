@@ -353,16 +353,18 @@ power:**
 
 ## 14. Build path (fits the Android/Compose repo)
 
-> **Progress:** the `motley/engine` module now implements the tested pure-Kotlin core of both
-> v0 and the battle half of v1 — `CreatureFactory` (fixed-budget combination), `TypeChart`,
-> `Momentum`, `Synergy`, `StarterEssences`, and the 3v3 `BattleResolver`. Grow *and* fight are
-> real and green in CI. Remaining v1 work: growth-over-battles/training, and the UI layer.
+> **Progress:** the `motley/engine` module now implements the tested pure-Kotlin core of v0 and
+> most of v1's systems — `CreatureFactory` (fixed-budget combination), `TypeChart`, `Momentum`,
+> `Synergy`, `StarterEssences`, the 3v3 `BattleResolver`, and the growth/leveling system
+> (`Leveling`/`Growth`/`Training`/`BattleReward`/`Catalyst`, incl. Bloom). The whole core loop —
+> grow → fight → invest → grow stronger — is real and green in CI. Remaining v1 work:
+> branching Mature forms, the hatch juice recipe, and the UI layer.
 
 - **v0 (weekend):** essences → combine → seed → reveal (composite art for the MVP); the
   **type chart + Momentum + essence-combination/stat-budget math** as tested pure functions.
   ✅ *engine done.* The reveal already carries signal (recipe + serial + nickname).
 - **v1:** real turn-based 3v3 battle with **Momentum + essence synergy** ✅ *resolver done*;
-  growth-over-battles/training; branching Mature forms; the hatch juice recipe (§11).
+  growth-over-battles/training ✅ *system done*; branching Mature forms; the hatch juice recipe (§11).
 - **v2:** live generative image-gen (house-style model, cache-once) **+ the full moderation
   layer (§13, ships together)**; the cohesion pipeline (§10); essence-collection codex.
 - **v3:** hidden essences/types + discovery; catalysts; Awakened + Bloom forms; daily loop +
