@@ -7,6 +7,16 @@
 <meta name="description" content="Brennan Meyer — a multi-disciplinary student of software, electronics, engineering, welding, and the creative arts at College of the Canyons." />
 <link rel="stylesheet" href="assets/css/site.css" />
 <link rel="icon" href="assets/images/favicon.png" />
+<style>
+.music-promo{display:grid;grid-template-columns:300px 1fr;gap:28px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:24px;}
+.music-flyer img{width:100%;border-radius:12px;border:1px solid var(--line);display:block;transition:transform .2s;}
+.music-flyer:hover img{transform:scale(1.02);}
+.music-text .hero-eyebrow{color:var(--blue);}
+.music-text h2{margin:8px 0 10px;font-size:1.7rem;}
+.music-text p{color:var(--muted);margin:0 0 12px;}
+.music-text .platforms{color:var(--faint);font-size:.85rem;margin-bottom:16px;letter-spacing:.03em;}
+@media(max-width:720px){.music-promo{grid-template-columns:1fr;}.music-flyer{max-width:320px;margin:0 auto;}}
+</style>
 </head>
 <body>
 <nav class="nav"><div class="nav-inner">
@@ -42,6 +52,21 @@
     <img src="nsls_logo.png" alt="National Society of Leadership and Success" title="NSLS" />
   </span>
 </div>
+
+<section class="section reveal" id="music">
+  <div class="music-promo">
+    <a href="creative-electives.html" class="music-flyer"><img src="album-flyer.jpg" alt="B the Motivator double album — Frequency High and Easy Listenin', available 8.22.26" loading="lazy" /></a>
+    <div class="music-text">
+      <span class="hero-eyebrow">Coming soon &middot; 8.22.26</span>
+      <h2>New music from <span class="hl">B the Motivator</span></h2>
+      <p>A double album &mdash; <em>Frequency High</em> and <em>Easy Listenin'</em> &mdash; dropping August 22, 2026 on all the major platforms.</p>
+      <div class="platforms">Spotify &middot; Amazon Music &middot; YouTube &middot; Pandora</div>
+      <div style="font-size:.8rem;color:var(--faint);margin-bottom:8px;letter-spacing:.03em;">&#9654; Listen &mdash; "Frequency High"</div>
+      <iframe width="100%" height="120" scrolling="no" frameborder="no" allow="autoplay" style="border-radius:10px;max-width:480px;"
+        src="https://w.soundcloud.com/player/?url=https%3A//soundcloud.com/brennan-meyer-807038212/frequency-high&color=%233ddc84&auto_play=false&hide_related=true&show_comments=false&show_user=true&show_reposts=false&show_teaser=false&visual=false"></iframe>
+    </div>
+  </div>
+</section>
 
 <section class="section" id="areas">
   <h2 class="reveal">Areas of study</h2>

@@ -14,6 +14,10 @@
 .notice{background:var(--card);border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:10px;padding:14px 18px;color:var(--muted);font-size:.9rem;margin-bottom:26px;}
 h2.grp{margin:40px 0 4px;}
 h2.grp.first{margin-top:8px;}
+.dl-head{display:flex;align-items:center;gap:12px;margin-bottom:10px;}
+.dl-ico{width:46px;height:46px;border-radius:10px;border:1px solid var(--line);object-fit:cover;background:#0a0d12;flex:none;}
+.dl-ico.glyph{display:flex;align-items:center;justify-content:center;font-size:1.5rem;color:var(--accent);background:var(--accent-soft);}
+.dl-head h3{margin:0;}.dl-head .meta2{margin:0;}
 </style>
 </head><body class="acc-green">
 <nav class="nav"><div class="nav-inner">
@@ -37,10 +41,24 @@ h2.grp.first{margin-top:8px;}
   <div class="notice"><b style="color:var(--ink)">A quick note:</b> these desktop apps are <b>unsigned</b> &mdash; I built them myself as a student, so Windows SmartScreen or your antivirus may show a warning. That's expected for homemade software; you can click "More info &#8594; Run anyway" if you trust the source.</div>
 
   <h2 class="grp first reveal">Featured apps</h2>
-  <p class="sub reveal">My biggest builds &mdash; full desktop installers. Both also have live web versions in.</p>
+  <p class="sub reveal">My biggest builds &mdash; full desktop installers. BlueCAD and G-Code Trainer also have live web versions in <a href="vibe-coding.html" style="color:var(--accent)">Vibe Coding</a>.</p>
   <div class="dl-grid">
-    <div class="dl reveal"><h3>BlueCAD</h3><div class="meta2">BlueCAD-Setup-1.0.0.exe · ~82 MB · Windows installer</div><p>A 2D CAD app for drawing precise shapes with exact dimensions &mdash; snapping, mm/inch units, undo/redo, JSON save/load, and SVG export. Built with Electron.</p><a class="get" href="https://github.com/13-1V1/BMeyer/releases/download/v1.0/BlueCAD-Setup-1.0.0.exe">Download installer &#8595;</a></div>
-    <div class="dl reveal"><h3>G-Code Trainer</h3><div class="meta2">G-Code-Trainer-Setup.exe · ~104 MB · Windows installer</div><p>A desktop app that teaches CNC G-code through lessons paired with a live toolpath simulator. Built with Electron + React.</p><a class="get" href="https://github.com/13-1V1/BMeyer/releases/download/v1.0/G-Code-Trainer-Setup.exe">Download installer &#8595;</a></div>
+    <div class="dl reveal">
+      <div class="dl-head"><img src="learnlinux-icon.png" alt="" class="dl-ico"/><div><h3>LearnLinux+</h3><div class="meta2">learnlinux-setup.exe · ~10 MB · Windows installer</div></div></div>
+      <p>An interactive app for learning Linux toward the CompTIA Linux+ (XK0-005) exam. It simulates a Linux shell and filesystem entirely in memory &mdash; experiment freely with zero risk to your real machine &mdash; with 62 guided lessons, a free-play sandbox, adaptive quizzes, and a scored practice exam.</p>
+      <a class="get" href="https://github.com/13-1V1/BMeyer/releases/download/v1.0/learnlinux-setup.exe">Download installer &#8595;</a></div>
+    <div class="dl reveal">
+      <div class="dl-head"><div class="dl-ico glyph">&#9878;</div><div><h3>The Judge</h3><div class="meta2">the-judge-setup.exe · Windows installer</div></div></div>
+      <p>A 3D asset-triage tool for game developers. Fly through your rendered, textured game assets in a courtroom-themed viewer and label each one by art style &mdash; realistic, stylized, low-poly, voxel, and more &mdash; with quick number-key "verdicts." It judges per asset (not per file), shows models at true scale beside a human-height reference, and logs every verdict to CSV/JSON. Built with Electron.</p>
+      <a class="get" href="https://github.com/13-1V1/BMeyer/releases/download/v1.0/the-judge-setup.exe">Download installer &#8595;</a></div>
+    <div class="dl reveal">
+      <div class="dl-head"><img src="bluecad-icon.png" alt="" class="dl-ico"/><div><h3>BlueCAD</h3><div class="meta2">BlueCAD-Setup-1.0.0.exe · ~82 MB · Windows installer</div></div></div>
+      <p>A 2D CAD app for drawing precise shapes with exact dimensions &mdash; snapping, mm/inch units, undo/redo, JSON save/load, and SVG export. Built with Electron.</p>
+      <a class="get" href="https://github.com/13-1V1/BMeyer/releases/download/v1.0/BlueCAD-Setup-1.0.0.exe">Download installer &#8595;</a></div>
+    <div class="dl reveal">
+      <div class="dl-head"><img src="gcode-icon.svg" alt="" class="dl-ico"/><div><h3>G-Code Trainer</h3><div class="meta2">G-Code-Trainer-Setup.exe · ~104 MB · Windows installer</div></div></div>
+      <p>A desktop app that teaches CNC G-code through lessons paired with a live toolpath simulator. Built with Electron + React.</p>
+      <a class="get" href="https://github.com/13-1V1/BMeyer/releases/download/v1.0/G-Code-Trainer-Setup.exe">Download installer &#8595;</a></div>
   </div>
 
   <h2 class="grp reveal">Games</h2>
