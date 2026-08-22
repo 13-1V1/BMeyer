@@ -6,6 +6,7 @@ import android.provider.Settings
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
 import androidx.activity.viewModels
 import com.bmeyer.appmanager.ui.AppListViewModel
@@ -17,6 +18,10 @@ class MainActivity : ComponentActivity() {
     private val viewModel: AppListViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        // Android 15 (targetSdk 35) enforces edge-to-edge; opt in explicitly so
+        // the system bars are transparent with adaptive (auto light/dark) icon
+        // contrast, and let Material3 Scaffold inset the content.
+        enableEdgeToEdge()
         super.onCreate(savedInstanceState)
         setContent {
             AppManagerTheme {
