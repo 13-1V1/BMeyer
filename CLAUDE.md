@@ -55,6 +55,11 @@ Single-activity Compose app, one-directional state flow:
   open-count via `queryEvents`) + `StorageStatsManager` (size). All of this requires the
   **"Usage access" special permission** (`PACKAGE_USAGE_STATS`); without it size/usage
   fields are `-1`/`0` and the UI degrades gracefully (see `data/UsageAccess.kt`).
+- **View state is persisted in `data/Prefs.kt`** (SharedPreferences): sort, quick filter,
+  category, the system-apps toggle, and the whole `AdvancedFilter` bundle (via its
+  round-trip-tested `encode`/`decode`) survive restarts. Adding a new persisted filter
+  dimension means wiring it through `Prefs`, the ViewModel's initial `UiState`, and the
+  setter — or it won't stick.
 
 ### Bulk uninstall — three backends, auto-selected
 
@@ -91,3 +96,15 @@ action creates the tag itself. Before releasing, bump both `versionCode` and
 - The accessibility auto-tap matches the confirm button by `android:id/button1` and a few
   label strings (`uninstall/UninstallAutoConfirmService.kt`); OEM dialogs with different
   wording may need that list extended.
+- **Edge-to-edge is enforced on Android 15 (API 35) because `targetSdk` is 35.**
+  `MainActivity.onCreate` calls `enableEdgeToEdge()` (before `super.onCreate`) so the
+  system bars are transparent with auto light/dark icon contrast; Material3 `Scaffold`
+  insets the content via its `innerPadding`. Don't set opaque `statusBarColor`/
+  `navigationBarColor` (ignored on API 35), and make any new top-level surface respect
+  window insets or it'll draw under the bars.
+- **The launcher icon is a plain square bitmap, not an adaptive icon.** It lives at
+  `res/mipmap-*/ic_launcher.png` (+ `ic_launcher_round.png`) across the five densities;
+  the `mipmap-anydpi-v26` adaptive XML and its vector drawables were deliberately removed
+  because the art is a full-bleed badge (Android's adaptive mask would crop it). To swap
+  the icon, regenerate the five PNGs (48/72/96/144/192 px) from the source — `pip install
+  Pillow` works in the sandbox — rather than adding an adaptive icon back.
