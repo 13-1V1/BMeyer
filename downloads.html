@@ -1,7 +1,13 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
 <title>Downloads — Brennan Meyer</title>
 <meta name="description" content="Download Brennan Meyer's apps, games, and utilities — plus résumé."/>
-<link rel="stylesheet" href="assets/css/site.css" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Downloads — Brennan Meyer" />
+  <meta property="og:description" content="Download Brennan Meyer's apps, games, and utilities — plus résumé." />
+  <meta property="og:image" content="https://13-1v1.github.io/BMeyer/B-swaggy.jpg" />
+  <meta property="og:url" content="https://13-1v1.github.io/BMeyer/downloads.html" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <link rel="stylesheet" href="assets/css/site.css" />
 <style>
 .dl-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:16px;}
 .dl{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px;display:flex;flex-direction:column;}
@@ -18,13 +24,16 @@ h2.grp.first{margin-top:8px;}
 .dl-ico{width:46px;height:46px;border-radius:10px;border:1px solid var(--line);object-fit:cover;background:#0a0d12;flex:none;}
 .dl-ico.glyph{display:flex;align-items:center;justify-content:center;font-size:1.5rem;color:var(--accent);background:var(--accent-soft);}
 .dl-head h3{margin:0;}.dl-head .meta2{margin:0;}
+.dl-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center;align-self:flex-start;}
+.dl a.get.alt{background:transparent;border:1px solid var(--accent);color:var(--accent);}
+.dl a.get.alt:hover{background:var(--accent);color:#04130a;}
 </style>
 </head><body class="acc-green">
 <nav class="nav"><div class="nav-inner">
   <div class="brand"><span class="dot"></span> Brennan Meyer</div>
   <div class="nav-links">
     <a href="index.html">Home</a>
-    <a href="downloads.html" class="active">Downloads</a>
+    <a href="downloads.html" class="active">Projects</a>
     <a href="transcripts.html">Transcripts</a>
     <a href="about.html">About</a>
     <a href="contact.html">Contact</a>
@@ -33,37 +42,37 @@ h2.grp.first{margin-top:8px;}
 <div class="room-enter">
 <header class="room-hero">
   <a href="index.html" class="back" data-back>&#8592; Back to areas</a>
-  <div class="ico">&#8595;</div>
-  <h1>Downloads</h1>
-  <p>The full desktop versions of my apps and games, plus my résumé. Many have simplified web demos over in.</p>
+  <div class="ico"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></div>
+  <h1>Projects</h1>
+  <p>Software and tools I&rsquo;ve built &mdash; desktop apps, games, and utilities. Several are <strong>playable free in your browser</strong>; all can be downloaded. My résumé is at the bottom.</p>
 </header>
 <section class="section">
   <div class="notice"><b style="color:var(--ink)">A quick note:</b> these desktop apps are <b>unsigned</b> &mdash; I built them myself as a student, so Windows SmartScreen or your antivirus may show a warning. That's expected for homemade software; you can click "More info &#8594; Run anyway" if you trust the source.</div>
 
   <h2 class="grp first reveal">Featured apps</h2>
-  <p class="sub reveal">My biggest builds &mdash; full desktop installers. BlueCAD and G-Code Trainer also have live web versions in <a href="vibe-coding.html" style="color:var(--accent)">Vibe Coding</a>.</p>
+  <p class="sub reveal">My biggest builds &mdash; full desktop installers, several playable right in your browser.</p>
   <div class="dl-grid">
     <div class="dl reveal">
       <div class="dl-head"><img src="learnlinux-icon.png" alt="" class="dl-ico"/><div><h3>LearnLinux+</h3><div class="meta2">learnlinux-setup.exe · ~10 MB · Windows installer</div></div></div>
       <p>An interactive app for learning Linux toward the CompTIA Linux+ (XK0-005) exam. It simulates a Linux shell and filesystem entirely in memory &mdash; experiment freely with zero risk to your real machine &mdash; with 62 guided lessons, a free-play sandbox, adaptive quizzes, and a scored practice exam.</p>
       <a class="get" href="https://github.com/13-1V1/BMeyer/releases/download/v1.0/learnlinux-setup.exe">Download installer &#8595;</a></div>
     <div class="dl reveal">
-      <div class="dl-head"><div class="dl-ico glyph">&#9878;</div><div><h3>The Judge</h3><div class="meta2">the-judge-setup.exe · Windows installer</div></div></div>
+      <div class="dl-head"><div class="dl-ico glyph"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1z"/><path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1z"/><path d="M7 21h10"/><path d="M12 3v18"/><path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"/></svg></div><div><h3>The Judge</h3><div class="meta2">the-judge-setup.exe · Windows installer</div></div></div>
       <p>A 3D asset-triage tool for game developers. Fly through your rendered, textured game assets in a courtroom-themed viewer and label each one by art style &mdash; realistic, stylized, low-poly, voxel, and more &mdash; with quick number-key "verdicts." It judges per asset (not per file), shows models at true scale beside a human-height reference, and logs every verdict to CSV/JSON. Built with Electron.</p>
       <a class="get" href="https://github.com/13-1V1/BMeyer/releases/download/v1.0/the-judge-setup.exe">Download installer &#8595;</a></div>
     <div class="dl reveal">
       <div class="dl-head"><img src="bluecad-icon.png" alt="" class="dl-ico"/><div><h3>BlueCAD</h3><div class="meta2">BlueCAD-Setup-1.0.0.exe · ~82 MB · Windows installer</div></div></div>
       <p>A 2D CAD app for drawing precise shapes with exact dimensions &mdash; snapping, mm/inch units, undo/redo, JSON save/load, and SVG export. Built with Electron.</p>
-      <a class="get" href="https://github.com/13-1V1/BMeyer/releases/download/v1.0/BlueCAD-Setup-1.0.0.exe">Download installer &#8595;</a></div>
+      <div class="dl-actions"><a class="get" href="https://github.com/13-1V1/BMeyer/releases/download/v1.0/BlueCAD-Setup-1.0.0.exe">Download installer &#8595;</a><a class="get alt" href="vibe/bluecad/index.html" target="_blank" rel="noopener">&#9654; Play in browser</a></div></div>
     <div class="dl reveal">
       <div class="dl-head"><img src="gcode-icon.svg" alt="" class="dl-ico"/><div><h3>G-Code Trainer</h3><div class="meta2">G-Code-Trainer-Setup.exe · ~104 MB · Windows installer</div></div></div>
       <p>A desktop app that teaches CNC G-code through lessons paired with a live toolpath simulator. Built with Electron + React.</p>
-      <a class="get" href="https://github.com/13-1V1/BMeyer/releases/download/v1.0/G-Code-Trainer-Setup.exe">Download installer &#8595;</a></div>
+      <div class="dl-actions"><a class="get" href="https://github.com/13-1V1/BMeyer/releases/download/v1.0/G-Code-Trainer-Setup.exe">Download installer &#8595;</a><a class="get alt" href="vibe/gcode-trainer.html" target="_blank" rel="noopener">&#9654; Play in browser</a></div></div>
   </div>
 
   <h2 class="grp reveal">Games</h2>
   <div class="dl-grid">
-    <div class="dl reveal"><h3>Snake</h3><div class="meta2">snake.exe · ~10 MB</div><p>The classic arcade snake game as a standalone desktop app.</p><a class="get" href="https://github.com/13-1V1/BMeyer/releases/download/v1.0/snake.exe">Download &#8595;</a></div>
+    <div class="dl reveal"><h3>Snake</h3><div class="meta2">snake.exe · ~10 MB</div><p>The classic arcade snake game as a standalone desktop app.</p><div class="dl-actions"><a class="get" href="https://github.com/13-1V1/BMeyer/releases/download/v1.0/snake.exe">Download &#8595;</a><a class="get alt" href="vibe/snake.html" target="_blank" rel="noopener">&#9654; Play in browser</a></div></div>
     <div class="dl reveal"><h3>Pig</h3><div class="meta2">pig.exe · ~7 MB</div><p>The classic push-your-luck dice game, Pig.</p><a class="get" href="https://github.com/13-1V1/BMeyer/releases/download/v1.0/pig.exe">Download &#8595;</a></div>
   </div>
 
