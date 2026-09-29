@@ -4,10 +4,10 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Projects — Brennan Meyer</title>
-<meta name="description" content="Projects by Brennan Meyer — case studies for BlueCAD, G-Code Trainer, welding, and a truss bridge, then desktop tools and BEZ App Manager." />
+<meta name="description" content="Projects by Brennan Meyer — G-Code Trainer 0.1.16, BlueCAD, TileSmith 0.2, welding, and smaller tools." />
 <meta property="og:type" content="website" />
 <meta property="og:title" content="Projects — Brennan Meyer" />
-<meta property="og:description" content="Showcase case studies first, then tools and apps. BlueCAD, G-Code Trainer, welding, a truss bridge, and smaller downloads." />
+<meta property="og:description" content="G-Code Trainer 0.1.16, BlueCAD, TileSmith 0.2, welding, and smaller tools by Brennan Meyer." />
 <meta property="og:image" content="https://13-1v1.github.io/BMeyer/assets/images/B-swaggy.jpg" />
 <meta property="og:url" content="https://13-1v1.github.io/BMeyer/downloads.html" />
 <meta name="twitter:card" content="summary_large_image" />
@@ -16,21 +16,29 @@
 <!--
   VERSION LABELS — update these in place when a build ships.
 
+  GCODE_VERSION: 0.1.16
+  Installer: https://github.com/13-1V1/BMeyer/releases/download/gcode-trainer-v0.1.16/G-Code.Trainer.Setup.0.1.16.exe
+  Release: https://github.com/13-1V1/BMeyer/releases/tag/gcode-trainer-v0.1.16
+  Visible "v0.1.16" on the homepage lead, this page, and work/gcode.html. Keep those URLs the same.
+  Do not link the older v1.0 file G-Code-Trainer-Setup.exe.
+
+  TILESMITH_VERSION: 0.2
+  Portable zip: https://github.com/13-1V1/BMeyer/releases/download/tilesmith-v0.2/TileSmith-Desktop-portable.zip
+  Release: https://github.com/13-1V1/BMeyer/releases/tag/tilesmith-v0.2
+  Unzip and keep the folder together. Unsigned portable Electron build. No installer.
+
   BEZ_VERSION: 1.3.3
   BEZ APK: https://github.com/13-1V1/BMeyer/releases/download/v1.3.3/app-manager-v1.3.3.apk
   Change the visible "v1.3.3" label, the tag in that URL, and the apk filename together.
   The homepage does not show this number. It lives only on the BEZ card in Tools & apps.
 
-  Desktop apps + résumé PDF ship from GitHub release v1.0:
+  Other desktop apps + the résumé PDF ship from GitHub release v1.0:
   https://github.com/13-1V1/BMeyer/releases/download/v1.0/<filename>
-
-  The same v1.0 installer URLs are repeated on the case studies. If you change one, change the other:
-  - work/bluecad.html  → BlueCAD-Setup-1.0.0.exe
-  - work/gcode.html    → G-Code-Trainer-Setup.exe
+  BlueCAD installer stays on that release. work/bluecad.html uses BlueCAD-Setup-1.0.0.exe.
 -->
 </head>
 <body class="acc-green">
-<a class="skip-link" href="#showcase">Skip to projects</a>
+<a class="skip-link" href="#gcode">Skip to projects</a>
 <nav class="nav" aria-label="Primary"><div class="nav-inner">
   <a class="brand" href="index.html"><span class="dot"></span> Brennan Meyer</a>
   <div class="nav-links">
@@ -46,18 +54,32 @@
   <a href="index.html" class="back" data-back>&#8592; Back to home</a>
   <div class="ico"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg></div>
   <h1>Projects</h1>
-  <p>Showcase first — the four case studies — then tools and apps, then a separate page for jokes. My r&eacute;sum&eacute; is at the bottom.</p>
+  <p>G-Code Trainer 0.1.16 is the current release. BlueCAD and TileSmith follow, then welding and the ENGR-101 truss bridge. Smaller tools and the r&eacute;sum&eacute; are at the bottom.</p>
 </header>
 <section class="section">
   <div class="notice"><b style="color:var(--ink)">Install notes.</b> Windows apps are unsigned student builds, so SmartScreen or antivirus may warn. That&rsquo;s expected; choose &ldquo;More info &#8594; Run anyway&rdquo; if you trust the source. The Android APK, further down, is a debug-signed sideload — not a Play Store listing.</div>
 
-  <h2 class="grp first reveal" id="showcase">Showcase</h2>
-  <p class="sub reveal">Case studies. Each one has the problem, what I built, pictures or a way to try it, and the skills behind it.</p>
+  <h2 class="grp first reveal" id="gcode">G-Code Trainer <span class="ver">v0.1.16</span></h2>
+  <p class="sub reveal">Current release. Teaches Fanuc mill G-code.</p>
+  <article class="feature-app reveal">
+    <img src="assets/images/gct-icon.png" alt="" />
+    <div>
+      <p>Lessons and quizzes, a simulator with 2D and 3D views, part challenges, a control panel, and student profiles for shared classroom PCs. The browser page is a simplified simulator. The Windows installer is the full app.</p>
+      <div class="dl-actions">
+        <a class="get" href="https://github.com/13-1V1/BMeyer/releases/download/gcode-trainer-v0.1.16/G-Code.Trainer.Setup.0.1.16.exe">Download installer &#8595;</a>
+        <a class="get alt" href="work/gcode.html">Case study</a>
+        <a class="get alt" href="vibe/gcode-trainer.html">Browser simulator</a>
+      </div>
+      <p class="meta2" style="margin:10px 0 0;">G-Code.Trainer.Setup.0.1.16.exe · about 104 MB · Windows installer · <a href="https://github.com/13-1V1/BMeyer/releases/tag/gcode-trainer-v0.1.16">Release gcode-trainer-v0.1.16</a></p>
+    </div>
+  </article>
+
+  <h2 class="grp reveal" id="software">More software</h2>
   <div class="study-index">
     <article class="study-row reveal" id="cad" style="--rc:#4aa8ff">
       <img class="thumb icon" src="assets/images/bluecad-icon.png" alt="" />
       <div>
-        <span class="kicker">01 · Software</span>
+        <span class="kicker">2D CAD</span>
         <h3><a href="work/bluecad.html">BlueCAD</a></h3>
         <p>2D CAD for exact dimensions — snap, units, holes, JSON projects, SVG export.</p>
       </div>
@@ -67,23 +89,27 @@
         <a class="get alt" href="https://github.com/13-1V1/BMeyer/releases/download/v1.0/BlueCAD-Setup-1.0.0.exe">Download</a>
       </div>
     </article>
-    <article class="study-row reveal" id="gcode" style="--rc:#3ddc84">
-      <img class="thumb icon" src="assets/images/gcode-icon.svg" alt="" />
+    <article class="study-row reveal" id="tilesmith" style="--rc:#38bdf8">
+      <div class="thumb tile-mark" aria-hidden="true">TS</div>
       <div>
-        <span class="kicker">02 · CNC</span>
-        <h3><a href="work/gcode.html">G-Code Trainer</a></h3>
-        <p>Lessons with a live toolpath. The browser page is the simulator demo.</p>
+        <span class="kicker">Desktop · portable</span>
+        <h3>TileSmith <span class="ver">v0.2</span></h3>
+        <p>Make it seamless. Paint a tile while you edit the live repeat. Draw across an edge or a corner and the same stroke continues on the other side.</p>
       </div>
       <div class="row-actions">
-        <a class="get" href="work/gcode.html">Case study</a>
-        <a class="get alt" href="vibe/gcode-trainer.html">Try it</a>
-        <a class="get alt" href="https://github.com/13-1V1/BMeyer/releases/download/v1.0/G-Code-Trainer-Setup.exe">Download</a>
+        <a class="get" href="https://github.com/13-1V1/BMeyer/releases/download/tilesmith-v0.2/TileSmith-Desktop-portable.zip">Download zip &#8595;</a>
+        <a class="get alt" href="https://github.com/13-1V1/BMeyer/releases/tag/tilesmith-v0.2">Release page</a>
       </div>
     </article>
+  </div>
+  <p class="aside-note reveal">TileSmith is an unsigned portable Electron build with no installer. Unzip <b style="color:var(--ink)">TileSmith-Desktop-portable.zip</b> (153.5 MB) and keep that folder together, then open <b style="color:var(--ink)">TileSmith.exe</b>.</p>
+
+  <h2 class="grp reveal">Shop &amp; coursework</h2>
+  <div class="study-index">
     <article class="study-row reveal" id="welding-study" style="--rc:#f4a24b">
       <img class="thumb" src="assets/images/7018stringer.jpg" alt="" />
       <div>
-        <span class="kicker">03 · Shop</span>
+        <span class="kicker">Shop</span>
         <h3><a href="work/welding.html">Welding &amp; NC3</a></h3>
         <p>SMAW through overhead, TIG, metal fab, and the NC3 certificates.</p>
       </div>
@@ -95,7 +121,7 @@
     <article class="study-row reveal" id="bridge-study" style="--rc:#2dd4bf">
       <img class="thumb" src="assets/images/eng-bridge-build.jpg" alt="" />
       <div>
-        <span class="kicker">04 · Structure</span>
+        <span class="kicker">ENGR-101</span>
         <h3><a href="work/bridge.html">Truss bridge</a></h3>
         <p>Members in tension and compression, then built and load-tested to failure.</p>
       </div>
@@ -179,7 +205,7 @@
 </section>
 </div>
 <footer><div class="foot-inner">
-  <div><div style="font-weight:700;color:#fff;font-size:1.1rem;">Brennan Meyer</div><div style="font-size:.85rem;margin-top:4px;">Case studies, then the tools.</div></div>
+  <div><div style="font-weight:700;color:#fff;font-size:1.1rem;">Brennan Meyer</div><div style="font-size:.85rem;margin-top:4px;">Software, shop work, and tools.</div></div>
   <div class="foot-links"><a href="index.html" data-back>Home</a><a href="about.html">About</a><a href="contact.html">Contact</a></div>
 </div></footer>
 <script src="assets/js/site.js"></script>
