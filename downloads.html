@@ -4,10 +4,10 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Projects — Brennan Meyer</title>
-<meta name="description" content="Projects by Brennan Meyer — BEZ App Manager, BlueCAD, G-Code Trainer, and other apps, plus résumé." />
+<meta name="description" content="Projects by Brennan Meyer — case studies for BlueCAD, G-Code Trainer, welding, and a truss bridge, then desktop tools and BEZ App Manager." />
 <meta property="og:type" content="website" />
 <meta property="og:title" content="Projects — Brennan Meyer" />
-<meta property="og:description" content="Projects by Brennan Meyer — BEZ App Manager, BlueCAD, G-Code Trainer, and other apps, plus résumé." />
+<meta property="og:description" content="Showcase case studies first, then tools and apps. BlueCAD, G-Code Trainer, welding, a truss bridge, and smaller downloads." />
 <meta property="og:image" content="https://13-1v1.github.io/BMeyer/assets/images/B-swaggy.jpg" />
 <meta property="og:url" content="https://13-1v1.github.io/BMeyer/downloads.html" />
 <meta name="twitter:card" content="summary_large_image" />
@@ -19,43 +19,18 @@
   BEZ_VERSION: 1.3.3
   BEZ APK: https://github.com/13-1V1/BMeyer/releases/download/v1.3.3/app-manager-v1.3.3.apk
   Change the visible "v1.3.3" label, the tag in that URL, and the apk filename together.
-  The homepage card links here and does not repeat the number.
+  The homepage does not show this number. It lives only on the BEZ card in Tools & apps.
 
   Desktop apps + résumé PDF ship from GitHub release v1.0:
   https://github.com/13-1V1/BMeyer/releases/download/v1.0/<filename>
+
+  The same v1.0 installer URLs are repeated on the case studies. If you change one, change the other:
+  - work/bluecad.html  → BlueCAD-Setup-1.0.0.exe
+  - work/gcode.html    → G-Code-Trainer-Setup.exe
 -->
-<style>
-.dl-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:16px;}
-.dl{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px;display:flex;flex-direction:column;}
-.dl h3{margin:0 0 4px;color:#fff;font-size:1.05rem;}
-.dl .meta2{font-size:.75rem;color:var(--faint);margin-bottom:8px;}
-.dl p{margin:0 0 14px;color:var(--muted);font-size:.9rem;flex:1;}
-.dl a.get,.feature-app a.get{align-self:flex-start;display:inline-flex;align-items:center;gap:7px;padding:9px 16px;border-radius:8px;background:var(--accent);color:#04130a;font-weight:600;font-size:.88rem;}
-.dl a.get:hover,.feature-app a.get:hover{filter:brightness(1.08);}
-.notice{background:var(--card);border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:10px;padding:14px 18px;color:var(--muted);font-size:.9rem;margin-bottom:26px;}
-h2.grp{margin:40px 0 4px;}
-h2.grp.first{margin-top:8px;}
-.dl-head{display:flex;align-items:center;gap:12px;margin-bottom:10px;}
-.dl-ico{width:46px;height:46px;border-radius:10px;border:1px solid var(--line);object-fit:cover;background:#0a0d12;flex:none;}
-.dl-ico.glyph{display:flex;align-items:center;justify-content:center;font-size:1.5rem;color:var(--accent);background:var(--accent-soft);}
-.dl-head h3{margin:0;}
-.dl-head .meta2{margin:0;}
-.dl-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center;align-self:flex-start;}
-.dl a.get.alt,.feature-app a.get.alt{background:transparent;border:1px solid var(--accent);color:var(--accent);}
-.dl a.get.alt:hover,.feature-app a.get.alt:hover{background:var(--accent);color:#04130a;}
-.feature-app .meta2{font-size:.75rem;color:var(--faint);margin-bottom:8px;}
-.feature-app{display:grid;grid-template-columns:112px 1fr;gap:20px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:22px;margin:8px 0 8px;}
-.feature-app img{width:112px;height:112px;border-radius:22px;border:1px solid var(--line);background:#000;object-fit:cover;}
-.feature-app h2{margin:6px 0 8px;color:#fff;font-size:1.55rem;letter-spacing:-.01em;}
-.feature-app p{margin:0 0 14px;color:var(--muted);}
-.ver{display:inline-block;font-size:.72rem;font-weight:700;letter-spacing:.04em;color:var(--accent);background:var(--accent-soft);border:1px solid var(--line);padding:2px 8px;border-radius:999px;vertical-align:middle;}
-.aside-note{color:var(--muted);font-size:.9rem;margin-top:36px;}
-.aside-note a{color:var(--accent);font-weight:600;}
-@media(max-width:640px){.feature-app{grid-template-columns:1fr;}.feature-app img{width:84px;height:84px;}}
-</style>
 </head>
 <body class="acc-green">
-<a class="skip-link" href="#bez-app-manager">Skip to projects</a>
+<a class="skip-link" href="#showcase">Skip to projects</a>
 <nav class="nav" aria-label="Primary"><div class="nav-inner">
   <a class="brand" href="index.html"><span class="dot"></span> Brennan Meyer</a>
   <div class="nav-links">
@@ -71,50 +46,93 @@ h2.grp.first{margin-top:8px;}
   <a href="index.html" class="back" data-back>&#8592; Back to home</a>
   <div class="ico"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg></div>
   <h1>Projects</h1>
-  <p>Software I&rsquo;ve shipped &mdash; an Android app, desktop tools, and a few you can run in the browser. My r&eacute;sum&eacute; is at the bottom.</p>
+  <p>Showcase first — the four case studies — then tools and apps, then a separate page for jokes. My r&eacute;sum&eacute; is at the bottom.</p>
 </header>
 <section class="section">
-  <div class="notice"><b style="color:var(--ink)">Install notes.</b> The Android APK is debug-signed for sideloading: download it, open it, and allow your browser to install unknown apps if Android asks. The Windows apps are unsigned student builds, so SmartScreen or antivirus may warn. That&rsquo;s expected; choose &ldquo;More info &#8594; Run anyway&rdquo; if you trust the source.</div>
+  <div class="notice"><b style="color:var(--ink)">Install notes.</b> Windows apps are unsigned student builds, so SmartScreen or antivirus may warn. That&rsquo;s expected; choose &ldquo;More info &#8594; Run anyway&rdquo; if you trust the source. The Android APK, further down, is a debug-signed sideload — not a Play Store listing.</div>
 
-  <h2 class="grp first reveal">Featured</h2>
-  <p class="sub reveal">The current Android app, then the larger desktop builds.</p>
-
-  <article class="feature-app reveal" id="bez-app-manager">
-    <img src="assets/images/BEZ_App_Man_icon.png" alt="" />
-    <div>
-      <span class="ver">v1.3.3</span>
-      <h2>BEZ App Manager</h2>
-      <p>An Android utility for cleaning house: browse installed apps, sort and filter by size, last used, and total usage time, then bulk-select and uninstall. Built with Kotlin and Jetpack Compose. This APK is a debug-signed sideload build, not a Play Store listing.</p>
-      <div class="dl-actions">
-        <a class="get" href="https://github.com/13-1V1/BMeyer/releases/download/v1.3.3/app-manager-v1.3.3.apk">Download APK &#8595;</a>
-        <a class="get alt" href="https://github.com/13-1V1/BMeyer/tree/main/android-app-manager" target="_blank" rel="noopener">Source on GitHub</a>
+  <h2 class="grp first reveal" id="showcase">Showcase</h2>
+  <p class="sub reveal">Case studies. Each one has the problem, what I built, pictures or a way to try it, and the skills behind it.</p>
+  <div class="study-index">
+    <article class="study-row reveal" id="cad" style="--rc:#4aa8ff">
+      <img class="thumb icon" src="assets/images/bluecad-icon.png" alt="" />
+      <div>
+        <span class="kicker">01 · Software</span>
+        <h3><a href="work/bluecad.html">BlueCAD</a></h3>
+        <p>2D CAD for exact dimensions — snap, units, holes, JSON projects, SVG export.</p>
       </div>
-      <p class="meta2" style="margin:10px 0 0;">app-manager-v1.3.3.apk · ~16 MB · Android 8+ (API 26)</p>
+      <div class="row-actions">
+        <a class="get" href="work/bluecad.html">Case study</a>
+        <a class="get alt" href="vibe/bluecad/index.html">Try it</a>
+        <a class="get alt" href="https://github.com/13-1V1/BMeyer/releases/download/v1.0/BlueCAD-Setup-1.0.0.exe">Download</a>
+      </div>
+    </article>
+    <article class="study-row reveal" id="gcode" style="--rc:#3ddc84">
+      <img class="thumb icon" src="assets/images/gcode-icon.svg" alt="" />
+      <div>
+        <span class="kicker">02 · CNC</span>
+        <h3><a href="work/gcode.html">G-Code Trainer</a></h3>
+        <p>Lessons with a live toolpath. The browser page is the simulator demo.</p>
+      </div>
+      <div class="row-actions">
+        <a class="get" href="work/gcode.html">Case study</a>
+        <a class="get alt" href="vibe/gcode-trainer.html">Try it</a>
+        <a class="get alt" href="https://github.com/13-1V1/BMeyer/releases/download/v1.0/G-Code-Trainer-Setup.exe">Download</a>
+      </div>
+    </article>
+    <article class="study-row reveal" id="welding-study" style="--rc:#f4a24b">
+      <img class="thumb" src="assets/images/7018stringer.jpg" alt="" />
+      <div>
+        <span class="kicker">03 · Shop</span>
+        <h3><a href="work/welding.html">Welding &amp; NC3</a></h3>
+        <p>SMAW through overhead, TIG, metal fab, and the NC3 certificates.</p>
+      </div>
+      <div class="row-actions">
+        <a class="get" href="work/welding.html">Case study</a>
+        <a class="get alt" href="welding.html">Shop photos</a>
+      </div>
+    </article>
+    <article class="study-row reveal" id="bridge-study" style="--rc:#2dd4bf">
+      <img class="thumb" src="assets/images/eng-bridge-build.jpg" alt="" />
+      <div>
+        <span class="kicker">04 · Structure</span>
+        <h3><a href="work/bridge.html">Truss bridge</a></h3>
+        <p>Members in tension and compression, then built and load-tested to failure.</p>
+      </div>
+      <div class="row-actions">
+        <a class="get" href="work/bridge.html">Case study</a>
+        <a class="get alt" href="engineering.html#bridge">Engineering room</a>
+      </div>
+    </article>
+  </div>
+
+  <h2 class="grp reveal" id="tools">Tools &amp; apps <span class="ver">release v1.0</span></h2>
+  <p class="sub reveal">Installers and utilities. LearnLinux+ is the big desktop course. BEZ App Manager is an Android cleanup tool — useful, and not the face of the site.</p>
+
+  <article class="feature-app reveal">
+    <img src="assets/images/learnlinux-icon.png" alt="" />
+    <div>
+      <span class="ver">v1.0</span>
+      <h2>LearnLinux+</h2>
+      <p>An interactive app for learning Linux toward the CompTIA Linux+ (XK0-005) exam. It simulates a Linux shell and filesystem entirely in memory &mdash; experiment freely with zero risk to your real machine &mdash; with 62 guided lessons, a free-play sandbox, adaptive quizzes, and a scored practice exam.</p>
+      <a class="get" href="https://github.com/13-1V1/BMeyer/releases/download/v1.0/learnlinux-setup.exe">Download installer &#8595;</a>
+      <p class="meta2" style="margin:10px 0 0;">learnlinux-setup.exe · ~10 MB · Windows installer</p>
     </div>
   </article>
 
-  <h2 class="grp reveal">Desktop apps <span class="ver">release v1.0</span></h2>
-  <p class="sub reveal">Full Windows installers. BlueCAD and G-Code Trainer also run in the browser.</p>
-  <div class="dl-grid">
-    <div class="dl reveal">
-      <div class="dl-head"><img src="assets/images/learnlinux-icon.png" alt="" class="dl-ico"/><div><h3>LearnLinux+</h3><div class="meta2">learnlinux-setup.exe · ~10 MB · Windows installer</div></div></div>
-      <p>An interactive app for learning Linux toward the CompTIA Linux+ (XK0-005) exam. It simulates a Linux shell and filesystem entirely in memory &mdash; experiment freely with zero risk to your real machine &mdash; with 62 guided lessons, a free-play sandbox, adaptive quizzes, and a scored practice exam.</p>
-      <a class="get" href="https://github.com/13-1V1/BMeyer/releases/download/v1.0/learnlinux-setup.exe">Download installer &#8595;</a>
-    </div>
+  <div class="dl-grid" style="margin-top:16px;">
     <div class="dl reveal">
       <div class="dl-head"><div class="dl-ico glyph"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1z"/><path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1z"/><path d="M7 21h10"/><path d="M12 3v18"/><path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"/></svg></div><div><h3>The Judge</h3><div class="meta2">the-judge-setup.exe · Windows installer</div></div></div>
       <p>A 3D asset-triage tool for game developers. Fly through your rendered, textured game assets in a courtroom-themed viewer and label each one by art style &mdash; realistic, stylized, low-poly, voxel, and more &mdash; with quick number-key &ldquo;verdicts.&rdquo; It judges per asset (not per file), shows models at true scale beside a human-height reference, and logs every verdict to CSV/JSON. Built with Electron.</p>
       <a class="get" href="https://github.com/13-1V1/BMeyer/releases/download/v1.0/the-judge-setup.exe">Download installer &#8595;</a>
     </div>
-    <div class="dl reveal" id="cad">
-      <div class="dl-head"><img src="assets/images/bluecad-icon.png" alt="" class="dl-ico"/><div><h3>BlueCAD</h3><div class="meta2">BlueCAD-Setup-1.0.0.exe · ~82 MB · Windows installer</div></div></div>
-      <p>A 2D CAD app for drawing precise shapes with exact dimensions &mdash; snapping, mm/inch units, undo/redo, JSON save/load, and SVG export. Built with Electron.</p>
-      <div class="dl-actions"><a class="get" href="https://github.com/13-1V1/BMeyer/releases/download/v1.0/BlueCAD-Setup-1.0.0.exe">Download installer &#8595;</a><a class="get alt" href="vibe/bluecad/index.html" target="_blank" rel="noopener">&#9654; Play in browser</a></div>
-    </div>
-    <div class="dl reveal" id="gcode">
-      <div class="dl-head"><img src="assets/images/gcode-icon.svg" alt="" class="dl-ico"/><div><h3>G-Code Trainer</h3><div class="meta2">G-Code-Trainer-Setup.exe · ~104 MB · Windows installer</div></div></div>
-      <p>A desktop app that teaches CNC G-code through lessons paired with a live toolpath simulator. Built with Electron + React.</p>
-      <div class="dl-actions"><a class="get" href="https://github.com/13-1V1/BMeyer/releases/download/v1.0/G-Code-Trainer-Setup.exe">Download installer &#8595;</a><a class="get alt" href="vibe/gcode-trainer.html" target="_blank" rel="noopener">&#9654; Play in browser</a></div>
+    <div class="dl reveal" id="bez-app-manager">
+      <div class="dl-head"><img src="assets/images/BEZ_App_Man_icon.png" alt="" class="dl-ico"/><div><h3>BEZ App Manager <span class="ver">v1.3.3</span></h3><div class="meta2">app-manager-v1.3.3.apk · ~16 MB · Android 8+ (API 26)</div></div></div>
+      <p>An Android utility for cleaning house: browse installed apps, sort and filter by size, last used, and total usage time, then bulk-select and uninstall. Built with Kotlin and Jetpack Compose. Debug-signed for sideloading.</p>
+      <div class="dl-actions">
+        <a class="get" href="https://github.com/13-1V1/BMeyer/releases/download/v1.3.3/app-manager-v1.3.3.apk">Download APK &#8595;</a>
+        <a class="get alt" href="https://github.com/13-1V1/BMeyer/tree/main/android-app-manager" target="_blank" rel="noopener">Source</a>
+      </div>
     </div>
   </div>
 
@@ -146,6 +164,9 @@ h2.grp.first{margin-top:8px;}
     <div class="dl reveal"><h3>Mnemonic</h3><div class="meta2">mnemonic.exe · ~7 MB</div><p>A memory / mnemonic helper app.</p><a class="get" href="https://github.com/13-1V1/BMeyer/releases/download/v1.0/mnemonic.exe">Download &#8595;</a></div>
   </div>
 
+  <h2 class="grp reveal" id="fun">Just for fun</h2>
+  <p class="aside-note">Two harmless classroom jokes live on <a href="fun.html">their own page</a>. They are not part of the showcase.</p>
+
   <h2 class="grp reveal" id="resume">R&eacute;sum&eacute;</h2>
   <div class="dl-grid">
     <div class="dl reveal">
@@ -155,12 +176,10 @@ h2.grp.first{margin-top:8px;}
       <a class="get" href="https://github.com/13-1V1/BMeyer/releases/download/v1.0/Brennan-Meyer-Resume.pdf">Download PDF &#8595;</a>
     </div>
   </div>
-
-  <p class="aside-note">A couple of harmless joke programs from class live on <a href="fun.html">their own page</a>, separate from the work above.</p>
 </section>
 </div>
 <footer><div class="foot-inner">
-  <div><div style="font-weight:700;color:#fff;font-size:1.1rem;">Brennan Meyer</div><div style="font-size:.85rem;margin-top:4px;">Apps and tools &mdash; built to learn.</div></div>
+  <div><div style="font-weight:700;color:#fff;font-size:1.1rem;">Brennan Meyer</div><div style="font-size:.85rem;margin-top:4px;">Case studies, then the tools.</div></div>
   <div class="foot-links"><a href="index.html" data-back>Home</a><a href="about.html">About</a><a href="contact.html">Contact</a></div>
 </div></footer>
 <script src="assets/js/site.js"></script>

@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>G-Code Trainer — Case study — Brennan Meyer</title>
+<meta name="description" content="Case study: G-Code Trainer by Brennan Meyer — CNC lessons paired with a live toolpath simulator. Browser demo and Windows installer." />
+<meta property="og:type" content="website" />
+<meta property="og:title" content="G-Code Trainer — Brennan Meyer" />
+<meta property="og:description" content="CNC G-code lessons with a live toolpath. Browser simulator and Windows installer." />
+<meta property="og:image" content="https://13-1v1.github.io/BMeyer/assets/images/B-swaggy.jpg" />
+<meta property="og:url" content="https://13-1v1.github.io/BMeyer/work/gcode.html" />
+<meta name="twitter:card" content="summary_large_image" />
+<link rel="stylesheet" href="../assets/css/site.css" />
+<link rel="icon" href="../assets/images/favicon.png" />
+</head>
+<body class="acc-green">
+<a class="skip-link" href="#story">Skip to case study</a>
+<nav class="nav" aria-label="Primary"><div class="nav-inner">
+  <a class="brand" href="../index.html"><span class="dot"></span> Brennan Meyer</a>
+  <div class="nav-links">
+    <a href="../index.html">Home</a>
+    <a href="../downloads.html">Projects</a>
+    <a href="../transcripts.html">Transcripts</a>
+    <a href="../about.html">About</a>
+    <a href="../contact.html">Contact</a>
+  </div>
+</div></nav>
+
+<article class="study">
+  <header class="study-hero">
+    <a href="../index.html#showcase" class="back" data-back>&#8592; Showcase</a>
+    <span class="kicker">Case study · 02 · CNC</span>
+    <h1 id="story">G-Code Trainer</h1>
+    <p class="lead">A desktop app that teaches CNC G-code with a live toolpath, plus a browser simulator you can run right now.</p>
+    <div class="cta-row">
+      <a class="btn btn-primary" href="../vibe/gcode-trainer.html">Run the simulator &#8594;</a>
+      <!-- VERSION LABELS: G-Code Trainer installer. Keep this URL in sync with downloads.html. -->
+      <a class="btn btn-ghost" href="https://github.com/13-1V1/BMeyer/releases/download/v1.0/G-Code-Trainer-Setup.exe">Download installer</a>
+    </div>
+  </header>
+
+  <div class="study-figure plate">
+    <div class="motif" style="min-height:300px;border:0;border-radius:0;">
+      <img class="motif-badge" src="../assets/images/gcode-icon.svg" alt="" />
+      <svg viewBox="0 0 520 300" aria-hidden="true">
+        <path d="M70 230 L70 70" fill="none" stroke="#4aa8ff" stroke-width="2" stroke-dasharray="7 5"/>
+        <path d="M70 70 H230" fill="none" stroke="#3ddc84" stroke-width="2.6"/>
+        <path d="M230 70 A50 50 0 0 1 280 120 V210 H120" fill="none" stroke="#3ddc84" stroke-width="2.6"/>
+        <circle cx="120" cy="210" r="6" fill="#fff" stroke="#3ddc84" stroke-width="2"/>
+        <path d="M48 248 H340 M48 248 V48" stroke="#33404d" stroke-width="1.2"/>
+        <text x="360" y="88" fill="#4aa8ff" font-family="ui-monospace,monospace" font-size="13">G0 rapid</text>
+        <text x="360" y="116" fill="#3ddc84" font-family="ui-monospace,monospace" font-size="13">G1 / G2 / G3</text>
+      </svg>
+      <p class="motif-note">Toolpath motif — not a screenshot. Dashed is rapid, solid is a feed.</p>
+    </div>
+  </div>
+
+  <div class="study-body">
+    <div class="study-main">
+      <h2>The problem</h2>
+      <p>G-code is a list of moves. Until you can see the cutter path, a wrong arc is just a typo — and on a real machine it is a crash. I wanted the lesson and the picture of the tool in the same place.</p>
+
+      <h2>What I built</h2>
+      <p>G-Code Trainer is a desktop app, Electron and React, that pairs lessons with a live toolpath simulator. The page linked above is a simplified browser rebuild of that simulator. It is a demo of the desktop app, not the full lesson set.</p>
+      <p>The browser parser and animator handle:</p>
+      <ul>
+        <li>G0 rapid and G1 linear feed.</li>
+        <li>G2 and G3 arcs using I and J offsets.</li>
+        <li>G20 and G21 for inches and millimeters.</li>
+        <li>G90 and G91 for absolute and incremental mode.</li>
+        <li>A step-through of the tool along the path, with rapids drawn dashed and feeds drawn solid.</li>
+      </ul>
+      <p>The same habit shows up in the shop calculators — taper, speeds and feeds, surface speed — which <a href="../demos/machinist-calculators.html" style="color:var(--accent);font-weight:600;">run in the browser</a> and download from Projects.</p>
+
+      <h2>How to try it</h2>
+      <p>Run the browser simulator with the sample bracket outline, or download the unsigned Windows installer. SmartScreen may warn on the installer. That is expected; choose More info, then Run anyway, if you trust the source.</p>
+    </div>
+    <aside class="study-aside">
+      <h2>Skills</h2>
+      <div class="tags">
+        <span class="tag">G-code</span>
+        <span class="tag">CNC</span>
+        <span class="tag">React</span>
+        <span class="tag">Electron</span>
+        <span class="tag">Canvas</span>
+        <span class="tag">Shop math</span>
+      </div>
+      <h2>Try it</h2>
+      <div class="cta-row">
+        <a class="btn btn-primary" href="../vibe/gcode-trainer.html">Open simulator</a>
+        <a class="btn btn-ghost" href="https://github.com/13-1V1/BMeyer/releases/download/v1.0/G-Code-Trainer-Setup.exe">Installer &#8595;</a>
+      </div>
+      <p class="meta2" style="margin-top:12px;">G-Code-Trainer-Setup.exe · ~104 MB · release v1.0</p>
+      <p style="margin-top:14px;"><a href="../downloads.html#gcode" style="color:var(--accent);font-weight:600;">On the Projects page &#8594;</a></p>
+    </aside>
+  </div>
+
+  <nav class="study-next" aria-label="More case studies">
+    <a href="bluecad.html">&#8592; BlueCAD</a>
+    <a href="welding.html">Next · Welding &#8594;</a>
+  </nav>
+</article>
+
+<footer><div class="foot-inner">
+  <div><div style="font-weight:700;color:#fff;font-size:1.1rem;">Brennan Meyer</div><div style="font-size:.85rem;margin-top:4px;">G-Code Trainer · case study</div></div>
+  <div class="foot-links"><a href="../index.html" data-back>Home</a><a href="../downloads.html">Projects</a><a href="../contact.html">Contact</a></div>
+</div></footer>
+<script src="../assets/js/site.js"></script>
+</body>
+</html>

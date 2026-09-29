@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>BlueCAD — Case study — Brennan Meyer</title>
+<meta name="description" content="Case study: BlueCAD, a 2D CAD app by Brennan Meyer for exact dimensions, snap, hole callouts, and SVG export. Try it in the browser or download the Windows installer." />
+<meta property="og:type" content="website" />
+<meta property="og:title" content="BlueCAD — Brennan Meyer" />
+<meta property="og:description" content="A 2D CAD app for parts drawn to exact size. Browser build and Windows installer." />
+<meta property="og:image" content="https://13-1v1.github.io/BMeyer/assets/images/bluecad-icon.png" />
+<meta property="og:url" content="https://13-1v1.github.io/BMeyer/work/bluecad.html" />
+<meta name="twitter:card" content="summary_large_image" />
+<link rel="stylesheet" href="../assets/css/site.css" />
+<link rel="icon" href="../assets/images/favicon.png" />
+</head>
+<body class="acc-blue">
+<a class="skip-link" href="#story">Skip to case study</a>
+<nav class="nav" aria-label="Primary"><div class="nav-inner">
+  <a class="brand" href="../index.html"><span class="dot"></span> Brennan Meyer</a>
+  <div class="nav-links">
+    <a href="../index.html">Home</a>
+    <a href="../downloads.html">Projects</a>
+    <a href="../transcripts.html">Transcripts</a>
+    <a href="../about.html">About</a>
+    <a href="../contact.html">Contact</a>
+  </div>
+</div></nav>
+
+<article class="study">
+  <header class="study-hero">
+    <a href="../index.html#showcase" class="back" data-back>&#8592; Showcase</a>
+    <span class="kicker">Case study · 01 · Software</span>
+    <h1 id="story">BlueCAD</h1>
+    <p class="lead">A 2D CAD app for parts drawn to exact size — snap, units, holes, and an SVG you can take to the shop.</p>
+    <div class="cta-row">
+      <a class="btn btn-primary" href="../vibe/bluecad/index.html">Open BlueCAD &#8594;</a>
+      <!-- VERSION LABELS: BlueCAD installer. Keep this URL in sync with downloads.html. -->
+      <a class="btn btn-ghost" href="https://github.com/13-1V1/BMeyer/releases/download/v1.0/BlueCAD-Setup-1.0.0.exe">Download installer</a>
+    </div>
+  </header>
+
+  <div class="study-figure plate">
+    <div class="motif" style="min-height:300px;border:0;border-radius:0;">
+      <img class="motif-badge" src="../assets/images/bluecad-icon.png" alt="" />
+      <svg viewBox="0 0 520 300" aria-hidden="true">
+        <rect x="90" y="48" width="250" height="170" fill="none" stroke="#3ddc84" stroke-width="2"/>
+        <circle cx="200" cy="130" r="36" fill="none" stroke="#4aa8ff" stroke-width="2"/>
+        <circle cx="130" cy="86" r="10" fill="none" stroke="#e8edf3" stroke-width="1.6"/>
+        <circle cx="292" cy="176" r="10" fill="none" stroke="#e8edf3" stroke-width="1.6"/>
+        <path d="M90 240 H340" stroke="#8b97a7" stroke-width="1.2"/>
+        <path d="M90 232 V248 M340 232 V248" stroke="#8b97a7" stroke-width="1.2"/>
+        <path d="M90 48 V28 M340 48 V28" stroke="#5b6675" stroke-width="1"/>
+        <path d="M360 48 V218" stroke="#8b97a7" stroke-width="1.2"/>
+        <path d="M352 48 H368 M352 218 H368" stroke="#8b97a7" stroke-width="1.2"/>
+        <path d="M200 94 V40" stroke="#5b6675" stroke-width="1" stroke-dasharray="3 3"/>
+        <path d="M164 130 H48" stroke="#5b6675" stroke-width="1" stroke-dasharray="3 3"/>
+      </svg>
+      <p class="motif-note">Drawing motif — not a screenshot. Open the app for the real canvas.</p>
+    </div>
+  </div>
+
+  <div class="study-body">
+    <div class="study-main">
+      <h2>The problem</h2>
+      <p>Shop classes taught me to read a print. I wanted a drawing tool that worked the same way: type the dimension, snap to a grid, and export something precise. A freehand sketch is not how you spec a bracket.</p>
+
+      <h2>What I built</h2>
+      <p>BlueCAD is that tool. It runs in the browser and as a Windows installer built with Electron. The browser copy is the drawing app, not a tour.</p>
+      <ul>
+        <li>Draw lines, rectangles, circles, ellipses, reference lines, arrows, and labels.</li>
+        <li>Grid and snap, in millimeters or inches.</li>
+        <li>Type exact dimensions instead of only dragging.</li>
+        <li>Cut holes and attach a hole callout, including a thread note.</li>
+        <li>Group and merge shapes so interior lines drop out.</li>
+        <li>Dimension annotations and a title block.</li>
+        <li>Undo and redo, save and load a JSON project, export SVG.</li>
+      </ul>
+      <p>Sample projects in the build include a motor mounting bracket with a bore, bolt holes, and a title block. Those files live with the app — this page does not redraw them as if they were screenshots.</p>
+
+      <h2>How to try it</h2>
+      <p>Open the browser build and draw, or download the unsigned Windows installer. SmartScreen may warn. That is expected for a student-signed build; choose More info, then Run anyway, if you trust the source.</p>
+    </div>
+    <aside class="study-aside">
+      <h2>Skills</h2>
+      <div class="tags">
+        <span class="tag">JavaScript</span>
+        <span class="tag">Canvas</span>
+        <span class="tag">Electron</span>
+        <span class="tag">2D CAD</span>
+        <span class="tag">Snap &amp; units</span>
+        <span class="tag">SVG</span>
+      </div>
+      <h2>Try it</h2>
+      <div class="cta-row">
+        <a class="btn btn-primary" href="../vibe/bluecad/index.html">Open in browser</a>
+        <a class="btn btn-ghost" href="https://github.com/13-1V1/BMeyer/releases/download/v1.0/BlueCAD-Setup-1.0.0.exe">Installer &#8595;</a>
+      </div>
+      <p class="meta2" style="margin-top:12px;">BlueCAD-Setup-1.0.0.exe · ~82 MB · release v1.0</p>
+      <p style="margin-top:14px;"><a href="../downloads.html#cad" style="color:var(--accent);font-weight:600;">On the Projects page &#8594;</a></p>
+    </aside>
+  </div>
+
+  <nav class="study-next" aria-label="More case studies">
+    <a href="gcode.html">Next · G-Code Trainer &#8594;</a>
+    <a href="../downloads.html#showcase">All projects</a>
+  </nav>
+</article>
+
+<footer><div class="foot-inner">
+  <div><div style="font-weight:700;color:#fff;font-size:1.1rem;">Brennan Meyer</div><div style="font-size:.85rem;margin-top:4px;">BlueCAD · case study</div></div>
+  <div class="foot-links"><a href="../index.html" data-back>Home</a><a href="../downloads.html">Projects</a><a href="../contact.html">Contact</a></div>
+</div></footer>
+<script src="../assets/js/site.js"></script>
+</body>
+</html>

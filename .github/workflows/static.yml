@@ -47,7 +47,7 @@ jobs:
           if ((${#root_files[@]})); then
             cp -a "${root_files[@]}" _site/
           fi
-          cp -a README.md assets demos vibe _site/
+          cp -a README.md assets demos vibe work _site/
           echo "Pages artifact top-level:"
           ls -1 _site
           test ! -e _site/android-app-manager
@@ -55,6 +55,10 @@ jobs:
           test ! -e _site/CLAUDE.md
           test -f _site/index.html
           test -d _site/assets
+          test -f _site/work/bluecad.html
+          test -f _site/work/gcode.html
+          test -f _site/work/welding.html
+          test -f _site/work/bridge.html
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
