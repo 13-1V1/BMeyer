@@ -4,11 +4,11 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>G-Code Trainer — Case study — Brennan Meyer</title>
-<meta name="description" content="Case study: G-Code Trainer by Brennan Meyer — CNC lessons paired with a live toolpath simulator. Browser demo and Windows installer." />
+<meta name="description" content="G-Code Trainer 0.1.16 by Brennan Meyer — a Windows app that teaches Fanuc mill G-code with lessons, quizzes, a 2D and 3D simulator, part challenges, a control panel, and student profiles." />
 <meta property="og:type" content="website" />
-<meta property="og:title" content="G-Code Trainer — Brennan Meyer" />
-<meta property="og:description" content="CNC G-code lessons with a live toolpath. Browser simulator and Windows installer." />
-<meta property="og:image" content="https://13-1v1.github.io/BMeyer/assets/images/B-swaggy.jpg" />
+<meta property="og:title" content="G-Code Trainer 0.1.16 — Brennan Meyer" />
+<meta property="og:description" content="Windows app that teaches Fanuc mill G-code. Installer 0.1.16, plus a simplified browser simulator." />
+<meta property="og:image" content="https://13-1v1.github.io/BMeyer/assets/images/gct-icon.png" />
 <meta property="og:url" content="https://13-1v1.github.io/BMeyer/work/gcode.html" />
 <meta name="twitter:card" content="summary_large_image" />
 <link rel="stylesheet" href="../assets/css/site.css" />
@@ -29,81 +29,69 @@
 
 <article class="study">
   <header class="study-hero">
-    <a href="../index.html#showcase" class="back" data-back>&#8592; Showcase</a>
-    <span class="kicker">Case study · 02 · CNC</span>
+    <a href="../index.html#featured" class="back" data-back>&#8592; Home</a>
+    <span class="kicker">Case study · Windows app · v0.1.16</span>
     <h1 id="story">G-Code Trainer</h1>
-    <p class="lead">A desktop app that teaches CNC G-code with a live toolpath, plus a browser simulator you can run right now.</p>
+    <p class="lead">A Windows app that teaches Fanuc mill G-code: lessons and quizzes, a 2D and 3D simulator, part challenges, a control panel, and student profiles.</p>
     <div class="cta-row">
-      <a class="btn btn-primary" href="../vibe/gcode-trainer.html">Run the simulator &#8594;</a>
-      <!-- VERSION LABELS: G-Code Trainer installer. Keep this URL in sync with downloads.html. -->
-      <a class="btn btn-ghost" href="https://github.com/13-1V1/BMeyer/releases/download/v1.0/G-Code-Trainer-Setup.exe">Download installer</a>
+      <!-- VERSION LABELS: G-Code Trainer 0.1.16. Keep this URL in sync with downloads.html. -->
+      <a class="btn btn-primary" href="https://github.com/13-1V1/BMeyer/releases/download/gcode-trainer-v0.1.16/G-Code.Trainer.Setup.0.1.16.exe">Download installer &#8594;</a>
+      <a class="btn btn-ghost" href="../vibe/gcode-trainer.html">Browser simulator</a>
     </div>
   </header>
 
-  <div class="study-figure plate">
-    <div class="motif" style="min-height:300px;border:0;border-radius:0;">
-      <img class="motif-badge" src="../assets/images/gcode-icon.svg" alt="" />
-      <svg viewBox="0 0 520 300" aria-hidden="true">
-        <path d="M70 230 L70 70" fill="none" stroke="#4aa8ff" stroke-width="2" stroke-dasharray="7 5"/>
-        <path d="M70 70 H230" fill="none" stroke="#3ddc84" stroke-width="2.6"/>
-        <path d="M230 70 A50 50 0 0 1 280 120 V210 H120" fill="none" stroke="#3ddc84" stroke-width="2.6"/>
-        <circle cx="120" cy="210" r="6" fill="#fff" stroke="#3ddc84" stroke-width="2"/>
-        <path d="M48 248 H340 M48 248 V48" stroke="#33404d" stroke-width="1.2"/>
-        <text x="360" y="88" fill="#4aa8ff" font-family="ui-monospace,monospace" font-size="13">G0 rapid</text>
-        <text x="360" y="116" fill="#3ddc84" font-family="ui-monospace,monospace" font-size="13">G1 / G2 / G3</text>
-      </svg>
-      <p class="motif-note">Toolpath motif — not a screenshot. Dashed is rapid, solid is a feed.</p>
-    </div>
-  </div>
+  <figure class="study-figure">
+    <img class="study-app-icon" src="../assets/images/gct-icon.png" width="160" height="160" alt="G-Code Trainer app icon" />
+  </figure>
 
   <div class="study-body">
     <div class="study-main">
       <h2>The problem</h2>
-      <p>G-code is a list of moves. Until you can see the cutter path, a wrong arc is just a typo — and on a real machine it is a crash. I wanted the lesson and the picture of the tool in the same place.</p>
+      <p>G-code is what a CNC mill runs. On a Fanuc mill, a wrong move is a crash. Students need the lesson and a simulator in the same program before they stand at the machine. The app is aimed at a classroom where several people share the computers.</p>
 
       <h2>What I built</h2>
-      <p>G-Code Trainer is a desktop app, Electron and React, that pairs lessons with a live toolpath simulator. The page linked above is a simplified browser rebuild of that simulator. It is a demo of the desktop app, not the full lesson set.</p>
-      <p>The browser parser and animator handle:</p>
+      <p>G-Code Trainer 0.1.16 is the Windows app. It teaches Fanuc mill G-code to people who have not written it before.</p>
       <ul>
-        <li>G0 rapid and G1 linear feed.</li>
-        <li>G2 and G3 arcs using I and J offsets.</li>
-        <li>G20 and G21 for inches and millimeters.</li>
-        <li>G90 and G91 for absolute and incremental mode.</li>
-        <li>A step-through of the tool along the path, with rapids drawn dashed and feeds drawn solid.</li>
+        <li>Lessons and quizzes, then a coding challenge you solve in the live simulator.</li>
+        <li>A simulator with 2D and 3D toolpath views, including animated playback you can scrub and step through.</li>
+        <li>Part challenges that start from a drawing, a tool table, and stock, and ask for a complete program.</li>
+        <li>A control panel for modes, jogging, touching off, and program prove-out.</li>
+        <li>Student profiles, so progress and saved programs stay separate on a shared PC.</li>
       </ul>
-      <p>The same habit shows up in the shop calculators — taper, speeds and feeds, surface speed — which <a href="../demos/machinist-calculators.html" style="color:var(--accent);font-weight:600;">run in the browser</a> and download from Projects.</p>
+      <p>The course is inch-native, in G20, because that is how the shop it was written for works. G21 is the switch to millimeters.</p>
+      <p>The same shop math shows up in the calculators for taper, speeds and feeds, and surface speed, which <a href="../demos/machinist-calculators.html" style="color:var(--accent);font-weight:600;">run in the browser</a> and download from Projects.</p>
 
       <h2>How to try it</h2>
-      <p>Run the browser simulator with the sample bracket outline, or download the unsigned Windows installer. SmartScreen may warn on the installer. That is expected; choose More info, then Run anyway, if you trust the source.</p>
+      <p>Download <b style="color:var(--ink)">G-Code.Trainer.Setup.0.1.16.exe</b> (about 104 MB). SmartScreen may warn on this student build. Choose More info, then Run anyway, if you trust the source.</p>
+      <p>The browser page is a simplified simulator for rapids, straight cuts, and arcs, in inches or millimeters, absolute or incremental. Lessons, the 3D view, the control panel, and student profiles are in the Windows installer.</p>
     </div>
     <aside class="study-aside">
       <h2>Skills</h2>
       <div class="tags">
         <span class="tag">G-code</span>
+        <span class="tag">Fanuc</span>
         <span class="tag">CNC</span>
-        <span class="tag">React</span>
-        <span class="tag">Electron</span>
-        <span class="tag">Canvas</span>
-        <span class="tag">Shop math</span>
+        <span class="tag">Simulator</span>
+        <span class="tag">Teaching</span>
       </div>
-      <h2>Try it</h2>
+      <h2>Version 0.1.16</h2>
       <div class="cta-row">
-        <a class="btn btn-primary" href="../vibe/gcode-trainer.html">Open simulator</a>
-        <a class="btn btn-ghost" href="https://github.com/13-1V1/BMeyer/releases/download/v1.0/G-Code-Trainer-Setup.exe">Installer &#8595;</a>
+        <a class="btn btn-primary" href="https://github.com/13-1V1/BMeyer/releases/download/gcode-trainer-v0.1.16/G-Code.Trainer.Setup.0.1.16.exe">Installer &#8595;</a>
+        <a class="btn btn-ghost" href="../vibe/gcode-trainer.html">Browser demo</a>
       </div>
-      <p class="meta2" style="margin-top:12px;">G-Code-Trainer-Setup.exe · ~104 MB · release v1.0</p>
+      <p class="meta2" style="margin-top:12px;">G-Code.Trainer.Setup.0.1.16.exe · about 104 MB · <a href="https://github.com/13-1V1/BMeyer/releases/tag/gcode-trainer-v0.1.16">release gcode-trainer-v0.1.16</a></p>
       <p style="margin-top:14px;"><a href="../downloads.html#gcode" style="color:var(--accent);font-weight:600;">On the Projects page &#8594;</a></p>
     </aside>
   </div>
 
   <nav class="study-next" aria-label="More case studies">
-    <a href="bluecad.html">&#8592; BlueCAD</a>
-    <a href="welding.html">Next · Welding &#8594;</a>
+    <a href="../index.html#featured">&#8592; Home</a>
+    <a href="bluecad.html">BlueCAD &#8594;</a>
   </nav>
 </article>
 
 <footer><div class="foot-inner">
-  <div><div style="font-weight:700;color:#fff;font-size:1.1rem;">Brennan Meyer</div><div style="font-size:.85rem;margin-top:4px;">G-Code Trainer · case study</div></div>
+  <div><div style="font-weight:700;color:#fff;font-size:1.1rem;">Brennan Meyer</div><div style="font-size:.85rem;margin-top:4px;">G-Code Trainer 0.1.16 · case study</div></div>
   <div class="foot-links"><a href="../index.html" data-back>Home</a><a href="../downloads.html">Projects</a><a href="../contact.html">Contact</a></div>
 </div></footer>
 <script src="../assets/js/site.js"></script>
