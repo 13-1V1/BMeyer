@@ -33,11 +33,32 @@ jobs:
         uses: actions/checkout@v4
       - name: Setup Pages
         uses: actions/configure-pages@v5
+      - name: Assemble Pages site
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p _site
+          shopt -s nullglob
+          # Allowlist: only the portfolio is published. Project trees such as
+          # android-app-manager/ and game-asset-gen/ stay in the repo and are
+          # left out of the Pages artifact, along with any future top-level
+          # directory that is not copied below.
+          root_files=( *.html *.svg *.png *.jpg *.jpeg *.gif *.webp *.ico )
+          if ((${#root_files[@]})); then
+            cp -a "${root_files[@]}" _site/
+          fi
+          cp -a README.md assets demos vibe _site/
+          echo "Pages artifact top-level:"
+          ls -1 _site
+          test ! -e _site/android-app-manager
+          test ! -e _site/game-asset-gen
+          test ! -e _site/CLAUDE.md
+          test -f _site/index.html
+          test -d _site/assets
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          # Upload entire repository
-          path: '.'
+          path: _site
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4

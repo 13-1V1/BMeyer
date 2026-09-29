@@ -11,9 +11,10 @@
     els.forEach(function(e){io.observe(e);});
   }
 
-  /* Forward zoom: a category card expands into the room */
+  /* Forward zoom: a category card expands into the room.
+     The card is a real link; this is only the click enhancement. */
   function zoomInto(card){
-    var href = card.getAttribute('data-href'); if(!href) return;
+    var href = card.getAttribute('data-href') || card.getAttribute('href'); if(!href) return;
     if(reduce){ window.location.href = href; return; }
     var accent = card.getAttribute('data-accent') || getComputedStyle(document.documentElement).getPropertyValue('--green');
     var r = card.getBoundingClientRect();
@@ -50,7 +51,14 @@
   document.addEventListener('DOMContentLoaded',function(){
     initReveal();
     document.querySelectorAll('[data-href]').forEach(function(card){
-      card.addEventListener('click',function(ev){ ev.preventDefault(); zoomInto(card); });
+      card.addEventListener('click',function(ev){
+        // Let modified and non-primary clicks (new tab, new window) through.
+        if(ev.metaKey || ev.ctrlKey || ev.shiftKey || ev.altKey || ev.button !== 0) return;
+        var href = card.getAttribute('data-href') || card.getAttribute('href');
+        if(!href || href.charAt(0) === '#') return;
+        ev.preventDefault();
+        zoomInto(card);
+      });
     });
     document.querySelectorAll('[data-back]').forEach(function(a){
       a.addEventListener('click',function(ev){ ev.preventDefault(); zoomBack(a.getAttribute('href')); });
