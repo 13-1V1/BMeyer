@@ -7,8 +7,8 @@ Live site: https://13-1v1.github.io/BMeyer/
 
 The repo also holds two native projects that are **not** part of the published
 site: `android-app-manager/` (BEZ App Manager) and `game-asset-gen/`. GitHub
-Pages copies an allowlist (`*.html`, root media, `README.md`, `assets/`,
-`work/`) and leaves every other top-level tree in the repo only.
+Pages copies an allowlist (`*.html`, root media, `sitemap.xml`, `README.md`,
+`assets/`, `work/`) and leaves every other top-level tree in the repo only.
 See `.github/workflows/static.yml`.
 
 ## Site
@@ -18,13 +18,13 @@ changes from the home cards use a small zoom effect, with a normal link
 navigation (including open-in-new-tab and keyboard) and a
 `prefers-reduced-motion` fallback.
 
-- `index.html` — home. Short intro and portrait, then areas of study, a single link out to BEZ Works for software, and music.
+- `index.html` — home. Short intro and portrait, then areas of study and a single link out to BEZ Works for software. Music lives in the creative electives room and `music.html`.
 - `work/` — case studies (`welding`, `bridge`). Welding is linked from the welding room and bridge from the engineering room. Software lives on BEZ Works; this site hosts no programs or tools of its own.
 - Area rooms: `computer-science`, `electronics-robotics`, `engineering`, `welding`, `manufacturing`, `network` (network & cybersecurity), `automotive`, `creative-electives`
 - `downloads.html` — redirect to BEZ Works (https://13-1v1.github.io/BEZ-Works/), kept so old links still work. Every **Projects** link on the site goes to BEZ Works.
 - `music.html` — albums, music video, and channel link
 - `transcripts.html`, `about.html`, `contact.html`, `404.html`
-- `assets/` — `css/site.css`, `js/site.js`, and `images/` (photos, icons, certificates)
+- `assets/` — `css/site.css`; `js/site.js` (page zoom, reveal, phone nav), `js/lightbox.js` (click-to-enlarge photos), `js/bez-apps.js` (lists a room's BEZ Works apps from BEZ Works' `programs.json`); and `images/` (photos, icons, certificates)
 
 ## Downloads
 

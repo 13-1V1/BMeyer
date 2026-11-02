@@ -1,3 +1,5 @@
+// Created by: Brennan Meyer with use of Claude Code 11/02/2026 Santa Clarita, CA
+// brennanmmeyer@gmail.com
 (function(){
   var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -22,7 +24,7 @@
     var z = document.createElement('div'); z.className='zoomer'; z.style.setProperty('--zc',accent);
     z.style.top=r.top+'px'; z.style.left=r.left+'px'; z.style.width=r.width+'px'; z.style.height=r.height+'px';
     z.style.background=getComputedStyle(card).backgroundColor;
-    var inner=document.createElement('div'); inner.className='zi'; inner.innerHTML=card.getAttribute('data-ico')||'';
+    var inner=document.createElement('div'); inner.className='zi'; inner.textContent=card.getAttribute('data-ico')||'';
     z.appendChild(inner); document.body.appendChild(z); z.getBoundingClientRect();
     requestAnimationFrame(function(){
       z.style.top='0px'; z.style.left='0px'; z.style.width='100vw'; z.style.height='100vh'; z.style.borderRadius='0';
