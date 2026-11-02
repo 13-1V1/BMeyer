@@ -219,3 +219,34 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-off
 .bez-apps-list{margin:6px 0 0;padding-left:18px;}
 .bez-apps-list li{margin:6px 0;color:var(--muted);}
 .bez-apps-list a{color:var(--accent);font-weight:600;}
+
+/* homepage: everything on one screen (body.home) */
+.home .hero{padding:20px 24px 0;}
+.home .hero-eyebrow{margin-bottom:10px;}
+.home .hero h1{font-size:2.3rem;margin-bottom:10px;}
+.home .hero p.lead{font-size:1rem;max-width:68ch;margin-bottom:14px;}
+.home .home-hero{gap:32px;}
+.home .hero-photo{width:128px;}
+.home .hero .cta-row{display:inline-flex;vertical-align:middle;}
+.home .hero .stage-facts{display:inline-flex;vertical-align:middle;margin:0 0 0 18px;}
+.home #areas{padding-top:16px;display:grid;grid-template-columns:1fr 2fr 1fr;column-gap:22px;}
+.home #areas>h2{grid-column:1/-1;font-size:.8rem;font-weight:600;text-transform:uppercase;letter-spacing:.09em;color:var(--accent);margin:0 0 10px;}
+.home #areas>.sub{display:none;}
+.home #areas .area-group{margin-bottom:0;}
+.home #areas .group-label{margin-bottom:10px;font-size:.72rem;}
+.home #areas .grid{grid-template-columns:1fr;gap:10px;}
+.home #areas .area-group:nth-of-type(2) .grid{grid-template-columns:repeat(2,minmax(0,1fr));}
+.home #areas .card,.home #software .card{display:flex;align-items:center;gap:12px;padding:9px 14px;}
+.home #areas .card .ico,.home #software .card .ico{width:34px;height:34px;margin:0;flex:none;}
+.home #software .card .ico{width:28px;height:28px;}
+.home #areas .card h3,.home #software .card h3{margin:0;font-size:.98rem;}
+.home #areas .card p,.home #areas .card .tags{display:none;}
+.home #software{padding-top:12px;}
+.home #software .card p{margin:0;}
+.home footer{margin-top:12px;}
+.home .foot-inner{padding:12px 24px;}
+.home .foot-tagline{display:none;}
+@media(max-width:1100px){.home .hero .stage-facts{display:flex;margin:14px 0 0;}}
+@media(max-width:900px){.home #areas{display:block;}.home #areas .area-group{margin-bottom:18px;}.home #areas .grid,.home #areas .area-group:nth-of-type(2) .grid{grid-template-columns:repeat(2,minmax(0,1fr));}}
+@media(max-width:420px){.home #areas .card{gap:9px;padding:9px 10px;}.home #areas .card .ico{width:30px;height:30px;}.home #areas .card h3{font-size:.9rem;}}
+@media(max-width:370px){.home #areas .grid,.home #areas .area-group:nth-of-type(2) .grid{grid-template-columns:1fr;}}
