@@ -22,13 +22,7 @@
 <div class="ico"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m16 18 6-6-6-6"/><path d="m8 6-6 6 6 6"/></svg></div><h1>Computer Science</h1>
 <p>My CS path has spanned languages and levels of abstraction — from high-level object-oriented Java and Python down to raw assembly. Each course sharpened how I think about problems and how machines actually run code.</p></header>
 <section class="section">
-  <div class="proj reveal" style="border-color:var(--accent)">
-    <span class="tagline">Playable</span>
-    <h3>My class programs — play them in your browser</h3>
-    <p>A few little programs I wrote in my Python class, rebuilt to run right here: a Morse code translator, a High–Low guessing game, and a palindrome checker.</p>
-    <a href="demos/word-games.html" class="btn btn-primary">Open playable demos &#8594;</a>
-  </div>
-  <div class="proj reveal"><span class="tagline">C++ · CMPSCI-235</span><h3>Sorting &amp; statistics final</h3>
+  <div class="proj reveal" id="cmpsci-235"><span class="tagline">C++ · CMPSCI-235</span><h3>Sorting &amp; statistics final</h3>
     <p>A C++ program that reads exam scores from a file, computes the average, counts scores above and below it, sorts them with a bubble sort, and writes a full report to a new file — combining file I/O, arrays, loops, and a classic algorithm into one complete solution.</p>
     <pre><code>void selectionSort(double arr[], int n){
   for(int i=0;i&lt;n-1;i++)
@@ -37,9 +31,9 @@
         double t=arr[j]; arr[j]=arr[j+1]; arr[j+1]=t;
       }
 }</code></pre></div>
-  <div class="proj reveal"><span class="tagline">Java · CMPSCI-111</span><h3>Student registration system</h3>
+  <div class="proj reveal" id="cmpsci-111"><span class="tagline">Java · CMPSCI-111</span><h3>Student registration system</h3>
     <p>An object-oriented Java program with separate <code>Course</code> and <code>Student</code> classes. A driver reads course and student data from text files, links students to courses by ID, and prints a complete roster — reinforcing classes, collections, and file I/O.</p></div>
-  <div class="proj reveal"><span class="tagline">Assembly · CMPSCI-122</span><h3>Architecture &amp; assembly language</h3>
+  <div class="proj reveal" id="cmpsci-122"><span class="tagline">Assembly · CMPSCI-122</span><h3>Architecture &amp; assembly language</h3>
     <p>Explored how processors actually execute instructions — registers, memory, branching, and loops — by writing programs in Pep/9 assembly. This is where the abstraction fell away and I saw what "high-level code" compiles down to.</p></div>
   <div class="proj reveal"><span class="tagline">Python</span><h3>Python projects</h3>
     <p>Beyond the basics, I built a text-based RPG, a Dungeon-Dice game, a password strength checker, a Morse code interpreter, and small simulations (like a doves-and-hawks evolutionary model) — practicing loops, functions, classes, and file handling.</p></div>
