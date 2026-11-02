@@ -11,7 +11,7 @@ h1{font-size:1.8rem;margin:14px 0 4px;color:#fff;}
 h1 .hl{background:linear-gradient(100deg,var(--green),var(--blue));-webkit-background-clip:text;background-clip:text;color:transparent;}
 .sub{color:var(--muted);margin:0 0 18px;font-size:.95rem;}
 .tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px;}
-.tab{padding:8px 14px;border-radius:8px;background:var(--card);border:1px solid var(--line);color:var(--muted);cursor:pointer;font-size:.9rem;font-weight:500;}
+.tab{font-family:inherit;padding:8px 14px;border-radius:8px;background:var(--card);border:1px solid var(--line);color:var(--muted);cursor:pointer;font-size:.9rem;font-weight:500;}
 .tab.active{background:rgba(61,220,132,.12);color:var(--green);border-color:var(--green);}
 .panel{display:none;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:22px;}
 .panel.active{display:block;}
@@ -29,38 +29,19 @@ small.note{color:var(--muted);font-size:.8rem;}
 </head><body><div class="wrap">
 <a href="../manufacturing.html" class="back" data-back>&#8592; Back to Manufacturing</a>
 <h1><span class="hl">Machinist Calculators</span></h1>
-<p class="sub">Shop-floor math from my machining classes — taper, speeds &amp; feeds, and surface speed. Rebuilt for the web from my Python tools.</p>
+<p class="sub">Shop-floor math from my machining classes — speeds &amp; feeds and surface speed. Rebuilt for the web from my Python tools.</p>
 
 <div class="tabs">
-  <div class="tab active" data-t="taper">Taper</div>
-  <div class="tab" data-t="sf">Speeds &amp; Feeds</div>
-  <div class="tab" data-t="sfm">Surface Speed</div>
+  <button type="button" class="tab active" data-t="sf">Speeds &amp; Feeds</button>
+  <button type="button" class="tab" data-t="sfm">Surface Speed</button>
 </div>
 
-<div class="panel active" id="taper">
-  <label>Solve for</label>
-  <select id="tsolve">
-    <option value="tpi">Taper per inch / foot</option>
-    <option value="large">Large diameter</option>
-    <option value="small">Small diameter</option>
-    <option value="len">Length of taper</option>
-  </select>
+<div class="panel active" id="sf">
   <div class="row">
-    <div><label>Large diameter (in)</label><input id="t_large" type="number" step="any"></div>
-    <div><label>Small diameter (in)</label><input id="t_small" type="number" step="any"></div>
-    <div><label>Length of taper (in)</label><input id="t_len" type="number" step="any"></div>
-    <div><label>Taper per inch</label><input id="t_tpi" type="number" step="any"></div>
-  </div>
-  <button class="btn" onclick="taper()">Calculate</button>
-  <div class="out" id="t_out">Enter values and calculate.</div>
-</div>
-
-<div class="panel" id="sf">
-  <div class="row">
-    <div><label>Cutting speed (SFM)</label><input id="s_cs" type="number" step="any" value="100"></div>
-    <div><label>Tool diameter (in)</label><input id="s_d" type="number" step="any" value="0.5"></div>
-    <div><label>Number of flutes</label><input id="s_fl" type="number" step="1" value="2"></div>
-    <div><label>Chip load (in/tooth)</label><input id="s_cl" type="number" step="any" value="0.004"></div>
+    <div><label for="s_cs">Cutting speed (SFM)</label><input id="s_cs" type="number" step="any" value="100"></div>
+    <div><label for="s_d">Tool diameter (in)</label><input id="s_d" type="number" step="any" value="0.5"></div>
+    <div><label for="s_fl">Number of flutes</label><input id="s_fl" type="number" step="1" value="2"></div>
+    <div><label for="s_cl">Chip load (in/tooth)</label><input id="s_cl" type="number" step="any" value="0.004"></div>
   </div>
   <button class="btn" onclick="feeds()">Calculate</button>
   <div class="out" id="s_out">RPM and feed rate will appear here.</div>
@@ -69,8 +50,8 @@ small.note{color:var(--muted);font-size:.8rem;}
 
 <div class="panel" id="sfm">
   <div class="row">
-    <div><label>Tool / stock diameter (in)</label><input id="m_d" type="number" step="any" value="1"></div>
-    <div><label>Spindle speed (RPM)</label><input id="m_rpm" type="number" step="any" value="382"></div>
+    <div><label for="m_d">Tool / stock diameter (in)</label><input id="m_d" type="number" step="any" value="1"></div>
+    <div><label for="m_rpm">Spindle speed (RPM)</label><input id="m_rpm" type="number" step="any" value="382"></div>
   </div>
   <button class="btn" onclick="sfm()">Calculate</button>
   <div class="out" id="m_out">Surface speed will appear here.</div>
@@ -84,13 +65,6 @@ function tabs(){document.querySelectorAll('.tab').forEach(function(t){t.onclick=
  t.classList.add('active');document.getElementById(t.dataset.t).classList.add('active');};});}
 tabs();
 var v=id=>parseFloat(document.getElementById(id).value);
-function taper(){
- var s=document.getElementById('tsolve').value,o=document.getElementById('t_out');
- if(s==='tpi'){var tpi=(v('t_large')-v('t_small'))/v('t_len');o.innerHTML='TPI: <b>'+tpi.toFixed(4)+'</b> &nbsp; TPF: <b>'+(tpi*12).toFixed(4)+'</b>';}
- else if(s==='large'){o.innerHTML='Large diameter: <b>'+((v('t_tpi')*v('t_len'))+v('t_small')).toFixed(4)+' in</b>';}
- else if(s==='small'){o.innerHTML='Small diameter: <b>'+(v('t_large')-(v('t_tpi')*v('t_len'))).toFixed(4)+' in</b>';}
- else{o.innerHTML='Length of taper: <b>'+((v('t_large')-v('t_small'))/v('t_tpi')).toFixed(4)+' in</b>';}
-}
 function feeds(){var rpm=(v('s_cs')*3.82)/v('s_d');var fr=rpm*v('s_cl')*v('s_fl');
  document.getElementById('s_out').innerHTML='Spindle: <b>'+Math.round(rpm)+' RPM</b> &nbsp; Feed rate: <b>'+fr.toFixed(2)+' in/min</b>';}
 function sfm(){document.getElementById('m_out').innerHTML='Surface speed: <b>'+((Math.PI*v('m_d')*v('m_rpm'))/12).toFixed(1)+' SFM</b>';}

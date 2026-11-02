@@ -11,7 +11,7 @@ h1{font-size:1.8rem;margin:14px 0 4px;color:#fff;}
 h1 .hl{background:linear-gradient(100deg,var(--green),var(--blue));-webkit-background-clip:text;background-clip:text;color:transparent;}
 .sub{color:var(--muted);margin:0 0 18px;font-size:.95rem;}
 .tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px;}
-.tab{padding:8px 14px;border-radius:8px;background:var(--card);border:1px solid var(--line);color:var(--muted);cursor:pointer;font-size:.9rem;font-weight:500;}
+.tab{font-family:inherit;padding:8px 14px;border-radius:8px;background:var(--card);border:1px solid var(--line);color:var(--muted);cursor:pointer;font-size:.9rem;font-weight:500;}
 .tab.active{background:rgba(61,220,132,.12);color:var(--green);border-color:var(--green);}
 .panel{display:none;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:22px;}
 .panel.active{display:block;}
@@ -31,13 +31,13 @@ small.note{color:var(--muted);font-size:.8rem;}
 <h1><span class="hl">Word &amp; Text Games</span></h1>
 <p class="sub">A few little text toys I wrote in Python, rebuilt to play in the browser.</p>
 <div class="tabs">
-  <div class="tab active" data-t="morse">Morse code</div>
-  <div class="tab" data-t="hl">High–Low</div>
-  <div class="tab" data-t="pal">Palindrome</div>
+  <button type="button" class="tab active" data-t="morse">Morse code</button>
+  <button type="button" class="tab" data-t="hl">High–Low</button>
+  <button type="button" class="tab" data-t="pal">Palindrome</button>
 </div>
 
 <div class="panel active" id="morse">
-  <label>Type text to translate to Morse code</label>
+  <label for="mtext">Type text to translate to Morse code</label>
   <textarea id="mtext" oninput="morse()">this is just a test</textarea>
   <div class="out mono" id="mout"></div>
   <small class="note">Space becomes | and unknown characters become ?</small>
@@ -45,7 +45,7 @@ small.note{color:var(--muted);font-size:.8rem;}
 
 <div class="panel" id="hl">
   <p style="margin:0 0 6px;color:var(--muted)">I'm thinking of a number between 1 and 100. Can you guess it?</p>
-  <label>Your guess</label>
+  <label for="hg">Your guess</label>
   <input id="hg" type="number" min="1" max="100" onkeydown="if(event.key==='Enter')guess()">
   <button class="btn" onclick="guess()">Guess</button>
   <button class="btn" style="background:#222b36;color:#e8edf3" onclick="newGame()">New game</button>
@@ -53,7 +53,7 @@ small.note{color:var(--muted);font-size:.8rem;}
 </div>
 
 <div class="panel" id="pal">
-  <label>Enter a word or phrase</label>
+  <label for="ptext">Enter a word or phrase</label>
   <input id="ptext" oninput="pal()" value="A man a plan a canal Panama">
   <div class="out" id="pout"></div>
   <small class="note">Ignores spaces, punctuation, and capitalization.</small>

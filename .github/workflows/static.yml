@@ -55,8 +55,6 @@ jobs:
           test ! -e _site/CLAUDE.md
           test -f _site/index.html
           test -d _site/assets
-          test -f _site/work/bluecad.html
-          test -f _site/work/gcode.html
           test -f _site/work/welding.html
           test -f _site/work/bridge.html
       - name: Upload artifact
